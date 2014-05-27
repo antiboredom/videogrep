@@ -78,10 +78,6 @@ if __name__ == '__main__':
 
     import sys
 
-    #results = list_hypernyms(sys.argv[1])
-    text = sys.stdin.read()
-    #results = search_out(text, sys.argv[1], True)
-    #results = hypernym_search(text, sys.argv[1])
-    results = hypernym_combo(text, sys.argv[1], sys.argv[2])
-    for result in set(results):
+    results = list_hypernyms(sys.argv[1])
+    for result in results:
         print result
