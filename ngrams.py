@@ -54,5 +54,8 @@ if __name__ == '__main__':
         ngrammer.feed(text)
 
     ngrammer.ngram_count()
-    print ngrammer.frequent()
-
+    for gram in sorted(ngrammer.ngramcount, key=ngrammer.ngramcount.get, reverse=True):
+        count = ngrammer.ngramcount[gram]
+        word = ' '.join(gram)
+        if count > threshold and len(word) > 3:
+            print  count, word
