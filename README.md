@@ -15,6 +15,10 @@ If you're on a mac with homebrew you can install ffmpeg with:
 brew install ffmpeg
 ```
 
+You may need to change the path to your installation of ffmpeg by modifying the first line of videogrep.py:
+```python
+FFMPEG_BINARY = '/usr/local/bin/ffmpeg'
+```
 
 ##How to use it
 The most basic use:
@@ -37,9 +41,9 @@ Search term
 
 ####--search-type / -st
 Type of search you want to perform. There are three options:
-* re: regular expression (which is the default)
-* pos: part of speech search (uses [pattern.search](http://www.clips.ua.ac.be/pages/pattern-search)). For example: "JJ NN"
-* hyper: hypernym search. For example: 'body parts'
+* re: [regular expression](http://www.pyregex.com/) (this is the default).
+* pos: part of speech search (uses [pattern.search](http://www.clips.ua.ac.be/pages/pattern-search)). For example 'JJ NN' would return all lines of dialog that contain an adjective followed by a noun.
+* hyper: hypernym search. For example 'body parts' grabs all lines of dialog that reference a body part
 
 ####--max-clips / -m 
 Maximum number of clips to use for the supercut
