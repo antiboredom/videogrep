@@ -1,7 +1,6 @@
 FFMPEG_BINARY = '/usr/local/bin/ffmpeg'
 
-import os, re, random, gc
-import ngrams
+import os, re, random, gc, subprocess, shlex
 import search as Search
 from collections import OrderedDict
 from moviepy.editor import *
@@ -93,24 +92,22 @@ def create_supercut_in_batches(composition, outputfile, padding):
     batch_comp = []
     while start_index < total_clips:
         filename = outputfile + '.tmp' + str(start_index) + '.mp4'
-        end = 0
-        for clip in composition[start_index:end_index]:
-            end += clip['end'] - clip['start']
-        try:
-            create_supercut(composition[start_index:end_index], filename, padding)
-            batch_comp.append({'file': filename, 'start': 0, 'end': end, 'line': 'PARTIAL SILENCE'})
-            gc.collect()
-        except:
-            next
+        create_supercut(composition[start_index:end_index], filename, padding)
+        batch_comp.append(filename)
+        gc.collect()
         start_index += batch_size
         end_index += batch_size
 
-    clips = [VideoFileClip(batch['file']) for batch in batch_comp]
-    video = concatenate(clips)
-    video.to_videofile(outputfile)
+    #clips = [VideoFileClip(filename) for filename in batch_comp]
+    #video = concatenate(clips)
+    #video.to_videofile(outputfile)
 
-    for batch in batch_comp:
-        os.remove(batch['file'])
+    command = 'ffmpeg -i concat:"' + '|'.join(batch_comp) + '" -c copy ' + outputfile
+    args = shlex.split(command)
+    subprocess.call(args)
+
+    for filename in batch_comp:
+        os.remove(filename)
 
 def search_line(line, search, searchtype):
     if searchtype == 're':
