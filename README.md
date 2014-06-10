@@ -29,20 +29,20 @@ videogrep can take a number of options:
 ####--input / -i
 Video or subtitle file, or folder containing multiple files
 
+####--output / -o
+Name of the file to generate. By default this is "supercut.mp4"
+
 ####--search / -s
 Search term
 
 ####--search-type / -st
 Type of search you want to perform. There are three options:
 * re: regular expression (which is the default)
-* pos: part of speech search (uses pattern.search). For example: "JJ NN"
+* pos: part of speech search (uses [pattern.search](http://www.clips.ua.ac.be/pages/pattern-search)). For example: "JJ NN"
 * hyper: hypernym search. For example: 'body parts'
 
 ####--max-clips / -m 
 Maximum number of clips to use for the supercut
-
-####--output / -o
-Name of the file to generate. By default this is "supercut.mp4"
 
 ####--test / -t
 Show the search results without making the supercut
