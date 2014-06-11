@@ -6,7 +6,7 @@ from collections import OrderedDict
 from moviepy.editor import *
 
 usable_extensions = ['mp4', 'avi', 'mov']
-batch_size = 30
+batch_size = 20
 
 def convert_timespan(timespan):
     """Converts an srt timespan into a start and end timestamp"""
@@ -47,6 +47,12 @@ def clean_srt(srt):
 
     return output
 
+def cleanup_log_files(outputfile):
+    d = os.path.dirname(os.path.abspath(outputfile))
+    logfiles = [f for f in os.listdir(d) if f.endswith('ogg.log')]
+    for f in logfiles:
+        os.remove(f)
+
 def demo_supercut(composition, padding):
     for i, c in enumerate(composition):
         line = c['line']
@@ -79,11 +85,13 @@ def create_supercut(composition, outputfile, padding):
         time += end - start
 
     video = concatenate(clips)
+    video.to_videofile(outputfile)
 
-    try:
-        video.to_videofile(outputfile)
-    except:
-        print "Sorry, couldn't output your video file"
+    cleanup_log_files(outputfile)
+    #try:
+        #video.to_videofile(outputfile)
+    #except:
+        #print "Sorry, couldn't output your video file"
 
 def create_supercut_in_batches(composition, outputfile, padding):
     total_clips = len(composition)
@@ -92,22 +100,30 @@ def create_supercut_in_batches(composition, outputfile, padding):
     batch_comp = []
     while start_index < total_clips:
         filename = outputfile + '.tmp' + str(start_index) + '.mp4'
-        create_supercut(composition[start_index:end_index], filename, padding)
-        batch_comp.append(filename)
-        gc.collect()
-        start_index += batch_size
-        end_index += batch_size
+        try:
+            create_supercut(composition[start_index:end_index], filename, padding)
+            batch_comp.append(filename)
+            gc.collect()
+            start_index += batch_size
+            end_index += batch_size
+        except:
+            start_index += batch_size
+            end_index += batch_size
+            next
 
-    #clips = [VideoFileClip(filename) for filename in batch_comp]
-    #video = concatenate(clips)
-    #video.to_videofile(outputfile)
+    clips = [VideoFileClip(filename) for filename in batch_comp]
+    video = concatenate(clips)
+    video.to_videofile(outputfile)
 
-    command = 'ffmpeg -i concat:"' + '|'.join(batch_comp) + '" -c copy ' + outputfile
-    args = shlex.split(command)
-    subprocess.call(args)
+    #command = 'ffmpeg -i concat:"' + '|'.join(batch_comp) + '" -c copy ' + outputfile
+    #args = shlex.split(command)
+    #subprocess.call(args)
 
+    #remove partial video files
     for filename in batch_comp:
         os.remove(filename)
+
+    cleanup_log_files(outputfile)
 
 def search_line(line, search, searchtype):
     if searchtype == 're':
@@ -118,7 +134,7 @@ def search_line(line, search, searchtype):
         return Search.hypernym_search(line, search)
 
 
-def videogrep(inputfile, outputfile, search, searchtype, maxclips, padding=0, test=False, randomize=False):
+def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, test=False, randomize=False):
     srts = []
     padding = padding / 1000.0
 
@@ -151,7 +167,8 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips, padding=0, te
                         end = end + padding
                         composition.append({'file': videofile, 'time': timespan, 'start': start, 'end': end, 'line': line})
 
-    composition = composition[:maxclips]
+    if maxclips > 0:
+        composition = composition[:maxclips]
 
     if randomize == True:
         random.shuffle(composition)
@@ -171,7 +188,7 @@ if __name__ == '__main__':
     parser.add_argument('--input', '-i', dest='inputfile', required=True, help='video or subtitle file, or folder')
     parser.add_argument('--search', '-s', dest='search', required=True, help='search term')
     parser.add_argument('--search-type', '-st', dest='searchtype', default='re', choices=['re', 'pos', 'hyper'], help='type of search')
-    parser.add_argument('--max-clips', '-m', dest='maxclips', type=int, default=100, help='maximum number of clips to use for the supercut')
+    parser.add_argument('--max-clips', '-m', dest='maxclips', type=int, default=0, help='maximum number of clips to use for the supercut')
     parser.add_argument('--output', '-o', dest='outputfile', default='supercut.mp4', help='name of output file')
     parser.add_argument('--test', '-t', action='store_true', help='show results without making the supercut')
     parser.add_argument('--randomize', '-r', action='store_true', help='randomize the clips')
