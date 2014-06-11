@@ -30,7 +30,8 @@ def silence(inputfile, outputfile, maxclips, minsilence, maxsilence, padding=0, 
         if t['file'] == prevt['file'] and t['start'] - prevt['end'] >= minsilence/1000.0 and t['start'] - prevt['end'] <= maxsilence/1000.0:
             composition.append({'file': t['file'], 'start': prevt['end'], 'end': t['start'], 'line': 'SILENCE'})
 
-    composition = composition[:maxclips]
+    if maxclips > 0:
+        composition = composition[:maxclips]
 
     if randomize == True:
         random.shuffle(composition)
@@ -48,7 +49,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Generate a "supercut" of silences based on subtitle tracks.')
     parser.add_argument('--input', '-i', dest='inputfile', required=True, help='video or subtitle file, or folder')
-    parser.add_argument('--max-clips', '-m', dest='maxclips', type=int, default=200, help='maximum number of clips to use for the supercut')
+    parser.add_argument('--max-clips', '-m', dest='maxclips', type=int, default=0, help='maximum number of clips to use for the supercut')
     parser.add_argument('--minsilence', '-s', dest='minsilence', type=int, default=1000, help='minimum silence?')
     parser.add_argument('--maxsilence', '-ms', dest='maxsilence', type=int, default=2000, help='maximum silence?')
     parser.add_argument('--output', '-o', dest='outputfile', default='supercut.mp4', help='name of output file')
