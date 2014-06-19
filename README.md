@@ -10,7 +10,7 @@ pip install pattern
 pip install moviepy
 ```
 
-If you're on a mac with homebrew you can install ffmpeg with:
+Install [ffmpeg](http://ffmpeg.org/). If you're on a mac with homebrew you can install ffmpeg with:
 ```
 brew install ffmpeg
 ```
