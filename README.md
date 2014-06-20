@@ -24,6 +24,7 @@ The most basic use:
 ```
 python videogrep.py --input path/to/video_or_folder --search 'search phrase'
 ```
+NOTE: videogrep requires the subtitle track and the video file to have the exact same name, up to the extension. For example, my_movie.mp4 and my_movie.srt will work, my_movie.mp4 and my_movie_subtitle.srt will not work.
 
 ###Options
 
