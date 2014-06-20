@@ -2,7 +2,7 @@ Pattern==2.6
 argparse==1.2.1
 beautifulsoup4==4.3.2
 decorator==3.4.0
-moviepy==0.2.1.8.01
+moviepy==0.2.1.8.02
 numpy==1.8.1
 tqdm==1.0
 wsgiref==0.1.2
