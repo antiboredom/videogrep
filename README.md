@@ -59,4 +59,4 @@ Padding in milliseconds to add to the start and end of each clip
 ##Samples
 * [All the instances of the phrase "time" in the movie "In Time"](https://www.youtube.com/watch?v=PQMzOUeprlk)
 * [All the one to two second silences in "Total Recall"](https://www.youtube.com/watch?v=qEtEbXVbYJQ)
-* [The President's former press secretary tellings us what he can tell us](https://www.youtube.com/watch?v=D7pymdCU5NQ)
+* [The President's former press secretary telling us what he can tell us](https://www.youtube.com/watch?v=D7pymdCU5NQ)
