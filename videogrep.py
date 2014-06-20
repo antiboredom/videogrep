@@ -1,7 +1,13 @@
 FFMPEG_BINARY = '/usr/local/bin/ffmpeg'
 
-import os, re, random, gc, subprocess, shlex
+import os
+import re
+import random
+import gc
+import subprocess
+import shlex
 import search as Search
+
 from collections import OrderedDict
 from moviepy.editor import *
 

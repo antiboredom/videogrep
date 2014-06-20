@@ -1,6 +1,9 @@
 #!/usr/bin/python
 
-import urllib, HTMLParser, re, codecs
+import urllib
+import HTMLParser
+import re
+import codecs
 
 class getyoutubecc():
     """ This class allows you to download the caption from a video from you tube
@@ -24,7 +27,7 @@ class getyoutubecc():
            the lang code
             >>> cc = getyoutubecc.getyoutubecc('pNiFoYt69-w','fr','french', tlang:'es')
     """
-    
+
     caption_obj = {}
 
     """ This object contains the fetched captions. Use this to treat the captions or whatever"""
@@ -102,9 +105,10 @@ class getyoutubecc():
             srt_output.append("")
         return srt_output
 
-        
+
 if __name__ == "__main__":
-    import sys, getopt
+    import sys
+    import getopt
     sys.argv
 
     videoid = ''
@@ -117,13 +121,13 @@ if __name__ == "__main__":
     except getopt.GetoptError:
         print 'getyoutubecc -v <video_id> -l <language_id> -t <track_name> -T <translate_to>'
         print 'Example: getyoutubecc -v pNiFoYt69-w -l fr -t french -T es'
-        print 'Example: getyoutubecc -v 2XraaWefBd8 -l en ' 
+        print 'Example: getyoutubecc -v 2XraaWefBd8 -l en '
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
           print 'getyoutubecc -v <video_id> -l <language_id> -t <track_name> -T <translate_to>'
           print 'Example: getyoutubecc -v pNiFoYt69-w -l fr -t french -T es'
-          print 'Example: getyoutubecc -v 2XraaWefBd8 -l en ' 
+          print 'Example: getyoutubecc -v 2XraaWefBd8 -l en '
           print 'NOTE: if video has a track name, the -t argument is mandatory ' 
           sys.exit()
         elif opt in ("-v", "--videoid"):
@@ -141,5 +145,5 @@ if __name__ == "__main__":
     else:
       print 'getyoutubecc -v <video_id> -l <language_id> -t <track_name> -T <translate_to>'
       print 'Example: getyoutubecc -v pNiFoYt69-w -l fr -t french -T es'
-      print 'Example: getyoutubecc -v 2XraaWefBd8 -l en ' 
-      print 'NOTE: if video has a track name, the -t argument is mandatory ' 
+      print 'Example: getyoutubecc -v 2XraaWefBd8 -l en '
+      print 'NOTE: if video has a track name, the -t argument is mandatory '
