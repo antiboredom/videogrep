@@ -9,7 +9,8 @@ import shlex
 import search as Search
 
 from collections import OrderedDict
-from moviepy.editor import *
+from moviepy.video.io.VideoFileClip import VideoFileClip
+from moviepy.video.compositing.concatenate import concatenate
 
 usable_extensions = ['mp4', 'avi', 'mov']
 batch_size = 20
@@ -68,36 +69,24 @@ def demo_supercut(composition, padding):
             start = start + padding
         print "{1} to {2}:\t{0}".format(line, start, end)
 
+
 def create_supercut(composition, outputfile, padding):
-    print "Creating clips"
-    clips = []
-    time = 0
-    for i, c in enumerate(composition):
-        line = c['line']
-        start = c['start']
-        end = c['end']
-        if i > 0 and composition[i-1]['file'] == c['file'] and start < composition[i-1]['end']:
-            start = start + padding
+    print ("Creating clips.")
+    demo_supercut(composition, padding)
 
-        duration = end - start
+    # add padding when necessary
+    for (clip, nextclip) in zip(composition, composition[1:]):
+        if ( ( nextclip['file'] == clip['file'] ) and
+             ( nextclip['start'] < clip['end'] )):
+            nextclip['start'] += padding
 
-        print "{1} to {2}:\t{0}".format(line, start, end)
-
-        clip = VideoFileClip(c['file'])
-        clip = clip.subclip(start, end)
-        clip = clip.set_start(time)
-        clip = clip.set_end(time + (end - start))
-        clips.append(clip)
-        time += end - start
-
-    video = concatenate(clips)
-    video.to_videofile(outputfile)
-
-    cleanup_log_files(outputfile)
-    #try:
-        #video.to_videofile(outputfile)
-    #except:
-        #print "Sorry, couldn't output your video file"
+    # put all clips together:
+    all_filenames = set([c['file'] for c in composition])
+    videofileclips = dict([(f, VideoFileClip(f)) for f in all_filenames])
+    cut_clips = [videofileclips[ c['file']  ].subclip(c['start'], c['end'])
+                       for c in composition]
+    final_clip = concatenate( cut_clips)
+    final_clip.to_videofile(outputfile)
 
 def create_supercut_in_batches(composition, outputfile, padding):
     total_clips = len(composition)
@@ -120,10 +109,6 @@ def create_supercut_in_batches(composition, outputfile, padding):
     clips = [VideoFileClip(filename) for filename in batch_comp]
     video = concatenate(clips)
     video.to_videofile(outputfile)
-
-    #command = 'ffmpeg -i concat:"' + '|'.join(batch_comp) + '" -c copy ' + outputfile
-    #args = shlex.split(command)
-    #subprocess.call(args)
 
     #remove partial video files
     for filename in batch_comp:
