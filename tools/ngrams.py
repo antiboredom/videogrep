@@ -2,6 +2,7 @@ import sys
 from pattern.en import ngrams
 
 class NGram(object):
+
     def __init__(self, total, threshold=10):
         self.total = total
         self.threshold = threshold

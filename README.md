@@ -4,10 +4,9 @@ Videogrep
 Videogrep searches through dialog in video files (using .srt subtitle tracks) and makes supercuts based on what it finds.
 
 ##Requirements
-Clone this repository, and then install [pattern](http://www.clips.ua.ac.be/pages/pattern-search) and [moviepy](https://github.com/Zulko/moviepy).
+Clone this repository, and then install [pattern](http://www.clips.ua.ac.be/pages/pattern-search) and [moviepy](https://github.com/Zulko/moviepy) along with the other requirements.
 ```
-pip install pattern
-pip install moviepy
+pip install -r requirements.txt
 ```
 
 Install [ffmpeg](http://ffmpeg.org/). If you're on a mac with homebrew you can install ffmpeg with:

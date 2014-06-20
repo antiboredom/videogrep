@@ -1,5 +1,8 @@
+import sys
+import os
+import re
+
 from pattern.en import tag, tokenize
-import sys,os,re
 
 #text = sys.stdin.read()
 inputfile = sys.argv[1]

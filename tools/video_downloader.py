@@ -1,9 +1,10 @@
-from pytube import YouTube
-import getyoutubecc
-from bs4 import BeautifulSoup
 import urllib
 import time
 import sys
+
+from pytube import YouTube
+import getyoutubecc
+from bs4 import BeautifulSoup
 
 def get_urls(url):
     data = urllib.urlopen(url).read()
