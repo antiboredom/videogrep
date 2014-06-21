@@ -72,8 +72,8 @@ def demo_supercut(composition, padding):
 
 def create_supercut(composition, outputfile, padding):
     print ("Creating clips.")
+    print "Length = " + str(len(composition))
     demo_supercut(composition, padding)
-
     # add padding when necessary
     for (clip, nextclip) in zip(composition, composition[1:]):
         if ( ( nextclip['file'] == clip['file'] ) and
@@ -145,6 +145,8 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
 
     composition = []
 
+    foundSomething = False
+
     for srt in srts:
         lines = clean_srt(srt)
         for timespan in lines.keys():
@@ -153,11 +155,13 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
                 start, end = convert_timespan(timespan)
                 for ext in usable_extensions:
                     videofile = srt.replace('.srt', '.' + ext)
+                    
                     if os.path.isfile(videofile):
+                        foundSomething = True;
                         start = start - padding
                         end = end + padding
                         composition.append({'file': videofile, 'time': timespan, 'start': start, 'end': end, 'line': line})
-
+                        
     if maxclips > 0:
         composition = composition[:maxclips]
 
@@ -167,10 +171,18 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
     if test == True:
         demo_supercut(composition, padding)
     else:
-        if len(composition) > batch_size:
-            create_supercut_in_batches(composition, outputfile, padding)
+        if foundSomething:
+            if len(composition) > batch_size:
+                create_supercut_in_batches(composition, outputfile, padding)
+            else:
+                create_supercut(composition, outputfile, padding)
         else:
-            create_supercut(composition, outputfile, padding)
+            print "The following video formats are currently supported:"
+            extList = ""
+            for ext in usable_extensions:
+                extList += ext + ", "
+            print extList
+            exit(1)
 
 if __name__ == '__main__':
     import argparse
