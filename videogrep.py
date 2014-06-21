@@ -72,7 +72,7 @@ def demo_supercut(composition, padding):
 
 def create_supercut(composition, outputfile, padding):
     print ("Creating clips.")
-    print "Length = " + str(len(composition))
+
     demo_supercut(composition, padding)
     # add padding when necessary
     for (clip, nextclip) in zip(composition, composition[1:]):
