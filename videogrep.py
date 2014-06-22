@@ -153,10 +153,11 @@ def get_subtitle_files(inputfile):
     return srts
 
 
-def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, test=False, randomize=False):
+def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, test=False, randomize=False, sync=0):
     srts = get_subtitle_files(inputfile)
 
     padding = padding / 1000.0
+    sync = sync / 1000.0
     composition = []
     foundSearchTerm = False
 
@@ -194,8 +195,11 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
 
                         # Extract the timespan for this subtitle.
                         start, end = convert_timespan(timespan)
-                        start = start - padding
-                        end = end + padding
+                        start = start + sync - padding
+                        end = end + sync + padding
+
+                        print start
+                        print end
 
                         # Record this occurance of the search term.
                         composition.append({'file': videofile, 'time': timespan, 'start': start, 'end': end, 'line': line})
@@ -254,10 +258,11 @@ if __name__ == '__main__':
     parser.add_argument('--randomize', '-r', action='store_true', help='randomize the clips')
     parser.add_argument('--youtube', '-yt', help='grab clips from youtube based on your search')
     parser.add_argument('--padding', '-p', dest='padding', default=0, type=int, help='padding in milliseconds to add to the start and end of each clip')
+    parser.add_argument('--resyncsubs', '-rs', dest='sync', default=0, type=int, help='Subtitle re-synch delay +/- in milliseconds')
 
     args = parser.parse_args()
 
     print "[+] Output will be written to '" + args.outputfile + "'."
-    videogrep(args.inputfile, args.outputfile, args.search, args.searchtype, args.maxclips, args.padding, args.test, args.randomize)
+    videogrep(args.inputfile, args.outputfile, args.search, args.searchtype, args.maxclips, args.padding, args.test, args.randomize, args.sync)
   
 
