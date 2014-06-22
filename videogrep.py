@@ -10,7 +10,7 @@ from collections import OrderedDict
 from moviepy.video.io.VideoFileClip import VideoFileClip
 from moviepy.video.compositing.concatenate import concatenate
 
-usable_extensions = ['mp4', 'avi', 'mov']
+usable_extensions = ['mp4', 'avi', 'mov', 'mkv', 'm4v']
 batch_size = 20
 
 
@@ -91,7 +91,7 @@ def create_supercut(composition, outputfile, padding):
     final_clip = concatenate(cut_clips)
     
     print "[+] Writing ouput file."
-    final_clip.to_videofile(outputfile, codec="mpeg")
+    final_clip.to_videofile(outputfile, codec="libx264")
 
 
 def create_supercut_in_batches(composition, outputfile, padding):
