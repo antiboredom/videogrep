@@ -148,7 +148,7 @@ def get_subtitle_files(inputfile):
 
     else:
         print "[!] No subtitle files were found."
-        return False
+        exit(1)
 
     return srts
 
@@ -259,6 +259,5 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    print "[+] Output will be written to '" + args.outputfile + "'."
     videogrep(args.inputfile, args.outputfile, args.search, args.searchtype, args.maxclips, args.padding, args.test, args.randomize, args.sync)
 
