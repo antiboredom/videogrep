@@ -12,7 +12,7 @@ from collections import OrderedDict
 from moviepy.video.io.VideoFileClip import VideoFileClip
 from moviepy.video.compositing.concatenate import concatenate
 
-usable_extensions = ['mp4', 'avi', 'mov']
+usable_extensions = ['mp4', 'avi', 'mov', 'mkv']
 batch_size = 20
 
 def convert_timespan(timespan):
@@ -157,6 +157,10 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
                         start = start - padding
                         end = end + padding
                         composition.append({'file': videofile, 'time': timespan, 'start': start, 'end': end, 'line': line})
+
+    if len(composition) == 0:
+        print 'Sorry, that search returned 0 results.'
+        return False
 
     if maxclips > 0:
         composition = composition[:maxclips]
