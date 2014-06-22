@@ -148,7 +148,7 @@ def get_subtitle_files(inputfile):
 
     else:
         print "[!] No subtitle files were found."
-        return False
+        exit(1)
 
     return srts
 
