@@ -36,9 +36,8 @@ def convert_timestamp(timestamp):
 
 def clean_srt(srt):
     """Removes damaging line breaks and numbers from srt files and returns a dictionary"""
-    f = open(srt, 'r')
-    text = f.read()
-    f.close()
+    with open(srt, 'r') as f:
+        text = f.read()
     text = re.sub(r'^\d+[\n\r]', '', text, flags=re.MULTILINE)
     lines = text.splitlines()
     output = OrderedDict()
