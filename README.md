@@ -11,7 +11,7 @@ pip install -r requirements.txt
 
 Install [ffmpeg](http://ffmpeg.org/) with Ogg/Vorbis support. If you're on a mac with homebrew you can install ffmpeg with:
 ```
-brew install ffmpeg –with-libvpx –with-libvorbis
+brew install ffmpeg --with-libvpx --with-libvorbis
 ```
 
 You may need to change the path to your installation of ffmpeg by modifying the first line of videogrep.py:
