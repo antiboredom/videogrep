@@ -12,7 +12,14 @@ from moviepy.video.compositing.concatenate import concatenate
 
 usable_extensions = ['mp4', 'avi', 'mov', 'mkv', 'm4v']
 batch_size = 20
+debug = False
 
+def log(string):
+    if debug:
+        print "[+] {}".format(string)
+
+def error(string):
+    print "[!] {}".format(string)
 
 def convert_timespan(timespan):
     """Converts an srt timespan into a start and end timestamp"""
@@ -73,7 +80,7 @@ def demo_supercut(composition, padding):
 
 
 def create_supercut(composition, outputfile, padding):
-    print ("[+] Creating clips.")
+    log("Creating clips.")
     demo_supercut(composition, padding)
 
     # add padding when necessary
@@ -86,10 +93,10 @@ def create_supercut(composition, outputfile, padding):
     videofileclips = dict([(f, VideoFileClip(f)) for f in all_filenames])
     cut_clips = [videofileclips[c['file']].subclip(c['start'], c['end']) for c in composition]
 
-    print "[+] Concatenating clips."
+    log("[+] Concatenating clips.")
     final_clip = concatenate(cut_clips)
 
-    print "[+] Writing ouput file."
+    log(" Writing ouput file.")
     final_clip.to_videofile(outputfile, codec="libx264")
 
 
@@ -146,7 +153,7 @@ def get_subtitle_files(inputfile):
         srts = [inputfile + f for f in os.listdir(inputfile) if f.lower().endswith('srt')]
 
     else:
-        print "[!] No subtitle files were found."
+        error("No subtitle files were found.")
         exit(1)
 
     return srts
@@ -169,13 +176,13 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
         videofile = ""
         foundVideoFile = False
 
-        print "[+] Searching for video file corresponding to '" + srt + "'."
+        log("[+] Searching for video file corresponding to '{}'.".format(srt))
         for ext in usable_extensions:
             tempVideoFile = srt.replace('.srt', '.' + ext)
             if os.path.isfile(tempVideoFile):
                 videofile = tempVideoFile
                 foundVideoFile = True
-                print "[+] Found '" + tempVideoFile + "'."
+                log(" Found '{}'.".format(tempVideoFile))
 
         # If a correspndong video file was found for this subtitles file...
         if foundVideoFile:
@@ -202,16 +209,17 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
 
                 # If the search was unsuccessful.
                 if foundSearchTerm == False:
-                    print "[!] Search term '" + search + "'" + " was not found is subtitle file '" + srt + "'."
+                    error("Search term '{}' was not found is subtitle \
+                           file '{}'.".format(search, srt))
 
             # If no subtitles were found in the current file.
             else:
-                print "[!] Subtitle file '" + srt + "' is empty."
+                error("Subtitle file '{}' is empty.".format(srt))
 
         # If no video file was found...
         else:
-            print "[!] No video file was found which corresponds to subtitle file '" + srt + "'."
-            print "[!] The following video formats are currently supported:"
+            error("No video file was found which corresponds to subtitle file '{}'.".format(srt))
+            error("The following video formats are currently supported:")
             extList = ""
             for ext in usable_extensions:
                 extList += ext + ", "
@@ -219,11 +227,12 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
 
     # If the search term was not found in any subtitle file...
     if foundSearchTerm == False:
-        print "[!] Search term '" + search + "'" + " was not found in any file."
+        error("Search term '{}' was not found in any file.".format(search))
         exit(1)
 
     else:
-        print "[+] Search term '" + search + "'" + " was found in " + str(len(composition)) + " places."
+        log("Search term '{search}' was found in {occurences} places.".\
+            format(search=search, occurences=len(composition)))
 
         if maxclips > 0:
             composition = composition[:maxclips]
@@ -235,7 +244,7 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
             demo_supercut(composition, padding)
         else:
             if len(composition) > batch_size:
-                print "[+} Starting batch job."
+                log("Starting batch job.")
                 create_supercut_in_batches(composition, outputfile, padding)
             else:
                 create_supercut(composition, outputfile, padding)
@@ -255,8 +264,10 @@ if __name__ == '__main__':
     parser.add_argument('--youtube', '-yt', help='grab clips from youtube based on your search')
     parser.add_argument('--padding', '-p', dest='padding', default=0, type=int, help='padding in milliseconds to add to the start and end of each clip')
     parser.add_argument('--resyncsubs', '-rs', dest='sync', default=0, type=int, help='Subtitle re-synch delay +/- in milliseconds')
+    parser.add_argument('--verbose', '-v', action='store_true', help='Print log messages')
 
     args = parser.parse_args()
 
     videogrep(args.inputfile, args.outputfile, args.search, args.searchtype, args.maxclips, args.padding, args.test, args.randomize, args.sync)
+
 

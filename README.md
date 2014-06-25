@@ -68,6 +68,9 @@ Randomize the order of the clips
 ####--padding / -p
 Padding in milliseconds to add to the start and end of each clip
 
+###--verbose / -v
+Display informations or not. Enabled by default.
+
 ##Samples
 * [All the instances of the phrase "time" in the movie "In Time"](https://www.youtube.com/watch?v=PQMzOUeprlk)
 * [All the one to two second silences in "Total Recall"](https://www.youtube.com/watch?v=qEtEbXVbYJQ)
