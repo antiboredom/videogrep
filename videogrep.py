@@ -217,10 +217,7 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
         else:
             error("No video file was found which corresponds to subtitle file '{}'.".format(srt))
             error("The following video formats are currently supported:")
-            extList = ""
-            for ext in usable_extensions:
-                extList += ext + ", "
-            print extList
+            print ", ".join(usable_extensions)
 
     # If the search term was not found in any subtitle file...
     if not foundSearchTerm:
