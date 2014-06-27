@@ -93,10 +93,10 @@ def create_supercut(composition, outputfile, padding):
     videofileclips = dict([(f, VideoFileClip(f)) for f in all_filenames])
     cut_clips = [videofileclips[c['file']].subclip(c['start'], c['end']) for c in composition]
 
-    log("[+] Concatenating clips.")
+    log("Concatenating clips.")
     final_clip = concatenate(cut_clips)
 
-    log(" Writing ouput file.")
+    log("Writing ouput file.")
     final_clip.to_videofile(outputfile, codec="libx264")
 
 
@@ -176,13 +176,13 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
         videofile = ""
         foundVideoFile = False
 
-        log("[+] Searching for video file corresponding to '{}'.".format(srt))
+        log("Searching for video file corresponding to '{}'.".format(srt))
         for ext in usable_extensions:
             tempVideoFile = srt.replace('.srt', '.' + ext)
             if os.path.isfile(tempVideoFile):
                 videofile = tempVideoFile
                 foundVideoFile = True
-                log(" Found '{}'.".format(tempVideoFile))
+                log("Found '{}'.".format(tempVideoFile))
 
         # If a correspndong video file was found for this subtitles file...
         if foundVideoFile:
