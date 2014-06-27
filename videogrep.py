@@ -24,9 +24,7 @@ def error(string):
 def convert_timespan(timespan):
     """Converts an srt timespan into a start and end timestamp"""
     start, end = timespan.split('-->')
-    start = convert_timestamp(start)
-    end = convert_timestamp(end)
-    return start, end
+    return convert_timestamp(start), convert_timestamp(end)
 
 
 def convert_timestamp(timestamp):
@@ -74,7 +72,7 @@ def demo_supercut(composition, padding):
         start = c['start']
         end = c['end']
         if i > 0 and composition[i - 1]['file'] == c['file'] and start < composition[i - 1]['end']:
-            start = start + padding
+            start += padding
         print "{1} to {2}:\t{0}".format(line, start, end)
 
 
@@ -161,8 +159,8 @@ def get_subtitle_files(inputfile):
 def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, test=False, randomize=False, sync=0):
     srts = get_subtitle_files(inputfile)
 
-    padding = padding / 1000.0
-    sync = sync / 1000.0
+    padding /= 1000.0
+    sync /= 1000.0
     composition = []
     foundSearchTerm = False
 
