@@ -55,9 +55,8 @@ def clean_srt(srt):
         if line.find('-->') > -1:
             key = line
             output[key] = ''
-        else:
-            if key != '':
-                output[key] += line + ' '
+        elif key != '':
+            output[key] += line + ' '
 
     return output
 
@@ -242,12 +241,11 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
 
         if test == True:
             demo_supercut(composition, padding)
+        elif len(composition) > batch_size:
+            log("Starting batch job.")
+            create_supercut_in_batches(composition, outputfile, padding)
         else:
-            if len(composition) > batch_size:
-                log("Starting batch job.")
-                create_supercut_in_batches(composition, outputfile, padding)
-            else:
-                create_supercut(composition, outputfile, padding)
+            create_supercut(composition, outputfile, padding)
 
 
 if __name__ == '__main__':
