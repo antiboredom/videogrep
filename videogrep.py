@@ -82,7 +82,7 @@ def create_supercut(composition, outputfile, padding):
 
     # add padding when necessary
     for (clip, nextclip) in zip(composition, composition[1:]):
-        if ((nextclip['file'] == clip['file']) and (nextclip['start'] < clip['end'])):
+        if nextclip['file'] == clip['file'] and nextclip['start'] < clip['end']:
             nextclip['start'] += padding
 
     # put all clips together:
@@ -145,7 +145,7 @@ def get_subtitle_files(inputfile):
         srts = ['.'.join(filename)]
 
     elif os.path.isdir(inputfile):
-        if inputfile.endswith('/') == False:
+        if not inputfile.endswith('/'):
             inputfile += '/'
         srts = [inputfile + f for f in os.listdir(inputfile) if f.lower().endswith('srt')]
 
@@ -205,7 +205,7 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
                         composition.append({'file': videofile, 'time': timespan, 'start': start, 'end': end, 'line': line})
 
                 # If the search was unsuccessful.
-                if foundSearchTerm == False:
+                if not foundSearchTerm:
                     error("Search term '{}' was not found is subtitle \
                            file '{}'.".format(search, srt))
 
@@ -223,7 +223,7 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
             print extList
 
     # If the search term was not found in any subtitle file...
-    if foundSearchTerm == False:
+    if not foundSearchTerm:
         error("Search term '{}' was not found in any file.".format(search))
         exit(1)
 
@@ -234,10 +234,10 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
         if maxclips > 0:
             composition = composition[:maxclips]
 
-        if randomize == True:
+        if not randomize:
             random.shuffle(composition)
 
-        if test == True:
+        if not test:
             demo_supercut(composition, padding)
         elif len(composition) > batch_size:
             log("Starting batch job.")
