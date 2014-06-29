@@ -130,6 +130,11 @@ def search_line(line, search, searchtype):
     elif searchtype == 'hyper':
         return Search.hypernym_search(line, search)
 
+def search_text(line, searchs, searchtype):
+    for idx, search in enumerate(searchs):
+        if search_line(line, search, searchtype) is not None:
+            return idx
+    return None
 
 def get_subtitle_files(inputfile):
     """Returns a list of subtitle files"""
@@ -152,7 +157,7 @@ def get_subtitle_files(inputfile):
     return srts
 
 
-def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, test=False, randomize=False, sync=0):
+def videogrep(inputfile, outputfile, searchs, searchtype, maxclips=0, padding=0, test=False, randomize=False, sync=0, unique=False, ordered=False):
     srts = get_subtitle_files(inputfile)
 
     padding = padding / 1000.0
@@ -187,8 +192,9 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
                 for timespan in lines.keys():
                     line = lines[timespan].strip()
 
-                    # If this line contains the search term
-                    if search_line(line, search, searchtype):
+                    # If this line contains one the search terms
+                    search_index = search_text(line, searchs, searchtype)
+                    if search_index is not None:
 
                         foundSearchTerm = True
 
@@ -198,11 +204,11 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
                         end = end + sync + padding
 
                         # Record this occurance of the search term.
-                        composition.append({'file': videofile, 'time': timespan, 'start': start, 'end': end, 'line': line})
+                        composition.append({'file': videofile, 'time': timespan, 'start': start, 'end': end, 'line': line, 'search_index': search_index})
 
                 # If the search was unsuccessful.
                 if foundSearchTerm == False:
-                    print "[!] Search term '" + search + "'" + " was not found is subtitle file '" + srt + "'."
+                    print "[!] Search terms '" + "','".join(searchs) + "'" + " was not found is subtitle file '" + srt + "'."
 
             # If no subtitles were found in the current file.
             else:
@@ -219,17 +225,24 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
 
     # If the search term was not found in any subtitle file...
     if foundSearchTerm == False:
-        print "[!] Search term '" + search + "'" + " was not found in any file."
+        print "[!] Search terms '" + "','".join(searchs) + "'" + " was not found in any file."
         exit(1)
 
     else:
-        print "[+] Search term '" + search + "'" + " was found in " + str(len(composition)) + " places."
+        print "[+] Search terms '" + "','".join(searchs) + "'" + " was found in " + str(len(composition)) + " places."
 
         if maxclips > 0:
             composition = composition[:maxclips]
 
+        if len(searchs) > 0 and ordered == True:
+            composition = sorted(composition, key=lambda x: x["search_index"])
+
         if randomize == True:
             random.shuffle(composition)
+
+        if unique == True:
+            seen = set()
+            composition = [x for x in composition if x['search_index'] not in seen and not seen.add(x['search_index'])]
 
         if test == True:
             demo_supercut(composition, padding)
@@ -246,7 +259,8 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Generate a "supercut" of one or more video files by searching through subtitle tracks.')
     parser.add_argument('--input', '-i', dest='inputfile', required=True, help='video or subtitle file, or folder')
-    parser.add_argument('--search', '-s', dest='search', required=True, help='search term')
+    parser.add_argument('--search', '-s', dest='search', help='search term')
+    parser.add_argument('--search-file', '-sf', dest='searchfile', help='file containing a list of search terms')
     parser.add_argument('--search-type', '-st', dest='searchtype', default='re', choices=['re', 'pos', 'hyper'], help='type of search')
     parser.add_argument('--max-clips', '-m', dest='maxclips', type=int, default=0, help='maximum number of clips to use for the supercut')
     parser.add_argument('--output', '-o', dest='outputfile', default='supercut.mp4', help='name of output file')
@@ -255,8 +269,21 @@ if __name__ == '__main__':
     parser.add_argument('--youtube', '-yt', help='grab clips from youtube based on your search')
     parser.add_argument('--padding', '-p', dest='padding', default=0, type=int, help='padding in milliseconds to add to the start and end of each clip')
     parser.add_argument('--resyncsubs', '-rs', dest='sync', default=0, type=int, help='Subtitle re-synch delay +/- in milliseconds')
-
+    parser.add_argument('--unique', '-u', action='store_true', dest='unique', help='Keep only first occurence of a search')
+    parser.add_argument('--ordered', '-or', action='store_true', dest='ordered', help='Order video sequence in the same order of the search terms')
     args = parser.parse_args()
 
-    videogrep(args.inputfile, args.outputfile, args.search, args.searchtype, args.maxclips, args.padding, args.test, args.randomize, args.sync)
+    if args.search:
+       searchs = [args.search]
+    elif args.searchfile:
+        with open(args.searchfile) as r:
+            searchs = []
+            for line in r.readlines():
+                searchs.append(line.strip())
+    else:
+        print "[!] You need to provide --search or --search-file arguments"
+        exit(1)
+
+
+    videogrep(args.inputfile, args.outputfile, searchs, args.searchtype, args.maxclips, args.padding, args.test, args.randomize, args.sync, args.unique, args.ordered)
 

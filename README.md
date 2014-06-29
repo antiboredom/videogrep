@@ -50,6 +50,9 @@ Name of the file to generate. By default this is "supercut.mp4"
 ####--search / -s
 Search term
 
+###--search-file / -sf
+A file with multiple search terms
+
 ####--search-type / -st
 Type of search you want to perform. There are three options:
 * re: [regular expression](http://www.pyregex.com/) (this is the default).
@@ -67,6 +70,13 @@ Randomize the order of the clips
 
 ####--padding / -p
 Padding in milliseconds to add to the start and end of each clip
+
+####--unique / -u
+Take only the first result for search term
+
+####--ordered / -or
+In case of multiple search terms order the final videos in the same order as search terms list
+
 
 ##Samples
 * [All the instances of the phrase "time" in the movie "In Time"](https://www.youtube.com/watch?v=PQMzOUeprlk)
