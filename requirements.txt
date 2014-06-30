@@ -6,4 +6,3 @@ moviepy==0.2.1.8.02
 numpy==1.8.1
 tqdm==1.0
 wsgiref==0.1.2
-git+https://github.com/NFicano/pytube.git #pypi download not working
