@@ -6,7 +6,7 @@ Videogrep searches through dialog in video files (using .srt subtitle tracks) an
 ##Requirements
 Clone this repository, and then install [pattern](http://www.clips.ua.ac.be/pages/pattern-search) and [moviepy](https://github.com/Zulko/moviepy) along with the other requirements.
 ```
-pip install -r requirements.txt
+python setup.py install
 ```
 
 Install [ffmpeg](http://ffmpeg.org/) with Ogg/Vorbis support. If you're on a mac with homebrew you can install ffmpeg with:
@@ -72,3 +72,11 @@ Padding in milliseconds to add to the start and end of each clip
 * [All the instances of the phrase "time" in the movie "In Time"](https://www.youtube.com/watch?v=PQMzOUeprlk)
 * [All the one to two second silences in "Total Recall"](https://www.youtube.com/watch?v=qEtEbXVbYJQ)
 * [The President's former press secretary telling us what he can tell us](https://www.youtube.com/watch?v=D7pymdCU5NQ)
+
+###You can now import videogrep into your own modules and search for terms programmatically!
+
+```
+from videogrep import videogrep
+
+videogrep.videogrep('path/to/your/files','output_file_name.mp4', 'search_term', 'search_type')
+```

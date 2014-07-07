@@ -12,6 +12,7 @@ except IOError, ImportError:
 with open('requirements.txt', 'r') as requirements:
     install_requires = requirements.read().split()
 
+print install_requires
 '''
 
 Do not use 'djds23' in the final version.
@@ -23,7 +24,8 @@ setup(name='videogrep',
       version = '0.4',
       description = 'Python utility for creating video out of their subtitle files',
       long_description = long_description,
-      download_url = 'https://github.com/djds23/videogrep/archive/master.zip'
+      download_url = 'https://github.com/djds23/videogrep/archive/master.zip',
       author = 'Sam Lavigne',
       author_email = 'splavigne@gmail.com',
-      install_requires = install_requires)
+      install_requires = install_requires,
+      packages = ['videogrep','videogrep.tools','videogrep.tests'])
