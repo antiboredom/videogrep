@@ -9,10 +9,6 @@ try:
 except IOError, ImportError:
     long_description =''
 
-with open('requirements.txt', 'r') as requirements:
-    install_requires = requirements.read().split()
-
-print install_requires
 '''
 
 Do not use 'djds23' in the final version.
@@ -27,6 +23,6 @@ setup(name='videogrep',
       download_url = 'https://github.com/djds23/videogrep/archive/master.zip',
       author = 'Sam Lavigne',
       author_email = 'splavigne@gmail.com',
-      install_requires = install_requires,
+      test_requires = ['pytest==2.5.2'],
       packages = ['videogrep','videogrep.tools','videogrep.tests'],
       scripts = ['videogrep_cli.py'])
