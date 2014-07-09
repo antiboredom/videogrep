@@ -28,4 +28,5 @@ setup(name='videogrep',
       author = 'Sam Lavigne',
       author_email = 'splavigne@gmail.com',
       install_requires = install_requires,
-      packages = ['videogrep','videogrep.tools','videogrep.tests'])
+      packages = ['videogrep','videogrep.tools','videogrep.tests'],
+      scripts = ['videogrep_cli.py'])
