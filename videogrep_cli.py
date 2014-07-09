@@ -1,7 +1,8 @@
+import argparse
+
 from videogrep import videogrep
 
 if __name__ == '__main__':
-    import argparse
     parser = argparse.ArgumentParser(description='Generate a "supercut" of one or more video files by searching through subtitle tracks.')
     parser.add_argument('--input', '-i', dest='inputfile', required=True, help='video or subtitle file, or folder')
     parser.add_argument('--search', '-s', dest='search', required=True, help='search term')
