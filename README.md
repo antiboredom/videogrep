@@ -25,17 +25,17 @@ FFMPEG_BINARY = '/usr/local/bin/ffmpeg'
 ##How to use it
 The most basic use:
 ```
-videogrep.py --input path/to/video_or_folder --search 'search phrase'
+videogrep_cli.py --input path/to/video_or_folder --search 'search phrase'
 ```
 You can put any regular expression in the search phrase.
 
 You can also search for part-of-speech tags using Pattern. See the [Pattern-Search documentation](http://www.clips.ua.ac.be/pages/pattern-search) for some details about how this works, and the [Penn Tree bank tag set](http://www.clips.ua.ac.be/pages/mbsp-tags) for a list of usuable part-of-speech tags. For example the following will search for every line of dialog that contains an adjective (JJ) followed by a singular noun (NN):
 ```
-videogrep.py --input path/to/video_or_folder --search 'JJ NN' --search-type pos
+videogrep_cli.py --input path/to/video_or_folder --search 'JJ NN' --search-type pos
 ```
 You can also do a [hypernym](https://en.wikipedia.org/wiki/Hypernym) search - which essentially searches for words that fit into a specific category. The following, for example, will search for any line of dialog that references a liquid (like water, coffee, beer, etc.):
 ```
-videogrep.py --input path/to/video_or_folder --search 'liquid' --search-type hyper
+videogrep_cli.py --input path/to/video_or_folder --search 'liquid' --search-type hyper
 ```
 
 **NOTE: videogrep requires the subtitle track and the video file to have the exact same name, up to the extension.** For example, my_movie.mp4 and my_movie.srt will work, my_movie.mp4 and my_movie_subtitle.srt will not work.
