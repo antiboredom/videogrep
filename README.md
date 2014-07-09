@@ -5,7 +5,10 @@ Videogrep searches through dialog in video files (using .srt subtitle tracks) an
 
 ##Requirements
 Clone this repository, and then install [pattern](http://www.clips.ua.ac.be/pages/pattern-search) and [moviepy](https://github.com/Zulko/moviepy) along with the other requirements.
+
 ```
+git clone https://github.com/antiboredom/videogrep.git
+pip install -r requirements.txt
 python setup.py install
 ```
 
@@ -22,17 +25,17 @@ FFMPEG_BINARY = '/usr/local/bin/ffmpeg'
 ##How to use it
 The most basic use:
 ```
-python videogrep.py --input path/to/video_or_folder --search 'search phrase'
+videogrep.py --input path/to/video_or_folder --search 'search phrase'
 ```
 You can put any regular expression in the search phrase.
 
-You can also search for part-of-speech tags using Pattern. See the [Pattern-Search documentation](http://www.clips.ua.ac.be/pages/pattern-search) for some details about how this works, and the [Penn Treebank tag set](http://www.clips.ua.ac.be/pages/mbsp-tags) for a list of usuable part-of-speech tags. For example the following will search for every line of dialog that contains an adjective (JJ) followed by a singular noun (NN):
+You can also search for part-of-speech tags using Pattern. See the [Pattern-Search documentation](http://www.clips.ua.ac.be/pages/pattern-search) for some details about how this works, and the [Penn Tree bank tag set](http://www.clips.ua.ac.be/pages/mbsp-tags) for a list of usuable part-of-speech tags. For example the following will search for every line of dialog that contains an adjective (JJ) followed by a singular noun (NN):
 ```
-python videogrep.py --input path/to/video_or_folder --search 'JJ NN' --search-type pos
+videogrep.py --input path/to/video_or_folder --search 'JJ NN' --search-type pos
 ```
 You can also do a [hypernym](https://en.wikipedia.org/wiki/Hypernym) search - which essentially searches for words that fit into a specific category. The following, for example, will search for any line of dialog that references a liquid (like water, coffee, beer, etc.):
 ```
-python videogrep.py --input path/to/video_or_folder --search 'liquid' --search-type hyper
+videogrep.py --input path/to/video_or_folder --search 'liquid' --search-type hyper
 ```
 
 **NOTE: videogrep requires the subtitle track and the video file to have the exact same name, up to the extension.** For example, my_movie.mp4 and my_movie.srt will work, my_movie.mp4 and my_movie_subtitle.srt will not work.
@@ -80,3 +83,4 @@ from videogrep import videogrep
 
 videogrep.videogrep('path/to/your/files','output_file_name.mp4', 'search_term', 'search_type')
 ```
+The videogrep module accepts the same parameters as the cli! To see the usage just read the source!
