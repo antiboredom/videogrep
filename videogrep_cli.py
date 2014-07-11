@@ -17,5 +17,5 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    videogrep(args.inputfile, args.outputfile, args.search, args.searchtype, args.maxclips, args.padding, args.test, args.randomize, args.sync)
+    videogrep.videogrep(args.inputfile, args.outputfile, args.search, args.searchtype, args.maxclips, args.padding, args.test, args.randomize, args.sync)
 

@@ -7,12 +7,9 @@ from videogrep import videogrep
 filename = 'TEST_OUTPUT.mp4'
 
 def test_videogrep():
+    videogrep('test_videos/test.mp4', filename, 'video', 'pos')
     files = os.listdir('.')
-    if filename in files:
-        call(['rm',filename])
-    videogrep('test_videos/test.mp4', 'video', 'pos')
     assert filename in files
-    call(['rm', filename])
 
 def test_cli():
     command = 'videogrep.py -i test_videos/test.mp4 -s video -st pos'
@@ -20,3 +17,6 @@ def test_cli():
     files = os.listdir('.')
     assert 'supercut.mp4' in files
 
+def test_cleanup():
+    call(['rm', filename])
+    call(['rm', 'supercut.mp4'])
