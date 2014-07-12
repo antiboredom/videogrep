@@ -17,5 +17,6 @@ setup(name='videogrep',
       author = 'Sam Lavigne',
       author_email = 'splavigne@gmail.com',
       test_requires = ['pytest==2.5.2'],
+      test_suite = 'videogrep.tests',
       packages = ['videogrep','videogrep.tools','videogrep.tests'],
       scripts = ['videogrep_cli.py'])
