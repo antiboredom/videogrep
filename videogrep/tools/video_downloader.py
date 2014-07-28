@@ -21,7 +21,11 @@ def get_single_url(url, youtube_object=YouTube()):
     filename = youtube_object.filename
     video.download()
     cc = getyoutubecc.getyoutubecc(youtube_object.video_id,'en')
-    cc.writeSrtFile(filename + '.srt')
+    cc_filename = filename + '.srt'
+    cc.writeSrtFile(cc_filename)
+    return {'url':url,
+            'filename' : filename,
+            'cc_filename': cc_filename}
 #    except:
 #        return 'Broke!' 
 
