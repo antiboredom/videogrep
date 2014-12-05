@@ -1,6 +1,7 @@
 import sys
 from pattern.en import ngrams
 
+
 class NGram(object):
 
     def __init__(self, total, threshold=10):
@@ -22,7 +23,8 @@ class NGram(object):
                 self.ngramcount[gram] = 1
 
     def frequent(self):
-        for gram in sorted(self.ngramcount, key=self.ngramcount.get, reverse=True):
+        for gram in sorted(self.ngramcount, key=self.ngramcount.get,
+                           reverse=True):
             count = self.ngramcount[gram]
             if count > self.threshold and all(len(x) > 0 for x in gram):
                 self.output.append(' '.join(gram))
@@ -43,9 +45,10 @@ if __name__ == '__main__':
         srts = ['.'.join(filename)]
 
     elif os.path.isdir(inputfile):
-        if inputfile.endswith('/') == False:
+        if not inputfile.endswith('/'):
             inputfile += '/'
-        srts = [inputfile + f for f in os.listdir(inputfile) if f.lower().endswith('srt')]
+        srts = [inputfile + f for f in os.listdir(inputfile) if
+                f.lower().endswith('srt')]
 
     ngrammer = NGram(total, threshold)
     for srt in srts:
@@ -55,8 +58,9 @@ if __name__ == '__main__':
         ngrammer.feed(text)
 
     ngrammer.ngram_count()
-    for gram in sorted(ngrammer.ngramcount, key=ngrammer.ngramcount.get, reverse=True):
+    for gram in sorted(ngrammer.ngramcount, key=ngrammer.ngramcount.get,
+                       reverse=True):
         count = ngrammer.ngramcount[gram]
         word = ' '.join(gram)
         if count > threshold and len(word) > 3:
-            print  count, word
+            print count, word

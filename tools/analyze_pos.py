@@ -4,7 +4,7 @@ import re
 
 from pattern.en import tag, tokenize
 
-#text = sys.stdin.read()
+# text = sys.stdin.read()
 inputfile = sys.argv[1]
 srts = []
 text = ''
@@ -14,9 +14,10 @@ if os.path.isfile(inputfile):
     srts = ['.'.join(filename)]
 
 elif os.path.isdir(inputfile):
-    if inputfile.endswith('/') == False:
+    if not inputfile.endswith('/'):
         inputfile += '/'
-    srts = [inputfile + f for f in os.listdir(inputfile) if f.lower().endswith('srt')]
+    srts = [inputfile + f for f in os.listdir(inputfile) if
+            f.lower().endswith('srt')]
 
 for srt in srts:
     f = open(srt, 'r')
@@ -42,4 +43,3 @@ for ngram in sorted(ngrams, key=ngrams.get, reverse=True):
     count = ngrams[ngram]
     if count > 4:
         print ' '.join(ngram) + ": " + str(count)
-
