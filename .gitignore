@@ -3,3 +3,5 @@ env
 __pycache__
 build
 dist
+*.DS_Store
+*.egg-info
