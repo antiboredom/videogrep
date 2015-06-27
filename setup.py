@@ -36,6 +36,6 @@ setup(name='videogrep',
       author_email = 'splavigne@gmail.com',
       test_suite = 'videogrep.tests',
       packages = ['videogrep','videogrep.tools','videogrep.tests'],
-      install_requires= ["audiogrep", "Pattern==2.6", "moviepy==0.2.1.8.02"],
+      install_requires= ["Pattern==2.6", "moviepy==0.2.1.8.02"],
       scripts = ['bin/videogrep'],
       cmdclass = {'test': PyTest})
