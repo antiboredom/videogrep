@@ -2,6 +2,7 @@ import random
 from pattern.search import Pattern, STRICT, search
 from pattern.en import parsetree, wordnet, ngrams
 
+
 def re_search(text, search_string, strict=False):
     tree = parsetree(text, lemmata=True)
     if strict:
@@ -21,9 +22,11 @@ def search_out(text, search_string, strict=False):
         output.append(" ".join(sent))
     return output
 
+
 def contains(text, search_string):
     results = re_search(text, search_string)
     return len(results) > 0
+
 
 def hypernym_search(text, search_word):
     output = []
@@ -73,23 +76,6 @@ def list_hyponyms(word):
         hyponyms = synsets[0].hyponyms(recursive=True)
         output = [h.senses[0] for h in hyponyms]
     return output
-
-
-#text = sys.stdin.read()
-#total = int(sys.argv[1])
-#grams = ngrams(text, n=total)
-#ngramcount = {}
-#for gram in grams:
-    #if gram in ngramcount:
-        #ngramcount[gram] += 1
-    #else:
-        #ngramcount[gram] = 1
-
-#for gram in sorted(ngramcount, key=ngramcount.get, reverse=True):
-    #count = ngramcount[gram]
-    #if count > 10 and all(len(x) > 0 for x in gram):
-        #print str(count) + ': ' + ' '.join(gram)
-
 
 
 if __name__ == '__main__':
