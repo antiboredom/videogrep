@@ -7,16 +7,15 @@ import gc
 import search as Search
 
 from collections import OrderedDict
-
 from moviepy.video.io.VideoFileClip import VideoFileClip
 from moviepy.video.compositing.concatenate import concatenate
 
 usable_extensions = ['mp4', 'avi', 'mov', 'mkv', 'm4v']
-batch_size = 20
+BATCH_SIZE = 20
 
 
 def convert_timespan(timespan):
-    """Converts an srt timespan into a start and end timestamp"""
+    """Convert an srt timespan into a start and end timestamp."""
     start, end = timespan.split('-->')
     start = convert_timestamp(start)
     end = convert_timestamp(end)
@@ -24,7 +23,7 @@ def convert_timespan(timespan):
 
 
 def convert_timestamp(timestamp):
-    """Converts an srt timestamp into seconds"""
+    """Convert an srt timestamp into seconds."""
     timestamp = timestamp.strip()
     chunk, millis = timestamp.split(',')
     hours, minutes, seconds = chunk.split(':')
@@ -36,7 +35,9 @@ def convert_timestamp(timestamp):
 
 
 def clean_srt(srt):
-    """Removes damaging line breaks and numbers from srt files and returns a dictionary"""
+    """Remove damaging line breaks and numbers from srt files and return a
+    dictionary.
+    """
     with open(srt, 'r') as f:
         text = f.read()
     text = re.sub(r'^\d+[\n\r]', '', text, flags=re.MULTILINE)
@@ -57,6 +58,7 @@ def clean_srt(srt):
 
 
 def cleanup_log_files(outputfile):
+    """Search for and remove temp log files found in the output directory."""
     d = os.path.dirname(os.path.abspath(outputfile))
     logfiles = [f for f in os.listdir(d) if f.endswith('ogg.log')]
     for f in logfiles:
@@ -64,6 +66,7 @@ def cleanup_log_files(outputfile):
 
 
 def demo_supercut(composition, padding):
+    """Print out timespans to be cut followed by the line number in the srt."""
     for i, c in enumerate(composition):
         line = c['line']
         start = c['start']
@@ -74,6 +77,9 @@ def demo_supercut(composition, padding):
 
 
 def create_supercut(composition, outputfile, padding):
+    """Concatenate video clips together and output finished video file to the
+    output directory.
+    """
     print ("[+] Creating clips.")
     demo_supercut(composition, padding)
 
@@ -96,9 +102,12 @@ def create_supercut(composition, outputfile, padding):
 
 
 def create_supercut_in_batches(composition, outputfile, padding):
+    """Create & concatenate video clips in groups of size BATCH_SIZE and output
+    finished video file to output directory.
+    """
     total_clips = len(composition)
     start_index = 0
-    end_index = batch_size
+    end_index = BATCH_SIZE
     batch_comp = []
     while start_index < total_clips:
         filename = outputfile + '.tmp' + str(start_index) + '.mp4'
@@ -106,11 +115,11 @@ def create_supercut_in_batches(composition, outputfile, padding):
             create_supercut(composition[start_index:end_index], filename, padding)
             batch_comp.append(filename)
             gc.collect()
-            start_index += batch_size
-            end_index += batch_size
+            start_index += BATCH_SIZE
+            end_index += BATCH_SIZE
         except:
-            start_index += batch_size
-            end_index += batch_size
+            start_index += BATCH_SIZE
+            end_index += BATCH_SIZE
             next
 
     clips = [VideoFileClip(filename) for filename in batch_comp]
@@ -118,7 +127,7 @@ def create_supercut_in_batches(composition, outputfile, padding):
     video.to_videofile(outputfile, codec="libx264", temp_audiofile='temp-audio.m4a', remove_temp=True, audio_codec='aac')
 
 
-    #remove partial video files
+    # remove partial video files
     for filename in batch_comp:
         os.remove(filename)
 
@@ -126,6 +135,7 @@ def create_supercut_in_batches(composition, outputfile, padding):
 
 
 def search_line(line, search, searchtype):
+    """Return True if search term is found in given line, False otherwise."""
     if searchtype == 're':
         return re.search(search, line)  #, re.IGNORECASE)
     elif searchtype == 'pos':
@@ -135,7 +145,7 @@ def search_line(line, search, searchtype):
 
 
 def get_subtitle_files(inputfile):
-    """Returns a list of subtitle files"""
+    """Return a list of subtitle files."""
     srts = []
 
     if os.path.isfile(inputfile):
@@ -156,6 +166,10 @@ def get_subtitle_files(inputfile):
 
 
 def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, test=False, randomize=False, sync=0):
+    """Search through and find all instances of the search term in the srt,
+    create a supercut around that instance, and output a new video file
+    comprised of those supercuts.
+    """
     srts = get_subtitle_files(inputfile)
 
     padding = padding / 1000.0
@@ -237,9 +251,8 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
         if test == True:
             demo_supercut(composition, padding)
         else:
-            if len(composition) > batch_size:
-                print "[+} Starting batch job."
+            if len(composition) > BATCH_SIZE:
+                print "[+] Starting batch job."
                 create_supercut_in_batches(composition, outputfile, padding)
             else:
                 create_supercut(composition, outputfile, padding)
-
