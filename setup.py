@@ -35,5 +35,5 @@ setup(name='videogrep',
       author_email = 'splavigne@gmail.com',
       test_suite = 'videogrep.tests',
       packages = ['videogrep','videogrep.tools','videogrep.tests'],
-      scripts = ['videogrep_cli.py'],
+      scripts = ['bin/videogrep'],
       cmdclass = {'test': PyTest})
