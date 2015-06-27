@@ -4,38 +4,30 @@ Videogrep
 Videogrep searches through dialog in video files (using .srt subtitle tracks) and makes supercuts based on what it finds.
 
 ##Requirements
-Clone this repository, and then install [pattern](http://www.clips.ua.ac.be/pages/pattern-search) and [moviepy](https://github.com/Zulko/moviepy) along with the other requirements.
 
+Install with pip
 ```
-git clone https://github.com/antiboredom/videogrep.git
-pip install -r requirements.txt
-python setup.py install
+pip install videogrep
 ```
-
 Install [ffmpeg](http://ffmpeg.org/) with Ogg/Vorbis support. If you're on a mac with homebrew you can install ffmpeg with:
 ```
 brew install ffmpeg --with-libvpx --with-libvorbis
 ```
 
-You may need to change the path to your installation of ffmpeg by modifying the first line of videogrep.py:
-```python
-FFMPEG_BINARY = '/usr/local/bin/ffmpeg'
-```
-
 ##How to use it
 The most basic use:
 ```
-videogrep_cli.py --input path/to/video_or_folder --search 'search phrase'
+videogrep --input path/to/video_or_folder --search 'search phrase'
 ```
 You can put any regular expression in the search phrase.
 
 You can also search for part-of-speech tags using Pattern. See the [Pattern-Search documentation](http://www.clips.ua.ac.be/pages/pattern-search) for some details about how this works, and the [Penn Tree bank tag set](http://www.clips.ua.ac.be/pages/mbsp-tags) for a list of usuable part-of-speech tags. For example the following will search for every line of dialog that contains an adjective (JJ) followed by a singular noun (NN):
 ```
-videogrep_cli.py --input path/to/video_or_folder --search 'JJ NN' --search-type pos
+videogrep --input path/to/video_or_folder --search 'JJ NN' --search-type pos
 ```
 You can also do a [hypernym](https://en.wikipedia.org/wiki/Hypernym) search - which essentially searches for words that fit into a specific category. The following, for example, will search for any line of dialog that references a liquid (like water, coffee, beer, etc.):
 ```
-videogrep_cli.py --input path/to/video_or_folder --search 'liquid' --search-type hyper
+videogrep --input path/to/video_or_folder --search 'liquid' --search-type hyper
 ```
 
 **NOTE: videogrep requires the subtitle track and the video file to have the exact same name, up to the extension.** For example, my_movie.mp4 and my_movie.srt will work, my_movie.mp4 and my_movie_subtitle.srt will not work.
