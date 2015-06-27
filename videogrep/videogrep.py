@@ -1,17 +1,20 @@
-FFMPEG_BINARY = '/usr/local/bin/ffmpeg'
-
 import os
 import re
 import random
 import gc
+from collections import OrderedDict
+
 import search as Search
 
-from collections import OrderedDict
 from moviepy.video.io.VideoFileClip import VideoFileClip
 from moviepy.video.compositing.concatenate import concatenate
 
 usable_extensions = ['mp4', 'avi', 'mov', 'mkv', 'm4v']
 BATCH_SIZE = 20
+
+
+def create_timestamps(inputfiles):
+    audiogrep.transcribe(inputfiles)
 
 
 def convert_timespan(timespan):
@@ -148,32 +151,23 @@ def get_subtitle_files(inputfile):
     """Return a list of subtitle files."""
     srts = []
 
-    if os.path.isfile(inputfile):
-        filename = inputfile.split('.')
+    for f in inputfile:
+        filename = f.split('.')
         filename[-1] = 'srt'
-        srts = ['.'.join(filename)]
+        srt = '.'.join(filename)
+        if os.path.isfile(srt):
+            srts.append(srt)
 
-    elif os.path.isdir(inputfile):
-        if inputfile.endswith('/') == False:
-            inputfile += '/'
-        srts = [inputfile + f for f in os.listdir(inputfile) if f.lower().endswith('srt')]
-
-    else:
+    if len(srts) == 0:
         print "[!] No subtitle files were found."
-        exit(1)
+        return False
 
     return srts
 
-
-def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, test=False, randomize=False, sync=0):
-    """Search through and find all instances of the search term in the srt,
-    create a supercut around that instance, and output a new video file
-    comprised of those supercuts.
+def compose_from_srts(srts, search, searchtype, padding=0, sync=0):
+    """Takes a list of subtitle (srt) filenames, search term and search type
+    and, returns a list of timestamps for composing a supercut.
     """
-    srts = get_subtitle_files(inputfile)
-
-    padding = padding / 1000.0
-    sync = sync / 1000.0
     composition = []
     foundSearchTerm = False
 
@@ -218,7 +212,7 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
                         composition.append({'file': videofile, 'time': timespan, 'start': start, 'end': end, 'line': line})
 
                 # If the search was unsuccessful.
-                if foundSearchTerm == False:
+                if foundSearchTerm is False:
                     print "[!] Search term '" + search + "'" + " was not found is subtitle file '" + srt + "'."
 
             # If no subtitles were found in the current file.
@@ -234,8 +228,43 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
                 extList += ext + ", "
             print extList
 
+    return composition
+
+
+def compose_from_transcript(files, search, searchtype):
+    """Takes transcripts created by audiogrep/pocketsphinx, a search and search type
+    and returns a list of timestamps for creating a supercut"""
+    segments = audiogrep.search(search, files, mode=searchtype, regex=True)
+    fixed_segments = []
+    for seg in segments:
+        seg['file'] = seg['file'].replace('.transcription.txt', '')
+        seg['line'] = seg['words']
+        fixed_segments.append(seg)
+
+    return fixed_segments
+
+
+def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, test=False, randomize=False, sync=0):
+    """Search through and find all instances of the search term in an srt or transcript,
+    create a supercut around that instance, and output a new video file
+    comprised of those supercuts.
+    """
+    srts = get_subtitle_files(inputfile)
+    transcription = audiogrep.convert_timestamps(inputfile)
+
+    padding = padding / 1000.0
+    sync = sync / 1000.0
+    composition = []
+    foundSearchTerm = False
+
+    if srts and searchtype not in ['word', 'fragment', 'franken']:
+        composition = compose_from_srts(srts, search, searchtype, padding=padding, sync=sync)
+    elif len(transcription) > 0:
+        composition = compose_from_transcript(inputfile, search, searchtype)
+
+
     # If the search term was not found in any subtitle file...
-    if foundSearchTerm == False:
+    if len(composition) == 0:
         print "[!] Search term '" + search + "'" + " was not found in any file."
         exit(1)
 
@@ -245,14 +274,14 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
         if maxclips > 0:
             composition = composition[:maxclips]
 
-        if randomize == True:
+        if randomize is True:
             random.shuffle(composition)
 
-        if test == True:
+        if test is True:
             demo_supercut(composition, padding)
         else:
-            if len(composition) > BATCH_SIZE:
-                print "[+] Starting batch job."
+            if len(composition) > batch_size:
+                print "[+} Starting batch job."
                 create_supercut_in_batches(composition, outputfile, padding)
             else:
                 create_supercut(composition, outputfile, padding)
