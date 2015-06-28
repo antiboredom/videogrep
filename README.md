@@ -86,11 +86,11 @@ word-level searches.
 * [All the one to two second silences in "Total Recall"](https://www.youtube.com/watch?v=qEtEbXVbYJQ)
 * [The President's former press secretary telling us what he can tell us](https://www.youtube.com/watch?v=D7pymdCU5NQ)
 
-###You can now import videogrep into your own modules and search for terms programmatically!
+###Use it as a module
 
 ```
 from videogrep import videogrep
 
 videogrep.videogrep('path/to/your/files','output_file_name.mp4', 'search_term', 'search_type')
 ```
-The videogrep module accepts the same parameters as the cli! To see the usage just read the source!
+The videogrep module accepts the same parameters as the command line script. To see the usage check out the source.
