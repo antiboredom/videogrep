@@ -5,6 +5,7 @@ import gc
 from collections import OrderedDict
 
 import search as Search
+import audiogrep
 
 from moviepy.video.io.VideoFileClip import VideoFileClip
 from moviepy.video.compositing.concatenate import concatenate
@@ -205,8 +206,6 @@ def compose_from_srts(srts, search, searchtype, padding=0, sync=0):
 
                         # Extract the timespan for this subtitle.
                         start, end = convert_timespan(timespan)
-                        start = start + sync - padding
-                        end = end + sync + padding
 
                         # Record this occurance of the search term.
                         composition.append({'file': videofile, 'time': timespan, 'start': start, 'end': end, 'line': line})
@@ -234,33 +233,50 @@ def compose_from_srts(srts, search, searchtype, padding=0, sync=0):
 def compose_from_transcript(files, search, searchtype):
     """Takes transcripts created by audiogrep/pocketsphinx, a search and search type
     and returns a list of timestamps for creating a supercut"""
-    segments = audiogrep.search(search, files, mode=searchtype, regex=True)
-    fixed_segments = []
-    for seg in segments:
-        seg['file'] = seg['file'].replace('.transcription.txt', '')
-        seg['line'] = seg['words']
-        fixed_segments.append(seg)
 
-    return fixed_segments
+    final_segments = []
+
+    if searchtype in ['re', 'word', 'franken', 'fragment']:
+        if searchtype == 're':
+            searchtype = 'sentence'
+
+        segments = audiogrep.search(search, files, mode=searchtype, regex=True)
+        for seg in segments:
+            seg['file'] = seg['file'].replace('.transcription.txt', '')
+            seg['line'] = seg['words']
+            final_segments.append(seg)
+
+    elif searchtype in ['hyper', 'pos']:
+        for s in audiogrep.convert_timestamps(files):
+            for w in s['words']:
+                if search_line(w[0], search, searchtype):
+                    seg = {
+                        'file': s['file'].replace('.transcription.txt',''),
+                        'line': w[0],
+                        'start': float(w[1]),
+                        'end': float(w[2])
+                    }
+                    final_segments.append(seg)
+
+    return final_segments
 
 
-def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, test=False, randomize=False, sync=0):
+def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, test=False, randomize=False, sync=0, use_transcript=False):
     """Search through and find all instances of the search term in an srt or transcript,
     create a supercut around that instance, and output a new video file
     comprised of those supercuts.
     """
-    srts = get_subtitle_files(inputfile)
-    transcription = audiogrep.convert_timestamps(inputfile)
 
     padding = padding / 1000.0
     sync = sync / 1000.0
     composition = []
     foundSearchTerm = False
 
-    if srts and searchtype not in ['word', 'fragment', 'franken']:
-        composition = compose_from_srts(srts, search, searchtype, padding=padding, sync=sync)
-    elif len(transcription) > 0:
+    if use_transcript:
         composition = compose_from_transcript(inputfile, search, searchtype)
+    else:
+        srts = get_subtitle_files(inputfile)
+        composition = compose_from_srts(srts, search, searchtype, padding=padding, sync=sync)
 
 
     # If the search term was not found in any subtitle file...
@@ -271,6 +287,11 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
     else:
         print "[+] Search term '" + search + "'" + " was found in " + str(len(composition)) + " places."
 
+        # apply padding and sync
+        for c in composition:
+            c['start'] = c['start'] + sync - padding
+            c['end'] = c['end'] + sync + padding
+
         if maxclips > 0:
             composition = composition[:maxclips]
 
@@ -280,8 +301,42 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
         if test is True:
             demo_supercut(composition, padding)
         else:
-            if len(composition) > batch_size:
+            if len(composition) > BATCH_SIZE:
                 print "[+} Starting batch job."
                 create_supercut_in_batches(composition, outputfile, padding)
             else:
                 create_supercut(composition, outputfile, padding)
+
+
+def main():
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Generate a "supercut" of one or more video files by searching through subtitle tracks.')
+    parser.add_argument('--input', '-i', dest='inputfile', nargs='*', required=True, help='video or subtitle file, or folder')
+    parser.add_argument('--search', '-s', dest='search', help='search term')
+    parser.add_argument('--search-type', '-st', dest='searchtype', default='re', choices=['re', 'pos', 'hyper', 'fragment', 'franken', 'word'], help='type of search')
+    parser.add_argument('--use-transcript', '-t', action='store_true', dest='use_transcript', help='Use a transcript generated by pocketsphinx instead of srt files')
+    parser.add_argument('--max-clips', '-m', dest='maxclips', type=int, default=0, help='maximum number of clips to use for the supercut')
+    parser.add_argument('--output', '-o', dest='outputfile', default='supercut.mp4', help='name of output file')
+    parser.add_argument('--demo', '-d', action='store_true', help='show results without making the supercut')
+    parser.add_argument('--randomize', '-r', action='store_true', help='randomize the clips')
+    parser.add_argument('--youtube', '-yt', help='grab clips from youtube based on your search')
+    parser.add_argument('--padding', '-p', dest='padding', default=0, type=int, help='padding in milliseconds to add to the start and end of each clip')
+    parser.add_argument('--resyncsubs', '-rs', dest='sync', default=0, type=int, help='Subtitle re-synch delay +/- in milliseconds')
+    parser.add_argument('--transcribe', '-tr', dest='transcribe', action='store_true', help='Transcribe the video using audiogrep. Requires pocketsphinx')
+
+    args = parser.parse_args()
+
+    if not args.transcribe:
+        if args.search is None:
+             parser.error('argument --search/-s is required')
+
+    if args.transcribe:
+        create_timestamps(args.inputfile)
+    else:
+        videogrep(args.inputfile, args.outputfile, args.search, args.searchtype, args.maxclips, args.padding, args.demo, args.randomize, args.sync, args.use_transcript)
+
+
+if __name__ == '__main__':
+    main()
+
