@@ -1,7 +1,7 @@
 Videogrep
 =========
 
-Videogrep searches through dialog in video files (using .srt subtitle tracks) and makes supercuts based on what it finds.
+Videogrep searches through dialog in video files (using .srt subtitle tracks or pocketsphinx transcriptions) and makes supercuts based on what it finds.
 
 ##Requirements
 
@@ -12,6 +12,14 @@ pip install videogrep
 Install [ffmpeg](http://ffmpeg.org/) with Ogg/Vorbis support. If you're on a mac with homebrew you can install ffmpeg with:
 ```
 brew install ffmpeg --with-libvpx --with-libvorbis
+```
+
+(OPTIONAL) Install pocketsphinx for word-level transcriptions. On a mac:
+```
+brew tap watsonbox/cmu-sphinx
+brew install --HEAD watsonbox/cmu-sphinx/cmu-sphinxbase
+brew install --HEAD watsonbox/cmu-sphinx/cmu-sphinxtrain # optional
+brew install --HEAD watsonbox/cmu-sphinx/cmu-pocketsphinx
 ```
 
 ##How to use it
@@ -50,11 +58,14 @@ Type of search you want to perform. There are three options:
 * re: [regular expression](http://www.pyregex.com/) (this is the default).
 * pos: part of speech search (uses [pattern.search](http://www.clips.ua.ac.be/pages/pattern-search)). For example 'JJ NN' would return all lines of dialog that contain an adjective followed by a noun.
 * hyper: hypernym search. For example 'body parts' grabs all lines of dialog that reference a body part
+* word: extract individual words - for multiple words use the '|' symbol (requires pocketsphinx).
+* franken: create a "frankenstein" sentence (requires pocketsphinx)
+* fragment: multiple words with allowed wildcards like 'blue \*' (requires pocketsphinx)
 
-####--max-clips / -m 
+####--max-clips / -m
 Maximum number of clips to use for the supercut
 
-####--test / -t
+####--demo / -d
 Show the search results without making the supercut
 
 ####--randomize / -r
@@ -62,6 +73,13 @@ Randomize the order of the clips
 
 ####--padding / -p
 Padding in milliseconds to add to the start and end of each clip
+
+####--transcribe / -tr
+Transcribe the video using audiogrep/pocketsphinx. You must install pocketsphinx first!
+
+####--use-transcript / -t
+Use the pocketsphinx transcript rather than a subtitle file for searching. If this is enabled you can do
+word-level searches.
 
 ##Samples
 * [All the instances of the phrase "time" in the movie "In Time"](https://www.youtube.com/watch?v=PQMzOUeprlk)
