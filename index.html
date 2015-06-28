@@ -1,0 +1,171 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Videogrep by antiboredom</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Videogrep</h1>
+        <p>Automatic supercuts with python.</p>
+
+        <p class="view"><a href="https://github.com/antiboredom/videogrep">View the Project on GitHub <small>antiboredom/videogrep</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/antiboredom/videogrep/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/antiboredom/videogrep/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/antiboredom/videogrep">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a id="videogrep" class="anchor" href="#videogrep" aria-hidden="true"><span class="octicon octicon-link"></span></a>Videogrep</h1>
+
+<p>Videogrep searches through dialog in video files (using .srt subtitle tracks or pocketsphinx transcriptions) and makes supercuts based on what it finds.</p>
+
+<h2>
+<a id="requirements" class="anchor" href="#requirements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Requirements</h2>
+
+<p>Install with pip</p>
+
+<pre><code>pip install videogrep
+</code></pre>
+
+<p>Install <a href="http://ffmpeg.org/">ffmpeg</a> with Ogg/Vorbis support. If you're on a mac with homebrew you can install ffmpeg with:</p>
+
+<pre><code>brew install ffmpeg --with-libvpx --with-libvorbis
+</code></pre>
+
+<p>(OPTIONAL) Install pocketsphinx for word-level transcriptions. On a mac:</p>
+
+<pre><code>brew tap watsonbox/cmu-sphinx
+brew install --HEAD watsonbox/cmu-sphinx/cmu-sphinxbase
+brew install --HEAD watsonbox/cmu-sphinx/cmu-sphinxtrain # optional
+brew install --HEAD watsonbox/cmu-sphinx/cmu-pocketsphinx
+</code></pre>
+
+<h2>
+<a id="how-to-use-it" class="anchor" href="#how-to-use-it" aria-hidden="true"><span class="octicon octicon-link"></span></a>How to use it</h2>
+
+<p>The most basic use:</p>
+
+<pre><code>videogrep --input path/to/video_or_folder --search 'search phrase'
+</code></pre>
+
+<p>You can put any regular expression in the search phrase.</p>
+
+<p>You can also search for part-of-speech tags using Pattern. See the <a href="http://www.clips.ua.ac.be/pages/pattern-search">Pattern-Search documentation</a> for some details about how this works, and the <a href="http://www.clips.ua.ac.be/pages/mbsp-tags">Penn Tree bank tag set</a> for a list of usuable part-of-speech tags. For example the following will search for every line of dialog that contains an adjective (JJ) followed by a singular noun (NN):</p>
+
+<pre><code>videogrep --input path/to/video_or_folder --search 'JJ NN' --search-type pos
+</code></pre>
+
+<p>You can also do a <a href="https://en.wikipedia.org/wiki/Hypernym">hypernym</a> search - which essentially searches for words that fit into a specific category. The following, for example, will search for any line of dialog that references a liquid (like water, coffee, beer, etc.):</p>
+
+<pre><code>videogrep --input path/to/video_or_folder --search 'liquid' --search-type hyper
+</code></pre>
+
+<p><strong>NOTE: videogrep requires the subtitle track and the video file to have the exact same name, up to the extension.</strong> For example, my_movie.mp4 and my_movie.srt will work, my_movie.mp4 and my_movie_subtitle.srt will not work.</p>
+
+<h3>
+<a id="options" class="anchor" href="#options" aria-hidden="true"><span class="octicon octicon-link"></span></a>Options</h3>
+
+<p>videogrep can take a number of options:</p>
+
+<h4>
+<a id="--input---i" class="anchor" href="#--input---i" aria-hidden="true"><span class="octicon octicon-link"></span></a>--input / -i</h4>
+
+<p>Video or subtitle file, or folder containing multiple files</p>
+
+<h4>
+<a id="--output---o" class="anchor" href="#--output---o" aria-hidden="true"><span class="octicon octicon-link"></span></a>--output / -o</h4>
+
+<p>Name of the file to generate. By default this is "supercut.mp4"</p>
+
+<h4>
+<a id="--search---s" class="anchor" href="#--search---s" aria-hidden="true"><span class="octicon octicon-link"></span></a>--search / -s</h4>
+
+<p>Search term</p>
+
+<h4>
+<a id="--search-type---st" class="anchor" href="#--search-type---st" aria-hidden="true"><span class="octicon octicon-link"></span></a>--search-type / -st</h4>
+
+<p>Type of search you want to perform. There are three options:</p>
+
+<ul>
+<li>re: <a href="http://www.pyregex.com/">regular expression</a> (this is the default).</li>
+<li>pos: part of speech search (uses <a href="http://www.clips.ua.ac.be/pages/pattern-search">pattern.search</a>). For example 'JJ NN' would return all lines of dialog that contain an adjective followed by a noun.</li>
+<li>hyper: hypernym search. For example 'body parts' grabs all lines of dialog that reference a body part</li>
+<li>word: extract individual words - for multiple words use the '|' symbol (requires pocketsphinx).</li>
+<li>franken: create a "frankenstein" sentence (requires pocketsphinx)</li>
+<li>fragment: multiple words with allowed wildcards like 'blue *' (requires pocketsphinx)</li>
+</ul>
+
+<h4>
+<a id="--max-clips---m" class="anchor" href="#--max-clips---m" aria-hidden="true"><span class="octicon octicon-link"></span></a>--max-clips / -m</h4>
+
+<p>Maximum number of clips to use for the supercut</p>
+
+<h4>
+<a id="--demo---d" class="anchor" href="#--demo---d" aria-hidden="true"><span class="octicon octicon-link"></span></a>--demo / -d</h4>
+
+<p>Show the search results without making the supercut</p>
+
+<h4>
+<a id="--randomize---r" class="anchor" href="#--randomize---r" aria-hidden="true"><span class="octicon octicon-link"></span></a>--randomize / -r</h4>
+
+<p>Randomize the order of the clips</p>
+
+<h4>
+<a id="--padding---p" class="anchor" href="#--padding---p" aria-hidden="true"><span class="octicon octicon-link"></span></a>--padding / -p</h4>
+
+<p>Padding in milliseconds to add to the start and end of each clip</p>
+
+<h4>
+<a id="--transcribe---tr" class="anchor" href="#--transcribe---tr" aria-hidden="true"><span class="octicon octicon-link"></span></a>--transcribe / -tr</h4>
+
+<p>Transcribe the video using audiogrep/pocketsphinx. You must install pocketsphinx first!</p>
+
+<h4>
+<a id="--use-transcript---t" class="anchor" href="#--use-transcript---t" aria-hidden="true"><span class="octicon octicon-link"></span></a>--use-transcript / -t</h4>
+
+<p>Use the pocketsphinx transcript rather than a subtitle file for searching. If this is enabled you can do
+word-level searches.</p>
+
+<h2>
+<a id="samples" class="anchor" href="#samples" aria-hidden="true"><span class="octicon octicon-link"></span></a>Samples</h2>
+
+<ul>
+<li><a href="https://www.youtube.com/watch?v=PQMzOUeprlk">All the instances of the phrase "time" in the movie "In Time"</a></li>
+<li><a href="https://www.youtube.com/watch?v=qEtEbXVbYJQ">All the one to two second silences in "Total Recall"</a></li>
+<li><a href="https://www.youtube.com/watch?v=D7pymdCU5NQ">The President's former press secretary telling us what he can tell us</a></li>
+</ul>
+
+<h3>
+<a id="use-it-as-a-module" class="anchor" href="#use-it-as-a-module" aria-hidden="true"><span class="octicon octicon-link"></span></a>Use it as a module</h3>
+
+<pre><code>from videogrep import videogrep
+
+videogrep.videogrep('path/to/your/files','output_file_name.mp4', 'search_term', 'search_type')
+</code></pre>
+
+<p>The videogrep module accepts the same parameters as the cli. To see the usage just read the source.</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/antiboredom">antiboredom</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
