@@ -1,4 +1,5 @@
 #!/usr/bin/env python
 
 import videogrep
-videogrep.main()
+if __name__ == '__main__':
+    videogrep.main()
