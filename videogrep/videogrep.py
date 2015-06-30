@@ -4,7 +4,8 @@ import random
 import gc
 from collections import OrderedDict
 
-import search as Search
+import pattern
+import searcher
 import audiogrep
 
 from moviepy.video.io.VideoFileClip import VideoFileClip
@@ -15,7 +16,8 @@ BATCH_SIZE = 20
 
 
 def create_timestamps(inputfiles):
-    audiogrep.transcribe(inputfiles)
+    files = audiogrep.convert_to_wav(inputfiles)
+    audiogrep.transcribe(files)
 
 
 def convert_timespan(timespan):
@@ -143,9 +145,9 @@ def search_line(line, search, searchtype):
     if searchtype == 're':
         return re.search(search, line)  #, re.IGNORECASE)
     elif searchtype == 'pos':
-        return Search.search_out(line, search)
+        return searcher.search_out(line, search)
     elif searchtype == 'hyper':
-        return Search.hypernym_search(line, search)
+        return searcher.hypernym_search(line, search)
 
 
 def get_subtitle_files(inputfile):
