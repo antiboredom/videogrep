@@ -3,6 +3,9 @@ Videogrep
 
 Videogrep searches through dialog in video files (using .srt subtitle tracks or pocketsphinx transcriptions) and makes supercuts based on what it finds.
 
+## New!
+Videogrep now has an experimental graphic interface (Mac only). Download it here: [http://saaaam.s3.amazonaws.com/VideoGrep.app.zip](http://saaaam.s3.amazonaws.com/VideoGrep.app.zip)
+
 ##Requirements
 
 Install with pip
