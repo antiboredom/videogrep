@@ -9,7 +9,7 @@ except ImportError:
 try:
     with open('README.md') as readme:
         long_description = readme.read()
-except IOError, ImportError:
+except IOError:
     long_description =''
 
 class PyTest(Command):
