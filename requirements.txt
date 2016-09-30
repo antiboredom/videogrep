@@ -1,8 +1,9 @@
-Pattern==2.6
-argparse==1.2.1
+audiogrep==0.1.2
 beautifulsoup4==4.3.2
 decorator==3.4.0
-moviepy==0.2.1.8.02
+moviepy==0.2.1.8.2
 numpy==1.8.1
+Pattern==2.6
+pydub==0.16.5
+pytube==6.1.11
 tqdm==1.0
-git+https://github.com/NFicano/pytube.git #pypi download not working
