@@ -2,6 +2,7 @@ import os
 import re
 import random
 import gc
+import subprocess
 from collections import OrderedDict
 
 import pattern
@@ -11,8 +12,83 @@ import audiogrep
 from moviepy.video.io.VideoFileClip import VideoFileClip
 from moviepy.video.compositing.concatenate import concatenate
 
+from timecode import Timecode
+
 usable_extensions = ['mp4', 'avi', 'mov', 'mkv', 'm4v']
 BATCH_SIZE = 20
+
+
+def get_fps(filename):
+    process = subprocess.Popen(['ffmpeg', '-i', filename], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    returncode = process.wait()
+    output = process.stdout.read()
+    fps = re.findall(r'\d+ fps', output, flags=re.MULTILINE)
+    try:
+        return int(fps[0].split(' ')[0])
+    except:
+        return 25
+
+
+def make_edl_segment(n, time_in, time_out, rec_in, rec_out, full_name, filename, fps=25):
+    reel = full_name
+    if len(full_name) > 7:
+        reel = full_name[0:7]
+
+    template = '{} {} AA/V  C        {} {} {} {}\n* FROM CLIP NAME:  {}\n* COMMENT: \n FINAL CUT PRO REEL: {} REPLACED BY: {}\n\n'
+
+    # print time_in, time_out, rec_in, rec_out
+    # print Timecode(fps, start_seconds=time_in), Timecode(fps, start_seconds=time_out), Timecode(fps, start_seconds=rec_in), Timecode(fps, start_seconds=rec_out)
+    #
+    # print ''
+    out = template.format(
+        n,
+        full_name,
+        Timecode(fps, start_seconds=time_in),
+        Timecode(fps, start_seconds=time_out),
+        Timecode(fps, start_seconds=rec_in),
+        Timecode(fps, start_seconds=rec_out),
+        filename,
+        full_name,
+        reel
+    )
+
+    return out
+
+
+def make_edl(timestamps, name):
+    '''Converts an array of ordered timestamps into an EDL string'''
+
+    fpses = {}
+
+    out = "TITLE: {}\nFCM: NON-DROP FRAME\n\n".format(name)
+
+    rec_in = 0
+
+    for index, timestamp in enumerate(timestamps):
+        if timestamp['file'] not in fpses:
+            fpses[timestamp['file']] = get_fps(timestamp['file'])
+
+        fps = fpses[timestamp['file']]
+
+        n = str(index + 1).zfill(4)
+
+        time_in = timestamp['start']
+        time_out = timestamp['end']
+        duration = time_out - time_in
+
+        rec_out = rec_in + duration #timestamp['duration']
+
+        full_name = 'reel_{}'.format(n)
+        # full_name = os.path.basename(timestamp['file'])
+
+        filename = timestamp['file']
+
+        out += make_edl_segment(n, time_in, time_out, rec_in, rec_out, full_name, filename, fps=fps)
+
+        rec_in = rec_out
+
+    with open(name, 'w') as outfile:
+        outfile.write(out)
 
 
 def create_timestamps(inputfiles):
@@ -303,11 +379,14 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
         if test is True:
             demo_supercut(composition, padding)
         else:
-            if len(composition) > BATCH_SIZE:
-                print "[+} Starting batch job."
-                create_supercut_in_batches(composition, outputfile, padding)
+            if os.path.splitext(outputfile)[1].lower() == '.edl':
+                make_edl(composition, outputfile)
             else:
-                create_supercut(composition, outputfile, padding)
+                if len(composition) > BATCH_SIZE:
+                    print "[+} Starting batch job."
+                    create_supercut_in_batches(composition, outputfile, padding)
+                else:
+                    create_supercut(composition, outputfile, padding)
 
 
 def main():
