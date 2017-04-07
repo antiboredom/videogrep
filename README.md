@@ -94,6 +94,6 @@ word-level searches.
 ```
 from videogrep import videogrep
 
-videogrep.videogrep('path/to/your/files','output_file_name.mp4', 'search_term', 'search_type')
+videogrep('path/to/your/files','output_file_name.mp4', 'search_term', 'search_type')
 ```
 The videogrep module accepts the same parameters as the command line script. To see the usage check out the source.
