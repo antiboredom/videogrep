@@ -6,7 +6,7 @@ Videogrep searches through dialog in video files (using .srt subtitle tracks or 
 ## New!
 Videogrep now has an experimental graphic interface (Mac only). Download it here: [http://saaaam.s3.amazonaws.com/VideoGrep.app.zip](http://saaaam.s3.amazonaws.com/VideoGrep.app.zip)
 
-##Requirements
+## Requirements
 
 Install with pip
 ```
@@ -25,7 +25,7 @@ brew install --HEAD watsonbox/cmu-sphinx/cmu-sphinxtrain # optional
 brew install --HEAD watsonbox/cmu-sphinx/cmu-pocketsphinx
 ```
 
-##How to use it
+## How to use it
 The most basic use:
 ```
 videogrep --input path/to/video_or_folder --search 'search phrase'
@@ -43,20 +43,20 @@ videogrep --input path/to/video_or_folder --search 'liquid' --search-type hyper
 
 **NOTE: videogrep requires the subtitle track and the video file to have the exact same name, up to the extension.** For example, my_movie.mp4 and my_movie.srt will work, my_movie.mp4 and my_movie_subtitle.srt will not work.
 
-###Options
+### Options
 
 videogrep can take a number of options:
 
-####--input / -i
+#### --input / -i
 Video or subtitle file, or folder containing multiple files
 
-####--output / -o
+#### --output / -o
 Name of the file to generate. By default this is "supercut.mp4"
 
-####--search / -s
+#### --search / -s
 Search term
 
-####--search-type / -st
+#### --search-type / -st
 Type of search you want to perform. There are three options:
 * re: [regular expression](http://www.pyregex.com/) (this is the default).
 * pos: part of speech search (uses [pattern.search](http://www.clips.ua.ac.be/pages/pattern-search)). For example 'JJ NN' would return all lines of dialog that contain an adjective followed by a noun.
@@ -65,31 +65,31 @@ Type of search you want to perform. There are three options:
 * franken: create a "frankenstein" sentence (requires pocketsphinx)
 * fragment: multiple words with allowed wildcards like 'blue \*' (requires pocketsphinx)
 
-####--max-clips / -m
+#### --max-clips / -m
 Maximum number of clips to use for the supercut
 
-####--demo / -d
+#### --demo / -d
 Show the search results without making the supercut
 
-####--randomize / -r
+#### --randomize / -r
 Randomize the order of the clips
 
-####--padding / -p
+#### --padding / -p
 Padding in milliseconds to add to the start and end of each clip
 
-####--transcribe / -tr
+#### --transcribe / -tr
 Transcribe the video using audiogrep/pocketsphinx. You must install pocketsphinx first!
 
-####--use-transcript / -t
+#### --use-transcript / -t
 Use the pocketsphinx transcript rather than a subtitle file for searching. If this is enabled you can do
 word-level searches.
 
-##Samples
+## Samples
 * [All the instances of the phrase "time" in the movie "In Time"](https://www.youtube.com/watch?v=PQMzOUeprlk)
 * [All the one to two second silences in "Total Recall"](https://www.youtube.com/watch?v=qEtEbXVbYJQ)
 * [The President's former press secretary telling us what he can tell us](https://www.youtube.com/watch?v=D7pymdCU5NQ)
 
-###Use it as a module
+### Use it as a module
 
 ```
 from videogrep import videogrep
