@@ -229,14 +229,20 @@ def search_line(line, search, searchtype):
 def get_subtitle_files(inputfile):
     """Return a list of subtitle files."""
     srts = []
-
+    
     for f in inputfile:
-        filename = f.split('.')
-        filename[-1] = 'srt'
-        srt = '.'.join(filename)
-        if os.path.isfile(srt):
-            srts.append(srt)
-
+        if os.path.isfile(f):
+            if f.lower().endswith('.srt'):
+                srts.append(f)
+        elif os.path.isdir(f):
+            if f.endswith('/') == False:
+                f += '/'
+            dirFiles = os.listdir(f);
+            dirFiles[:] = [f + fpath for fpath in dirFiles]
+            nestedSubsOrBool = get_subtitle_files( dirFiles)
+            if isinstance(nestedSubsOrBool, list):
+                srts = srts + nestedSubsOrBool
+                
     if len(srts) == 0:
         print "[!] No subtitle files were found."
         return False
