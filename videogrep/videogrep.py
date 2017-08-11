@@ -150,12 +150,13 @@ def cleanup_log_files(outputfile):
 def demo_supercut(composition, padding):
     """Print out timespans to be cut followed by the line number in the srt."""
     for i, c in enumerate(composition):
+        file = c['file']
         line = c['line']
         start = c['start']
         end = c['end']
         if i > 0 and composition[i - 1]['file'] == c['file'] and start < composition[i - 1]['end']:
             start = start + padding
-        print "{1} to {2}:\t{0}".format(line, start, end)
+        print "{0}:\t{2} to {3}:\t{1}".format(os.path.basename(file), line, start, end)
 
 
 def create_supercut(composition, outputfile, padding):
