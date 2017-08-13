@@ -154,6 +154,9 @@ def demo_supercut(composition, padding):
         line = c['line']
         start = c['start']
         end = c['end']
+        if c['searchtype'] == 'hyper':
+            for match in c['matches']:
+                line = ('\033[1m' + match + '\033[0m').join( line.split(match) )
         if i > 0 and composition[i - 1]['file'] == c['file'] and start < composition[i - 1]['end']:
             start = start + padding
         print "{0}:\t{2} to {3}:\t{1}".format(os.path.basename(file), line, start, end)
@@ -285,7 +288,8 @@ def compose_from_srts(srts, search, searchtype, padding=0, sync=0):
                     line = lines[timespan].strip()
 
                     # If this line contains the search term
-                    if search_line(line, search, searchtype):
+                    matches = search_line(line, search, searchtype);
+                    if matches:
 
                         foundSearchTerm = True
 
@@ -293,7 +297,7 @@ def compose_from_srts(srts, search, searchtype, padding=0, sync=0):
                         start, end = convert_timespan(timespan)
 
                         # Record this occurance of the search term.
-                        composition.append({'file': videofile, 'time': timespan, 'start': start, 'end': end, 'line': line})
+                        composition.append({'file': videofile, 'time': timespan, 'start': start, 'end': end, 'line': line, 'searchtype': searchtype, 'matches': matches})
 
                 # If the search was unsuccessful.
                 if foundSearchTerm is False:
