@@ -180,7 +180,7 @@ def create_supercut(composition, outputfile, padding):
     cut_clips = [videofileclips[c['file']].subclip(c['start'], c['end']) for c in composition]
 
     print "[+] Concatenating clips."
-    final_clip = concatenate(cut_clips)
+    final_clip = concatenate(cut_clips, method='compose')
 
     print "[+] Writing ouput file."
     final_clip.to_videofile(outputfile, codec="libx264", temp_audiofile='temp-audio.m4a', remove_temp=True, audio_codec='aac')
@@ -209,7 +209,7 @@ def create_supercut_in_batches(composition, outputfile, padding):
             next
 
     clips = [VideoFileClip(filename) for filename in batch_comp]
-    video = concatenate(clips)
+    video = concatenate(clips, method='compose')
     video.to_videofile(outputfile, codec="libx264", temp_audiofile='temp-audio.m4a', remove_temp=True, audio_codec='aac')
 
 
