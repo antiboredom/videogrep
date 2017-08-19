@@ -350,7 +350,7 @@ def compose_from_transcript(files, search, searchtype):
     return final_segments
 
 
-def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, test=False, randomize=False, sync=0, use_transcript=False):
+def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, test=False, randomize=False, sync=0, use_transcript=False, autoplay=False):
     """Search through and find all instances of the search term in an srt or transcript,
     create a supercut around that instance, and output a new video file
     comprised of those supercuts.
@@ -398,6 +398,8 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
                     create_supercut_in_batches(composition, outputfile, padding)
                 else:
                     create_supercut(composition, outputfile, padding)
+            if autoplay:
+                os.system("open "+outputfile)
 
 
 def main():
@@ -416,6 +418,7 @@ def main():
     parser.add_argument('--padding', '-p', dest='padding', default=0, type=int, help='padding in milliseconds to add to the start and end of each clip')
     parser.add_argument('--resyncsubs', '-rs', dest='sync', default=0, type=int, help='Subtitle re-synch delay +/- in milliseconds')
     parser.add_argument('--transcribe', '-tr', dest='transcribe', action='store_true', help='Transcribe the video using audiogrep. Requires pocketsphinx')
+    parser.add_argument('--autoplay', '-a', action='store_true', help='Automatically open the newly created superclip.')
 
     args = parser.parse_args()
 
@@ -426,7 +429,7 @@ def main():
     if args.transcribe:
         create_timestamps(args.inputfile)
     else:
-        videogrep(args.inputfile, args.outputfile, args.search, args.searchtype, args.maxclips, args.padding, args.demo, args.randomize, args.sync, args.use_transcript)
+        videogrep(args.inputfile, args.outputfile, args.search, args.searchtype, args.maxclips, args.padding, args.demo, args.randomize, args.sync, args.use_transcript, args.autoplay)
 
 
 if __name__ == '__main__':
