@@ -89,6 +89,42 @@ def make_edl(timestamps, name):
 
     with open(name, 'w') as outfile:
         outfile.write(out)
+        
+def make_subtitle(comp, name, padding):
+    '''writes out a subtitle file for the supercut'''
+
+    fpses = {}
+
+    out = ''
+
+    rec_in = 0
+
+    for index, comp in enumerate(comp):
+        if comp['file'] not in fpses:
+            fpses[comp['file']] = get_fps(comp['file'])
+
+        fps = fpses[comp['file']]
+
+        time_in = comp['start']
+        time_out = comp['end']
+        duration = time_out - time_in
+
+        rec_out = rec_in + duration #timestamp['duration']
+
+        filename = os.path.basename(comp['file'])
+        rec_in_timecode = str(Timecode(fps, start_seconds=rec_in + padding))
+        rec_out_timecode = str(Timecode(fps, start_seconds=rec_out - padding))
+        rec_in_srt_format = rec_in_timecode[:8]+','+ rec_in_timecode[9:]
+        rec_out_srt_format = rec_out_timecode[:8]+','+ rec_out_timecode[9:]
+        
+        out += '{}\n{} --> {}\n<font size="36">VIDEO FILE: {}\nSUBTITLE SEGMENT: {}</font>\n{}\n\n'.format(
+            index+1, rec_in_srt_format, rec_out_srt_format, filename, comp['time'], comp['line']
+        )
+
+        rec_in = rec_out
+
+    with open( os.path.splitext(name)[0]+'.srt', 'w') as outfile:
+        outfile.write(out)
 
 
 def create_timestamps(inputfiles):
@@ -350,7 +386,7 @@ def compose_from_transcript(files, search, searchtype):
     return final_segments
 
 
-def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, test=False, randomize=False, sync=0, use_transcript=False, autoplay=False):
+def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, test=False, randomize=False, sync=0, use_transcript=False, autoplay=False, output_subtitle=False):
     """Search through and find all instances of the search term in an srt or transcript,
     create a supercut around that instance, and output a new video file
     comprised of those supercuts.
@@ -360,7 +396,6 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
     sync = sync / 1000.0
     composition = []
     foundSearchTerm = False
-
     if use_transcript:
         composition = compose_from_transcript(inputfile, search, searchtype)
     else:
@@ -387,6 +422,8 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
         if randomize is True:
             random.shuffle(composition)
 
+        if output_subtitle:
+            make_subtitle(composition, outputfile, padding)
         if test is True:
             demo_supercut(composition, padding)
         else:
@@ -400,6 +437,7 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
                     create_supercut(composition, outputfile, padding)
             if autoplay:
                 os.system("open "+outputfile)
+                
 
 
 def main():
@@ -419,6 +457,7 @@ def main():
     parser.add_argument('--resyncsubs', '-rs', dest='sync', default=0, type=int, help='Subtitle re-synch delay +/- in milliseconds')
     parser.add_argument('--transcribe', '-tr', dest='transcribe', action='store_true', help='Transcribe the video using audiogrep. Requires pocketsphinx')
     parser.add_argument('--autoplay', '-a', action='store_true', help='Automatically open the newly created superclip.')
+    parser.add_argument('--output-subtitle', '-os', action='store_true', dest='output_subtitle', help='Automatically generate a subtitle file along with the output video.')
 
     args = parser.parse_args()
 
@@ -429,7 +468,7 @@ def main():
     if args.transcribe:
         create_timestamps(args.inputfile)
     else:
-        videogrep(args.inputfile, args.outputfile, args.search, args.searchtype, args.maxclips, args.padding, args.demo, args.randomize, args.sync, args.use_transcript, args.autoplay)
+        videogrep(args.inputfile, args.outputfile, args.search, args.searchtype, args.maxclips, args.padding, args.demo, args.randomize, args.sync, args.use_transcript, args.autoplay, args.output_subtitle)
 
 
 if __name__ == '__main__':
