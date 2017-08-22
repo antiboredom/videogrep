@@ -90,7 +90,7 @@ def make_edl(timestamps, name):
     with open(name, 'w') as outfile:
         outfile.write(out)
         
-def make_subtitle(comp, name, padding):
+def make_subtitle(comps, name, padding):
     '''writes out a subtitle file for the supercut'''
 
     fpses = {}
@@ -98,8 +98,8 @@ def make_subtitle(comp, name, padding):
     out = ''
 
     rec_in = 0
-
-    for index, comp in enumerate(comp):
+    print ("[+] Creating subtitle file.")
+    for index, comp in enumerate(comps):
         if comp['file'] not in fpses:
             fpses[comp['file']] = get_fps(comp['file'])
 
@@ -113,12 +113,13 @@ def make_subtitle(comp, name, padding):
 
         filename = os.path.basename(comp['file'])
         rec_in_timecode = str(Timecode(fps, start_seconds=rec_in + padding))
-        rec_out_timecode = str(Timecode(fps, start_seconds=rec_out - padding))
+        rec_out_timecode = str(Timecode(fps, start_seconds=rec_out))
         rec_in_srt_format = rec_in_timecode[:8]+','+ rec_in_timecode[9:]
         rec_out_srt_format = rec_out_timecode[:8]+','+ rec_out_timecode[9:]
         
-        out += '{}\n{} --> {}\n<font size="36">VIDEO FILE: {}\nSUBTITLE SEGMENT: {}</font>\n{}\n\n'.format(
-            index+1, rec_in_srt_format, rec_out_srt_format, filename, comp['time'], comp['line']
+                
+        out += '{}\n{} --> {}\n<i>{}</i>\n{}\n\n'.format(
+            index+1, rec_in_srt_format, rec_out_srt_format, filename, comp['line']
         )
 
         rec_in = rec_out
@@ -204,7 +205,6 @@ def create_supercut(composition, outputfile, outputtype, padding, outputsubtitle
     """
     print ("[+] Creating clips.")
     demo_supercut(composition, padding)
-    print('ran demo.')
 
     # add padding when necessary
     for (clip, nextclip) in zip(composition, composition[1:]):
