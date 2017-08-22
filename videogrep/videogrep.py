@@ -198,12 +198,13 @@ def demo_supercut(composition, padding):
         print "{0}:\t{2} to {3}:\t{1}".format(os.path.basename(file), line, start, end)
 
 
-def create_supercut(composition, outputfile, padding):
+def create_supercut(composition, outputfile, outputtype, padding, outputsubtitle):
     """Concatenate video clips together and output finished video file to the
     output directory.
     """
     print ("[+] Creating clips.")
     demo_supercut(composition, padding)
+    print('ran demo.')
 
     # add padding when necessary
     for (clip, nextclip) in zip(composition, composition[1:]):
@@ -212,48 +213,85 @@ def create_supercut(composition, outputfile, padding):
 
     # put all clips together:
     all_filenames = set([c['file'] for c in composition])
+    #  dict of VideoFileClip instances by video file name, one for each original video file matched
     videofileclips = dict([(f, VideoFileClip(f)) for f in all_filenames])
+    # list of VideoFileClip instances, one for each matching sub clip in all matching videos
     cut_clips = [videofileclips[c['file']].subclip(c['start'], c['end']) for c in composition]
+    
+    if outputtype in ['individual', 'both']:
+        clip_output_dir = outputfile+'_clips'
+        print "[+] Exporting individual clips for "+str(len(videofileclips))+' source videos to '
+        #comp properties: matches, start, end, file, time, line
+        for i, c in enumerate(composition):
+            file = os.path.basename(c['file'])
+            # replace non alphanumeric chars with underscore
+            file = re.sub('[^0-9a-zA-Z]+', '_', file)
+            line = c['line']
+            line = re.sub('[^0-9a-zA-Z]+', '_', line)
+            start = c['start']
+            end = c['end']
+            if not os.path.exists(clip_output_dir):
+                os.makedirs(clip_output_dir)
+            newfilepath = '{}/{}_{}_-_{}.mp4'.format(clip_output_dir, i+1, file, line);
+            if outputsubtitle:
+                make_subtitle([c], newfilepath, padding)
+            #print "Writing individual clip: {}".format(newfilepath)
+            cut_clips[i].to_videofile(newfilepath, codec="libx264", temp_audiofile='temp-audio.m4a', remove_temp=True, audio_codec='aac')
+    
+    if outputtype in ['combine', 'both']:
+        print "[+] Concatenating clips."
+        final_clip = concatenate(cut_clips, method='compose')
 
-    print "[+] Concatenating clips."
-    final_clip = concatenate(cut_clips, method='compose')
+        print "[+] Writing combined ouput file."
+        final_clip.to_videofile(outputfile, codec="libx264", temp_audiofile='temp-audio.m4a', remove_temp=True, audio_codec='aac')
+        
+        if outputsubtitle:
+            make_subtitle(composition, outputfile, padding)
 
-    print "[+] Writing ouput file."
-    final_clip.to_videofile(outputfile, codec="libx264", temp_audiofile='temp-audio.m4a', remove_temp=True, audio_codec='aac')
 
 
-
-def create_supercut_in_batches(composition, outputfile, padding):
+def create_supercut_in_batches(composition, outputfile, outputtype, padding, outputsubtitle):
     """Create & concatenate video clips in groups of size BATCH_SIZE and output
     finished video file to output directory.
     """
-    total_clips = len(composition)
-    start_index = 0
-    end_index = BATCH_SIZE
-    batch_comp = []
-    while start_index < total_clips:
-        filename = outputfile + '.tmp' + str(start_index) + '.mp4'
-        try:
-            create_supercut(composition[start_index:end_index], filename, padding)
-            batch_comp.append(filename)
-            gc.collect()
-            start_index += BATCH_SIZE
-            end_index += BATCH_SIZE
-        except:
-            start_index += BATCH_SIZE
-            end_index += BATCH_SIZE
-            next
+    if outputtype in ['combine', 'both']:
+        total_clips = len(composition)
+        start_index = 0
+        end_index = BATCH_SIZE
+        batch_comp = []
+        while start_index < total_clips:
+            filename = outputfile + '.tmp' + str(start_index) + '.mp4'
+            try:
+                create_supercut(composition[start_index:end_index], filename, 'combine', padding, False)
+                batch_comp.append(filename)
+                collected = gc.collect()
+                print "Garbage collector: collected %d objects." % (collected)
+                start_index += BATCH_SIZE
+                end_index += BATCH_SIZE
+            except Exception as e:
+                print "create_supercut_in_batches ERROR: {}".format(e)
+                start_index += BATCH_SIZE
+                end_index += BATCH_SIZE
+                next
 
-    clips = [VideoFileClip(filename) for filename in batch_comp]
-    video = concatenate(clips, method='compose')
-    video.to_videofile(outputfile, codec="libx264", temp_audiofile='temp-audio.m4a', remove_temp=True, audio_codec='aac')
+        clips = [VideoFileClip(filename) for filename in batch_comp]
+        video = concatenate(clips, method='compose')
+        video.to_videofile(outputfile, codec="libx264", temp_audiofile='temp-audio.m4a', remove_temp=True, audio_codec='aac')
 
+        if outputsubtitle:
+            make_subtitle(composition, outputfile, padding)
 
-    # remove partial video files
-    for filename in batch_comp:
-        os.remove(filename)
+        # remove partial video files
+        #for filename in batch_comp:
+            #os.remove(filename)
 
-    cleanup_log_files(outputfile)
+        cleanup_log_files(outputfile)
+    
+    # TODO: potentially refactor this, if user wants individual files or both individual and concat, we may be able to avoid batching with a refactor just to GC at interval with individual files
+    # should test if there are any issues with just concatting all individual files and if it is just as fast, in the meantime when batching the creation of individual files for that output option will be separate
+    if outputtype in ['individual', 'both']:
+        # passing indivudal as combined file is already created here
+        create_supercut(composition, outputfile, 'individual', padding, outputsubtitle)
 
 
 def search_line(line, search, searchtype):
@@ -386,7 +424,7 @@ def compose_from_transcript(files, search, searchtype):
     return final_segments
 
 
-def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, test=False, randomize=False, sync=0, use_transcript=False, autoplay=False, output_subtitle=False):
+def videogrep(inputfile, outputfile, outputtype, search, searchtype, maxclips=0, padding=0, test=False, randomize=False, sync=0, use_transcript=False, autoplay=False, outputsubtitle=False):
     """Search through and find all instances of the search term in an srt or transcript,
     create a supercut around that instance, and output a new video file
     comprised of those supercuts.
@@ -422,8 +460,6 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
         if randomize is True:
             random.shuffle(composition)
 
-        if output_subtitle:
-            make_subtitle(composition, outputfile, padding)
         if test is True:
             demo_supercut(composition, padding)
         else:
@@ -432,9 +468,9 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
             else:
                 if len(composition) > BATCH_SIZE:
                     print "[+} Starting batch job."
-                    create_supercut_in_batches(composition, outputfile, padding)
+                    create_supercut_in_batches(composition, outputfile, outputtype, padding, outputsubtitle)
                 else:
-                    create_supercut(composition, outputfile, padding)
+                    create_supercut(composition, outputfile, outputtype, padding, outputsubtitle)
             if autoplay:
                 os.system("open "+outputfile)
                 
@@ -450,6 +486,7 @@ def main():
     parser.add_argument('--use-transcript', '-t', action='store_true', dest='use_transcript', help='Use a transcript generated by pocketsphinx instead of srt files')
     parser.add_argument('--max-clips', '-m', dest='maxclips', type=int, default=0, help='maximum number of clips to use for the supercut')
     parser.add_argument('--output', '-o', dest='outputfile', default='supercut.mp4', help='name of output file')
+    parser.add_argument('--output-type', '-ot', dest='outputtype', default='combine', choices=['combine', 'individual','both'], help='Type of supercut to make. Combined clips via "combine" (default), separate clips via "individual". Or "both".')
     parser.add_argument('--demo', '-d', action='store_true', help='show results without making the supercut')
     parser.add_argument('--randomize', '-r', action='store_true', help='randomize the clips')
     parser.add_argument('--youtube', '-yt', help='grab clips from youtube based on your search')
@@ -457,7 +494,7 @@ def main():
     parser.add_argument('--resyncsubs', '-rs', dest='sync', default=0, type=int, help='Subtitle re-synch delay +/- in milliseconds')
     parser.add_argument('--transcribe', '-tr', dest='transcribe', action='store_true', help='Transcribe the video using audiogrep. Requires pocketsphinx')
     parser.add_argument('--autoplay', '-a', action='store_true', help='Automatically open the newly created superclip.')
-    parser.add_argument('--output-subtitle', '-os', action='store_true', dest='output_subtitle', help='Automatically generate a subtitle file along with the output video.')
+    parser.add_argument('--output-subtitle', '-os', action='store_true', dest='outputsubtitle', help='Automatically generate a subtitle file along with the output video.')
 
     args = parser.parse_args()
 
@@ -468,7 +505,7 @@ def main():
     if args.transcribe:
         create_timestamps(args.inputfile)
     else:
-        videogrep(args.inputfile, args.outputfile, args.search, args.searchtype, args.maxclips, args.padding, args.demo, args.randomize, args.sync, args.use_transcript, args.autoplay, args.output_subtitle)
+        videogrep(args.inputfile, args.outputfile, args.outputtype, args.search, args.searchtype, args.maxclips, args.padding, args.demo, args.randomize, args.sync, args.use_transcript, args.autoplay, args.outputsubtitle)
 
 
 if __name__ == '__main__':
