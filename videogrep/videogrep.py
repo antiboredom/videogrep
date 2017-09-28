@@ -290,7 +290,7 @@ def compose_from_srts(srts, search, searchtype, padding=0, sync=0):
 
                 # If the search was unsuccessful.
                 if foundSearchTerm is False:
-                    print "[!] Search term '" + search + "'" + " was not found is subtitle file '" + srt + "'."
+                    print "[!] Search term '" + search + "'" + " was not found in subtitle file '" + srt + "'."
 
             # If no subtitles were found in the current file.
             else:
