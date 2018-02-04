@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import os
 import re
 import random
@@ -5,12 +7,10 @@ import gc
 import subprocess
 from collections import OrderedDict
 
-import pattern
 import searcher
 import audiogrep
 
-from moviepy.video.io.VideoFileClip import VideoFileClip
-from moviepy.video.compositing.concatenate import concatenate
+from moviepy.editor import VideoFileClip, concatenate
 
 from timecode import Timecode
 
@@ -36,10 +36,6 @@ def make_edl_segment(n, time_in, time_out, rec_in, rec_out, full_name, filename,
 
     template = '{} {} AA/V  C        {} {} {} {}\n* FROM CLIP NAME:  {}\n* COMMENT: \n FINAL CUT PRO REEL: {} REPLACED BY: {}\n\n'
 
-    # print time_in, time_out, rec_in, rec_out
-    # print Timecode(fps, start_seconds=time_in), Timecode(fps, start_seconds=time_out), Timecode(fps, start_seconds=rec_in), Timecode(fps, start_seconds=rec_out)
-    #
-    # print ''
     out = template.format(
         n,
         full_name,
@@ -76,10 +72,9 @@ def make_edl(timestamps, name):
         time_out = timestamp['end']
         duration = time_out - time_in
 
-        rec_out = rec_in + duration #timestamp['duration']
+        rec_out = rec_in + duration
 
         full_name = 'reel_{}'.format(n)
-        # full_name = os.path.basename(timestamp['file'])
 
         filename = timestamp['file']
 
@@ -155,14 +150,14 @@ def demo_supercut(composition, padding):
         end = c['end']
         if i > 0 and composition[i - 1]['file'] == c['file'] and start < composition[i - 1]['end']:
             start = start + padding
-        print "{1} to {2}:\t{0}".format(line, start, end)
+        print("{1} to {2}:\t{0}".format(line, start, end))
 
 
 def create_supercut(composition, outputfile, padding):
     """Concatenate video clips together and output finished video file to the
     output directory.
     """
-    print ("[+] Creating clips.")
+    print("[+] Creating clips.")
     demo_supercut(composition, padding)
 
     # add padding when necessary
@@ -175,10 +170,10 @@ def create_supercut(composition, outputfile, padding):
     videofileclips = dict([(f, VideoFileClip(f)) for f in all_filenames])
     cut_clips = [videofileclips[c['file']].subclip(c['start'], c['end']) for c in composition]
 
-    print "[+] Concatenating clips."
+    print("[+] Concatenating clips.")
     final_clip = concatenate(cut_clips)
 
-    print "[+] Writing ouput file."
+    print("[+] Writing ouput file.")
     final_clip.to_videofile(outputfile, codec="libx264", temp_audiofile='temp-audio.m4a', remove_temp=True, audio_codec='aac')
 
 
@@ -238,7 +233,7 @@ def get_subtitle_files(inputfile):
             srts.append(srt)
 
     if len(srts) == 0:
-        print "[!] No subtitle files were found."
+        print("[!] No subtitle files were found.")
         return False
 
     return srts
@@ -253,19 +248,19 @@ def compose_from_srts(srts, search, searchtype, padding=0, sync=0):
     # Iterate over each subtitles file.
     for srt in srts:
 
-        print srt
+        print(srt)
         lines = clean_srt(srt)
 
         videofile = ""
         foundVideoFile = False
 
-        print "[+] Searching for video file corresponding to '" + srt + "'."
+        print("[+] Searching for video file corresponding to '" + srt + "'.")
         for ext in usable_extensions:
             tempVideoFile = srt.replace('.srt', '.' + ext)
             if os.path.isfile(tempVideoFile):
                 videofile = tempVideoFile
                 foundVideoFile = True
-                print "[+] Found '" + tempVideoFile + "'."
+                print("[+] Found '" + tempVideoFile + "'.")
 
         # If a correspndong video file was found for this subtitles file...
         if foundVideoFile:
@@ -290,20 +285,20 @@ def compose_from_srts(srts, search, searchtype, padding=0, sync=0):
 
                 # If the search was unsuccessful.
                 if foundSearchTerm is False:
-                    print "[!] Search term '" + search + "'" + " was not found is subtitle file '" + srt + "'."
+                    print("[!] Search term '" + search + "'" + " was not found is subtitle file '" + srt + "'.")
 
             # If no subtitles were found in the current file.
             else:
-                print "[!] Subtitle file '" + srt + "' is empty."
+                print("[!] Subtitle file '" + srt + "' is empty.")
 
         # If no video file was found...
         else:
-            print "[!] No video file was found which corresponds to subtitle file '" + srt + "'."
-            print "[!] The following video formats are currently supported:"
+            print("[!] No video file was found which corresponds to subtitle file '" + srt + "'.")
+            print("[!] The following video formats are currently supported:")
             extList = ""
             for ext in usable_extensions:
                 extList += ext + ", "
-            print extList
+            print(extList)
 
     return composition
 
@@ -359,11 +354,11 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
 
     # If the search term was not found in any subtitle file...
     if len(composition) == 0:
-        print "[!] Search term '" + search + "'" + " was not found in any file."
+        print("[!] Search term '" + search + "'" + " was not found in any file.")
         exit(1)
 
     else:
-        print "[+] Search term '" + search + "'" + " was found in " + str(len(composition)) + " places."
+        print("[+] Search term '" + search + "'" + " was found in " + str(len(composition)) + " places.")
 
         # apply padding and sync
         for c in composition:
@@ -383,7 +378,7 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
                 make_edl(composition, outputfile)
             else:
                 if len(composition) > BATCH_SIZE:
-                    print "[+} Starting batch job."
+                    print("[+} Starting batch job.")
                     create_supercut_in_batches(composition, outputfile, padding)
                 else:
                     create_supercut(composition, outputfile, padding)

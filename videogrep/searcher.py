@@ -1,9 +1,19 @@
+from __future__ import print_function
+
+import sys
 import random
-from pattern.search import Pattern, STRICT, search
-from pattern.en import parsetree, wordnet, ngrams
+# from pattern.search import Pattern, STRICT, search
+# from pattern.en import parsetree, wordnet, ngrams
 
 
 def re_search(text, search_string, strict=False):
+    try:
+        from pattern.search import STRICT, search
+        from pattern.en import parsetree
+    except:
+        print('Please install pattern: pip install https://github.com/clips/pattern/archive/development.zip')
+        sys.exit()
+
     tree = parsetree(text, lemmata=True)
     if strict:
         results = search(search_string, tree, STRICT)
@@ -29,6 +39,12 @@ def contains(text, search_string):
 
 
 def hypernym_search(text, search_word):
+    try:
+        from pattern.en import wordnet
+    except:
+        print('Please install pattern: pip install https://github.com/clips/pattern/archive/development.zip')
+        sys.exit()
+
     output = []
     for search_word in search_word.split('|'):
         synset = wordnet.synsets(search_word)[0]
@@ -54,6 +70,12 @@ def hypernym_combo(text, category, search_pattern):
 
 
 def list_hypernyms(search_word):
+    try:
+        from pattern.en import wordnet
+    except:
+        print('Please install pattern: pip install https://github.com/clips/pattern/archive/development.zip')
+        sys.exit()
+
     output = []
     for synset in wordnet.synsets(search_word):
         hypernyms = synset.hypernyms(recursive=True)
@@ -70,6 +92,12 @@ def random_hyponym(word):
 
 
 def list_hyponyms(word):
+    try:
+        from pattern.en import wordnet
+    except:
+        print('Please install pattern: pip install https://github.com/clips/pattern/archive/development.zip')
+        sys.exit()
+
     output = []
     synsets = wordnet.synsets(word)
     if len(synsets) > 0:
@@ -84,4 +112,4 @@ if __name__ == '__main__':
 
     results = list_hypernyms(sys.argv[1])
     for result in results:
-        print result
+        print(result)

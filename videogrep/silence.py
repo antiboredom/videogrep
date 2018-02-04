@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import videogrep
 import os
 
@@ -42,7 +44,7 @@ def silence(inputfile, outputfile, maxclips, minsilence, maxsilence, padding=0, 
         else:
             videogrep.create_supercut(composition, outputfile, 0)
     else:
-        print "No silence found"
+        print("No silence found")
 
 if __name__ == '__main__':
     import argparse
