@@ -27,7 +27,7 @@ class PyTest(Command):
 
 
 setup(name='videogrep',
-      version = '0.5.0',
+      version = '0.5.1',
       description = 'Python utility for creating video out of their subtitle files',
       long_description = long_description,
       download_url = 'https://github.com/antiboredom/videogrep/archive/master.zip',
@@ -36,7 +36,7 @@ setup(name='videogrep',
       author_email = 'splavigne@gmail.com',
       test_suite = 'videogrep.tests',
       packages = ['videogrep','videogrep.tools','videogrep.tests'],
-      install_requires= ["audiogrep", "Pattern", "moviepy"],
+      install_requires= ["audiogrep", "moviepy"],
       scripts = ['bin/videogrep'],
       classifiers = [],
       license='MIT',
