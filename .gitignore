@@ -1,4 +1,6 @@
 env
+env2
+*.mp4
 *.pyc
 __pycache__
 build

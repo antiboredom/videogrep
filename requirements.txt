@@ -1,8 +1,8 @@
-audiogrep==0.1.2
-beautifulsoup4==4.3.2
-decorator==3.4.0
-moviepy==0.2.1.8.2
-numpy==1.8.1
-pydub==0.16.5
-pytube==6.1.11
-tqdm==1.0
+audiogrep==0.1.3
+decorator==4.0.11
+imageio==2.1.2
+moviepy==0.2.3.2
+numpy==1.14.0
+Pillow==5.0.0
+pydub==0.20.0
+tqdm==4.11.2
