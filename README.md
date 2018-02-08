@@ -1,10 +1,9 @@
 Videogrep
 =========
 
-Videogrep searches through dialog in video files (using .srt subtitle tracks or pocketsphinx transcriptions) and makes supercuts based on what it finds.
+Videogrep is a command line tool that searches through dialog in video files (using .srt or .vtt subtitle tracks, or pocketsphinx transcriptions) and makes supercuts based on what it finds.
 
-## New!
-Videogrep now has an experimental graphic interface (Mac only). Download it here: [http://saaaam.s3.amazonaws.com/VideoGrep.app.zip](http://saaaam.s3.amazonaws.com/VideoGrep.app.zip)
+Videogrep also has an experimental graphic interface (Mac only). Download it here: [http://saaaam.s3.amazonaws.com/VideoGrep.app.zip](http://saaaam.s3.amazonaws.com/VideoGrep.app.zip)
 
 ## Requirements
 
@@ -76,6 +75,9 @@ Randomize the order of the clips
 
 #### --padding / -p
 Padding in milliseconds to add to the start and end of each clip
+
+#### --use-vtt / -vtt
+Use the a .vtt file rather than a .srt subtitle file. If this is enabled, and you grabbed the .vtt from YouTube's auto-captioning service you can do word-level searches.
 
 #### --transcribe / -tr
 Transcribe the video using audiogrep/pocketsphinx. You must install pocketsphinx first!
