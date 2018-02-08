@@ -1,10 +1,9 @@
 Videogrep
 =========
 
-Videogrep searches through dialog in video files (using .srt subtitle tracks or pocketsphinx transcriptions) and makes supercuts based on what it finds.
+Videogrep is a command line tool that searches through dialog in video files (using .srt or .vtt subtitle tracks, or pocketsphinx transcriptions) and makes supercuts based on what it finds.
 
-## New!
-Videogrep now has an experimental graphic interface (Mac only). Download it here: [http://saaaam.s3.amazonaws.com/VideoGrep.app.zip](http://saaaam.s3.amazonaws.com/VideoGrep.app.zip)
+Videogrep also has an experimental graphic interface (Mac only). Download it here: [http://saaaam.s3.amazonaws.com/VideoGrep.app.zip](http://saaaam.s3.amazonaws.com/VideoGrep.app.zip)
 
 ## Requirements
 
@@ -32,11 +31,11 @@ videogrep --input path/to/video_or_folder --search 'search phrase'
 ```
 You can put any regular expression in the search phrase.
 
-You can also search for part-of-speech tags using Pattern. See the [Pattern-Search documentation](http://www.clips.ua.ac.be/pages/pattern-search) for some details about how this works, and the [Penn Tree bank tag set](http://www.clips.ua.ac.be/pages/mbsp-tags) for a list of usuable part-of-speech tags. For example the following will search for every line of dialog that contains an adjective (JJ) followed by a singular noun (NN):
+If you install Pattern.en (`pip install pattern`), you can also search for part-of-speech tags. See the [Pattern-Search documentation](http://www.clips.ua.ac.be/pages/pattern-search) for some details about how this works, and the [Penn Tree bank tag set](http://www.clips.ua.ac.be/pages/mbsp-tags) for a list of usuable part-of-speech tags. For example the following will search for every line of dialog that contains an adjective (JJ) followed by a singular noun (NN):
 ```
 videogrep --input path/to/video_or_folder --search 'JJ NN' --search-type pos
 ```
-You can also do a [hypernym](https://en.wikipedia.org/wiki/Hypernym) search - which essentially searches for words that fit into a specific category. The following, for example, will search for any line of dialog that references a liquid (like water, coffee, beer, etc.):
+With Pattern you can also do a [hypernym](https://en.wikipedia.org/wiki/Hypernym) search - which essentially searches for words that fit into a specific category. The following, for example, will search for any line of dialog that references a liquid (like water, coffee, beer, etc.):
 ```
 videogrep --input path/to/video_or_folder --search 'liquid' --search-type hyper
 ```
@@ -76,6 +75,9 @@ Randomize the order of the clips
 
 #### --padding / -p
 Padding in milliseconds to add to the start and end of each clip
+
+#### --use-vtt / -vtt
+Use .vtt files rather than .srt subtitle files. If this is enabled, and you grabbed the .vtt from YouTube's auto-captioning service you can do word-level searches.
 
 #### --transcribe / -tr
 Transcribe the video using audiogrep/pocketsphinx. You must install pocketsphinx first!
