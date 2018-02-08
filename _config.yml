@@ -2,7 +2,7 @@ title: Videogrep
 description: Automatic supercuts with python.
 google_analytics: 
 show_downloads: true
-theme: jekyll-theme-minimal
+theme: jekyll-theme-dinky
 
 gems:
   - jekyll-mentions
