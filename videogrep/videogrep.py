@@ -367,7 +367,6 @@ def compose_from_vtt(files, search, searchtype):
         for sentence in sentences:
             if searchtype in ['word', 'hyper', 'pos']:
                 for word in sentence['words']:
-                    print(word['word'])
                     if search_line(word['word'], search, searchtype):
                         seg = {
                             'file': video,
