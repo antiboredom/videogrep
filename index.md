@@ -78,8 +78,8 @@ Search term
 Type of search you want to perform. There are three options:
 * re: [regular expression](http://www.pyregex.com/) (this is the default).
 * pos: part of speech search (uses [pattern.search](http://www.clips.ua.ac.be/pages/pattern-search)). For example 'JJ NN' would return all lines of dialog that contain an adjective followed by a noun.
-* hyper: hypernym search. For example 'body parts' grabs all lines of dialog that reference a body part
-* word: extract individual words - for multiple words use the '|' symbol (requires pocketsphinx).
+* hyper: hypernym search. For example 'body parts' grabs all lines of dialog that reference a body part.
+* word: extract individual words (requires pocketsphinx).
 * franken: create a "frankenstein" sentence (requires pocketsphinx)
 * fragment: multiple words with allowed wildcards like 'blue \*' (requires pocketsphinx)
 
