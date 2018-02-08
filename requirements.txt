@@ -1,4 +1,5 @@
 audiogrep==0.1.3
+beautifulsoup4==4.6.0
 decorator==4.0.11
 imageio==2.1.2
 moviepy==0.2.3.2
