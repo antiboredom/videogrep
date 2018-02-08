@@ -28,18 +28,35 @@ brew install --HEAD watsonbox/cmu-sphinx/cmu-pocketsphinx
 
 ## How to use it
 The most basic use:
+
 ```
 videogrep --input path/to/video_or_folder --search 'search phrase'
 ```
+
 You can put any regular expression in the search phrase.
 
 If you install Pattern.en (`pip install pattern`), you can also search for part-of-speech tags. See the [Pattern-Search documentation](http://www.clips.ua.ac.be/pages/pattern-search) for some details about how this works, and the [Penn Tree bank tag set](http://www.clips.ua.ac.be/pages/mbsp-tags) for a list of usuable part-of-speech tags. For example the following will search for every line of dialog that contains an adjective (JJ) followed by a singular noun (NN):
+
 ```
 videogrep --input path/to/video_or_folder --search 'JJ NN' --search-type pos
 ```
+
 With Pattern you can also do a [hypernym](https://en.wikipedia.org/wiki/Hypernym) search - which essentially searches for words that fit into a specific category. The following, for example, will search for any line of dialog that references a liquid (like water, coffee, beer, etc.):
+
 ```
 videogrep --input path/to/video_or_folder --search 'liquid' --search-type hyper
+```
+
+You may also want to install youtube-dl, to easily download videos from youtube and other sources. On a mac:
+
+```
+brew install youtube-dl
+```
+
+You can then download a youtube video and .vtt subtitle file like so:
+
+```
+youtube-dl http://youtube.com/somevideo/ --write-auto-sub
 ```
 
 **NOTE: videogrep requires the subtitle track and the video file to have the exact same name, up to the extension.** For example, my_movie.mp4 and my_movie.srt will work, my_movie.mp4 and my_movie_subtitle.srt will not work.
