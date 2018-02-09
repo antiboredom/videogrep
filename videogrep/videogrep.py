@@ -8,13 +8,12 @@ import subprocess
 from glob import glob
 from collections import OrderedDict
 
-import searcher
-import audiogrep
-from vtt import parse_auto_sub
-
 from moviepy.editor import VideoFileClip, concatenate
+import audiogrep
 
-from timecode import Timecode
+from .vtt import parse_auto_sub
+from .timecode import Timecode
+from . import searcher
 
 usable_extensions = ['mp4', 'avi', 'mov', 'mkv', 'm4v']
 BATCH_SIZE = 20
