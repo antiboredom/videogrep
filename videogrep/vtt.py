@@ -57,6 +57,8 @@ def parse_auto_sub(data):
 
     for index, sentence in enumerate(out):
         if index == 0:
+            sentence['start'] = sentence['words'][0]['start']
+            sentence['end'] = sentence['words'][-1]['end']
             continue
 
         first_word = sentence['words'][0]
