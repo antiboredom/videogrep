@@ -1,1 +1,1 @@
-from videogrep import *
+from .videogrep import *
