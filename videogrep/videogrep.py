@@ -31,6 +31,42 @@ def get_fps(filename):
         return 25
 
 
+def get_ngrams(inputfile, n=1, use_transcript=False, use_vtt=False):
+    '''
+    Get ngrams from a text
+    Sourced from:
+    https://gist.github.com/dannguyen/93c2c43f4e65328b85af
+    '''
+
+    words = []
+    if use_transcript:
+        for s in audiogrep.convert_timestamps(files):
+            for w in s['words']:
+                words.append(w['word'])
+    elif use_vtt:
+        vtts = get_vtt_files(inputfile)
+        for vtt in vtts:
+            with open(vtt['vtt'], 'r') as infile:
+                sentences = parse_auto_sub(infile.read())
+            for s in sentences:
+                for w in s['words']:
+                    words.append(w['word'])
+    else:
+        text = ''
+        srts = get_subtitle_files(inputfile)
+        for srt in srts:
+            lines = clean_srt(srt)
+            if lines:
+                for timespan in lines.keys():
+                    line = lines[timespan].strip()
+                    text += line + ' '
+
+        words = re.split(r'[.?!,:\"]+\s*|\s+', text)
+
+    ngrams = zip(*[words[i:] for i in range(n)])
+    return ngrams
+
+
 def make_edl_segment(n, time_in, time_out, rec_in, rec_out, full_name, filename, fps=25):
     reel = full_name
     if len(full_name) > 7:
@@ -458,15 +494,22 @@ def main():
     parser.add_argument('--padding', '-p', dest='padding', default=0, type=int, help='padding in milliseconds to add to the start and end of each clip')
     parser.add_argument('--resyncsubs', '-rs', dest='sync', default=0, type=int, help='Subtitle re-synch delay +/- in milliseconds')
     parser.add_argument('--transcribe', '-tr', dest='transcribe', action='store_true', help='Transcribe the video using audiogrep. Requires pocketsphinx')
+    parser.add_argument('--ngrams', '-n', dest='ngrams', type=int, default=0,  help='Return ngrams for videos')
 
     args = parser.parse_args()
 
-    if not args.transcribe:
+    if not args.transcribe and args.ngrams == 0:
         if args.search is None:
              parser.error('argument --search/-s is required')
 
     if args.transcribe:
         create_timestamps(args.inputfile)
+    elif args.ngrams > 0:
+        from collections import Counter
+        grams = get_ngrams(args.inputfile, args.ngrams, args.use_transcript, args.use_vtt)
+        most_common = Counter(grams).most_common(100)
+        for ngram, count in most_common:
+            print(' '.join(ngram), count)
     else:
         videogrep(args.inputfile, args.outputfile, args.search, args.searchtype, args.maxclips, args.padding, args.demo, args.randomize, args.sync, args.use_transcript, args.use_vtt)
 
