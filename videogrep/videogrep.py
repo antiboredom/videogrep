@@ -39,9 +39,9 @@ def get_ngrams(inputfile, n=1, use_transcript=False, use_vtt=False):
 
     words = []
     if use_transcript:
-        for s in audiogrep.convert_timestamps(files):
+        for s in audiogrep.convert_timestamps(inputfile):
             for w in s['words']:
-                words.append(w['word'])
+                words.append(w[0])
     elif use_vtt:
         vtts = get_vtt_files(inputfile)
         for vtt in vtts:
