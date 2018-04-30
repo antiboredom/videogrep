@@ -26,6 +26,9 @@ class TestVideogrep(unittest.TestCase):
     def test_compose(self):
         pass
 
+    def test_edl(self):
+        pass
+
     def test_auto_source(self):
         pass
 
@@ -36,4 +39,7 @@ class TestVideogrep(unittest.TestCase):
         pass
 
     def test_cli(self):
+        pass
+
+    def test_cleanup(self):
         pass
