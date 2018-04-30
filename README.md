@@ -24,7 +24,7 @@ brew install --HEAD watsonbox/cmu-sphinx/cmu-sphinxtrain # optional
 brew install --HEAD watsonbox/cmu-sphinx/cmu-pocketsphinx
 ```
 
-## How to use it
+## How to use it!
 The most basic use:
 ```
 videogrep --input path/to/video_or_folder --search 'search phrase'
@@ -86,7 +86,7 @@ Transcribe the video using audiogrep/pocketsphinx. You must install pocketsphinx
 Use the pocketsphinx transcript rather than a subtitle file for searching. If this is enabled you can do
 word-level searches.
 
-## Samples
+## Samples 
 * [All the instances of the phrase "time" in the movie "In Time"](https://www.youtube.com/watch?v=PQMzOUeprlk)
 * [All the one to two second silences in "Total Recall"](https://www.youtube.com/watch?v=qEtEbXVbYJQ)
 * [The President's former press secretary telling us what he can tell us](https://www.youtube.com/watch?v=D7pymdCU5NQ)
