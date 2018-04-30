@@ -35,7 +35,7 @@ clean-test:
 	rm -fr htmlcov/
 
 lint:
-	flake8 vidpy tests
+	flake8 videogrep tests
 
 test:
 	python setup.py test
@@ -44,7 +44,7 @@ test-all:
 	tox
 
 coverage:
-	coverage run --source vidpy setup.py test
+	coverage run --source videogrep setup.py test
 	coverage report -m
 	coverage html
 	python -m webbrowser htmlcov/index.html

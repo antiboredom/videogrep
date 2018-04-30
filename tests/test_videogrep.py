@@ -1,7 +1,11 @@
 import os
 import unittest
+import videogrep
 
 class TestVideogrep(unittest.TestCase):
+    def test_convert_timestamp(self):
+        self.assertEqual(videogrep.convert_timestamp('00:00:01,0'), 1.0)
+
     def test_srt_parse(self):
         pass
 
@@ -43,3 +47,6 @@ class TestVideogrep(unittest.TestCase):
 
     def test_cleanup(self):
         pass
+
+if __name__ == '__main__':
+    unittest.main()
