@@ -1,5 +1,3 @@
-from distutils.core import Command
-
 try:
     from setuptools import setup
 except ImportError:
@@ -12,32 +10,17 @@ try:
 except IOError:
     long_description =''
 
-class PyTest(Command):
-    user_options = []
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        import sys, subprocess
-        errno = subprocess.call([sys.executable, 'runtest.py'])
-        raise SystemExit(errno)
-
-
 setup(name='videogrep',
-      version = '0.5.7',
+      version = '2.0.0',
       description = 'Python utility for creating video out of their subtitle files',
       long_description = long_description,
       download_url = 'https://github.com/antiboredom/videogrep/archive/master.zip',
       url='http://github.com/antiboredom/videogrep',
       author = 'Sam Lavigne',
       author_email = 'splavigne@gmail.com',
-      test_suite = 'videogrep.tests',
-      packages = ['videogrep','videogrep.tools','videogrep.tests'],
+      test_suite = 'tests',
+      packages = ['videogrep','videogrep.tools'],
       install_requires= ['audiogrep', 'moviepy', 'beautifulsoup4'],
       scripts = ['bin/videogrep'],
       classifiers = [],
-      license='MIT',
-      cmdclass = {'test': PyTest})
+      license='MIT')

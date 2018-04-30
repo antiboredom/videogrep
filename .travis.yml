@@ -1,0 +1,17 @@
+language: python
+
+python:
+  - "pypy3"
+  - "pypy"
+  - "3.6"
+  - "3.5"
+  - "3.4"
+  - "2.7"
+
+before_install:
+  - sudo apt-get install -y -qq ffmpeg
+
+install:
+  - pip install -r requirements.txt
+
+script: python setup.py test
