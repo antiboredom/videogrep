@@ -248,6 +248,18 @@ def create_supercut_in_batches(composition, outputfile, padding):
     cleanup_log_files(outputfile)
 
 
+def split_clips(composition, outputfile):
+    all_filenames = set([c['file'] for c in composition])
+    videofileclips = dict([(f, VideoFileClip(f)) for f in all_filenames])
+    cut_clips = [videofileclips[c['file']].subclip(c['start'], c['end']) for c in composition]
+
+    basename, ext = os.path.splitext(outputfile)
+    print("[+] Writing ouput files.")
+    for i, clip in enumerate(cut_clips):
+        clipfilename = basename + '_' + str(i).zfill(5) + ext
+        clip.to_videofile(clipfilename, codec="libx264", temp_audiofile='temp-audio.m4a', remove_temp=True, audio_codec='aac')
+
+
 def search_line(line, search, searchtype):
     """Return True if search term is found in given line, False otherwise."""
     if searchtype == 're' or searchtype == 'word':
@@ -423,7 +435,7 @@ def compose_from_vtt(files, search, searchtype):
     return final_segments
 
 
-def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, test=False, randomize=False, sync=0, use_transcript=False, use_vtt=False):
+def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, test=False, randomize=False, sync=0, use_transcript=False, use_vtt=False, export_clips=False):
     """Search through and find all instances of the search term in an srt or transcript,
     create a supercut around that instance, and output a new video file
     comprised of those supercuts.
@@ -468,6 +480,8 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
         else:
             if os.path.splitext(outputfile)[1].lower() == '.edl':
                 make_edl(composition, outputfile)
+            elif export_clips:
+                split_clips(composition, outputfile)
             else:
                 if len(composition) > BATCH_SIZE:
                     print("[+} Starting batch job.")
@@ -487,6 +501,7 @@ def main():
     parser.add_argument('--use-vtt', '-vtt', action='store_true', dest='use_vtt', help='Use a vtt file instead of srt')
     parser.add_argument('--max-clips', '-m', dest='maxclips', type=int, default=0, help='maximum number of clips to use for the supercut')
     parser.add_argument('--output', '-o', dest='outputfile', default='supercut.mp4', help='name of output file')
+    parser.add_argument('--export-clips', '-ec', dest='export_clips', action='store_true', help='Export individual clips')
     parser.add_argument('--demo', '-d', action='store_true', help='show results without making the supercut')
     parser.add_argument('--randomize', '-r', action='store_true', help='randomize the clips')
     parser.add_argument('--youtube', '-yt', help='grab clips from youtube based on your search')
@@ -510,7 +525,7 @@ def main():
         for ngram, count in most_common:
             print(' '.join(ngram), count)
     else:
-        videogrep(args.inputfile, args.outputfile, args.search, args.searchtype, args.maxclips, args.padding, args.demo, args.randomize, args.sync, args.use_transcript, args.use_vtt)
+        videogrep(args.inputfile, args.outputfile, args.search, args.searchtype, args.maxclips, args.padding, args.demo, args.randomize, args.sync, args.use_transcript, args.use_vtt, args.export_clips)
 
 
 if __name__ == '__main__':
