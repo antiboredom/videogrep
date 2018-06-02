@@ -7,3 +7,4 @@ build
 dist
 *.DS_Store
 *.egg-info
+.tox
