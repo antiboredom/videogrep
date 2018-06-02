@@ -16,18 +16,9 @@ def secs_to_timestamp(secs):
     return "%02d:%02d:%02f" % (h, m, s)
 
 
-def parse_auto_sub(data):
-    '''
-    Parses webvtt and returns timestamps for words and lines
-    Tested on automatically generated subtitles from YouTube
-    '''
-
+def parse_cued(data):
     out = []
     pat = r'<(\d\d:\d\d:\d\d(\.\d+)?)>'
-
-    data = data.split('\n\n')
-    data = [d.split('\n') for d in data]
-    data = [d for d in data if len(d) == 2]
 
     for lines in data:
         meta, content = lines
@@ -73,6 +64,55 @@ def parse_auto_sub(data):
     return out
 
 
+def parse_uncued(data):
+    out = []
+    data = [d.strip() for d in data.split('\n') if d.strip() != '']
+    out = [{'text': '', 'start': None, 'end': None}]
+    for i, line in enumerate(data):
+        if ' --> ' in line:
+            start, end = line.split(' --> ')
+            end = end.split(' ')[0]
+            start = timestamp_to_secs(start)
+            end = timestamp_to_secs(end)
+            if out[-1]['start'] is None:
+                out[-1]['start'] = start
+                out[-1]['end'] = end
+            else:
+                out.append({'text': '', 'start': start, 'end': end})
+        else:
+            if out[-1]['start'] is not None:
+                out[-1]['text'] += ' ' + line.strip()
+
+    for o in out:
+        o['text'] = o['text'].strip()
+
+    return out
+
+
+def parse_auto_sub(text):
+    '''
+    Parses webvtt and returns timestamps for words and lines
+    Tested on automatically generated subtitles from YouTube
+    '''
+
+    pat = r'<(\d\d:\d\d:\d\d(\.\d+)?)>'
+    out = []
+
+    lines = []
+    data = text.split('\n')
+    data = [d for d in data if re.search(r'\d\d:\d\d:\d\d', d) is not None]
+    for i, d in enumerate(data):
+        if re.search(pat, d):
+            lines.append((data[i-1], d))
+
+    if len(lines) > 0:
+        out = parse_cued(lines)
+    else:
+        out = parse_uncued(text)
+
+    return out
+
+
 def convert_to_srt(sentence):
     out = []
     for i, sentence in enumerate(sentence):
@@ -106,4 +146,3 @@ if __name__ == '__main__':
         text = infile.read()
     sentences = parse_auto_sub(text)
     print(convert_to_srt(sentences))
-
