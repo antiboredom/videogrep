@@ -46,17 +46,21 @@ def hypernym_search(text, search_word):
         sys.exit()
 
     output = []
-    for search_word in search_word.split('|'):
-        synset = wordnet.synsets(search_word)[0]
-        pos = synset.pos
-        possible_words = re_search(text, pos)
-        for match in possible_words:
-            word = match[0].string
-            synsets = wordnet.synsets(word)
-            if len(synsets) > 0:
-                hypernyms = synsets[0].hypernyms(recursive=True)
-                if any(search_word == h.senses[0] for h in hypernyms):
-                    output.append(word)
+    try:
+        for search_word in search_word.split('|'):
+            synset = wordnet.synsets(search_word)[0]
+            pos = synset.pos
+            possible_words = re_search(text, pos)
+            for match in possible_words:
+                word = match[0].string
+                synsets = wordnet.synsets(word)
+                if len(synsets) > 0:
+                    hypernyms = synsets[0].hypernyms(recursive=True)
+                    if any(search_word == h.senses[0] for h in hypernyms):
+                        output.append(word)
+    except IndexError:
+        pass
+
     return set(output)
 
 
