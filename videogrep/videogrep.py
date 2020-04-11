@@ -275,11 +275,17 @@ def get_subtitle_files(inputfile):
     srts = []
 
     for f in inputfile:
-        filename = f.split('.')
-        filename[-1] = 'srt'
-        srt = '.'.join(filename)
-        if os.path.isfile(srt):
-            srts.append(srt)
+        if os.path.isfile(f):
+            filename = f.split('.')
+            filename[-1] = 'srt'
+            srt = '.'.join(filename)
+            if os.path.isfile(srt):
+                srts.append(srt)
+        elif os.path.isdir(f):
+            for root, subdirs, files in os.walk(f):
+                for file in files:
+                    if os.path.splitext(file)[1] == '.srt':
+                        srts.append(os.path.join(root, file))
 
     if len(srts) == 0:
         print("[!] No subtitle files were found.")
@@ -316,7 +322,7 @@ def compose_from_srts(srts, search, searchtype):
     # Iterate over each subtitles file.
     for srt in srts:
 
-        print(srt)
+        print(f"[+] Found \'{srt}\'")
         lines = clean_srt(srt)
 
         videofile = ""
