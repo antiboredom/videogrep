@@ -5,7 +5,7 @@ Videogrep is a command line tool that searches through dialog in video files (us
 
 Videogrep also has an experimental graphic interface (Mac only). Download it here: [http://saaaam.s3.amazonaws.com/VideoGrep.app.zip](http://saaaam.s3.amazonaws.com/VideoGrep.app.zip)
 
-## Requirements
+## Essential Things
 
 Install with pip
 ```
