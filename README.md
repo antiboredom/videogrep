@@ -31,7 +31,7 @@ videogrep --input path/to/video_or_folder --search 'search phrase'
 ```
 You can put any regular expression in the search phrase.
 
-If you install Pattern.en (`pip install pattern`), you can also search for part-of-speech tags. See the [Pattern-Search documentation](http://www.clips.ua.ac.be/pages/pattern-search) for some details about how this works, and the [Penn Tree bank tag set](http://www.clips.ua.ac.be/pages/mbsp-tags) for a list of usuable part-of-speech tags. For example the following will search for every line of dialog that contains an adjective (JJ) followed by a singular noun (NN):
+If you install Pattern.en (`pip install pattern`), you can also search for part-of-speech tags. See the [Pattern-Search documentation](http://www.clips.ua.ac.be/pages/pattern-search) for some details about how this works, and the [Penn Tree bank tag set](http://www.clips.ua.ac.be/pages/mbsp-tags) for a list of usable part-of-speech tags. For example the following will search for every line of dialog that contains an adjective (JJ) followed by a singular noun (NN):
 ```
 videogrep --input path/to/video_or_folder --search 'JJ NN' --search-type pos
 ```
