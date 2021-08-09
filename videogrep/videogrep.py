@@ -8,7 +8,7 @@ import subprocess
 from glob import glob
 from collections import OrderedDict
 
-from moviepy.editor import VideoFileClip, concatenate
+from moviepy.editor import *
 import audiogrep
 
 from .vtt import parse_auto_sub
@@ -208,7 +208,7 @@ def create_supercut(composition, outputfile, padding):
     cut_clips = [videofileclips[c['file']].subclip(c['start'], c['end']) for c in composition]
 
     print("[+] Concatenating clips.")
-    final_clip = concatenate(cut_clips)
+    final_clip = concatenate_videoclips(cut_clips, method='compose')
 
     print("[+] Writing ouput file.")
     final_clip.to_videofile(outputfile, codec="libx264", temp_audiofile='temp-audio.m4a', remove_temp=True, audio_codec='aac')
@@ -237,7 +237,7 @@ def create_supercut_in_batches(composition, outputfile, padding):
             next
 
     clips = [VideoFileClip(filename) for filename in batch_comp]
-    video = concatenate(clips)
+    video = concatenate_videoclips(clips, method='compose')
     video.to_videofile(outputfile, codec="libx264", temp_audiofile='temp-audio.m4a', remove_temp=True, audio_codec='aac')
 
 
@@ -314,6 +314,7 @@ def compose_from_srts(srts, search, searchtype):
     foundSearchTerm = False
 
     # Iterate over each subtitles file.
+    print(srts)
     for srt in srts:
 
         print(srt)
