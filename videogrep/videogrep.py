@@ -484,7 +484,7 @@ def videogrep(inputfile, outputfile, search, searchtype, maxclips=0, padding=0, 
                 split_clips(composition, outputfile)
             else:
                 if len(composition) > BATCH_SIZE:
-                    print("[+} Starting batch job.")
+                    print("[+] Starting batch job.")
                     create_supercut_in_batches(composition, outputfile, padding)
                 else:
                     create_supercut(composition, outputfile, padding)
