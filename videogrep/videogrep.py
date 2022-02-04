@@ -187,7 +187,7 @@ def demo_supercut(composition, padding):
         end = c['end']
         if i > 0 and composition[i - 1]['file'] == c['file'] and start < composition[i - 1]['end']:
             start = start + padding
-        print("{1} to {2}:\t{0}".format(line, start, end))
+        print("{1:.2f} to {2:.2f}:\t{0}".format(line, start, end))
 
 
 def create_supercut(composition, outputfile, padding):
