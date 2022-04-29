@@ -7,10 +7,10 @@ Videogrep is a command line tool that searches through dialog in video files and
 
 Videogrep is compatible with Python versions 3.6 to 3.9.
 
-Install it with pip:
+Install this BETA version with pip:
 
 ```
-pip install videogrep
+pip install git+https://github.com/antiboredom/videogrep@v2beta
 ```
 
 You can optionally install [ffmpeg](http://ffmpeg.org/) if you'd like to transcribe videos. If you're on a mac with homebrew you install ffmpeg with:
