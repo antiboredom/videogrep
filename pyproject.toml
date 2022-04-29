@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "videogrep"
+version = "0.1.0"
+description = ""
+authors = ["Sam Lavigne <splavigne@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+beautifulsoup4 = "^4.11.1"
+moviepy = "^1.0.3"
+vosk = "0.3.32"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+tox = "^3.25.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+videogrep = "videogrep:main"
