@@ -5,7 +5,7 @@ import re
 from . import vtt, srt, sphinx, transcribe
 from moviepy.editor import VideoFileClip, concatenate
 
-__version__ = "0.1.0"
+__version__ = "2.0.0"
 BATCH_SIZE = 20
 SUB_EXTS = [".json", ".srt", ".vtt", ".en.vtt", ".transcript"]
 
