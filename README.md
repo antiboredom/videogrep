@@ -79,6 +79,9 @@ Randomize the order of the clips
 
 Padding in milliseconds to add to the start and end of each clip
 
+#### --resyncsubs / -rs
+
+Shifts the subtitle timing forwards or backgrounds in milliseconds
 
 #### --transcribe / -tr
 
@@ -87,6 +90,24 @@ Transcribe the video using [vosk](https://alphacephei.com/vosk/). This will gene
 ```
 videogrep -i vid.mp4 --transcribe
 ```
+
+#### --export-clips / -ec
+
+Exports clips as individual files rather than as a supercut
+
+```
+videogrep -i vid.mp4 --search 'whatever' --export-clips
+```
+
+#### --ngrams / -n
+
+Shows common ngrams from the transcript
+
+```
+videogrep -i vid.mp4 --ngrams 1
+```
+
+
 
 
 ## Samples 
