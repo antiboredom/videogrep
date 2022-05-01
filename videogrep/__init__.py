@@ -314,16 +314,16 @@ def main():
         "-p",
         dest="padding",
         default=0,
-        type=int,
-        help="padding in milliseconds to add to the start and end of each clip",
+        type=float,
+        help="padding in seconds to add to the start and end of each clip",
     )
     parser.add_argument(
         "--resyncsubs",
         "-rs",
         dest="sync",
         default=0,
-        type=int,
-        help="subtitle re-synch delay +/- in milliseconds",
+        type=float,
+        help="subtitle re-synch delay +/- in seconds",
     )
     parser.add_argument(
         "--sphinx-transcribe",
@@ -345,7 +345,7 @@ def main():
         dest="ngrams",
         type=int,
         default=0,
-        help="Return ngrams for videos",
+        help="return ngrams for videos",
     )
     args = parser.parse_args()
 
