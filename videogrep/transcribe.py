@@ -7,15 +7,15 @@ import json
 MAX_CHARS = 36
 MODEL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "model")
 
-SetLogLevel(-1)
 
 
-def transcribe(videofile):
-    # if not os.path.exists(MODEL_PATH):
-    #     print(
-    #         "Please download the model from https://alphacephei.com/vosk/models and unpack as 'model' in the current folder."
-    #     )
-    #     exit(1)
+def transcribe(videofile, model=None):
+    if model is None:
+        model = MODEL_PATH
+    else:
+        if not os.path.exists(model):
+            print("Could not find model folder")
+            exit(1)
 
     transcript_file = os.path.splitext(videofile)[0] + ".json"
 
@@ -25,6 +25,7 @@ def transcribe(videofile):
         return data
 
     print("Transcribing", videofile)
+    SetLogLevel(-1)
 
     sample_rate = 16000
     model = Model(MODEL_PATH)

@@ -1,7 +1,7 @@
 Videogrep
 =========
 
-Videogrep is a command line tool that searches through dialog in video files and makes supercuts based on what it finds. It will recognize .srt or .vtt subtitle tracks, or transcriptions that can be generated with vosk, pocketsphinx, and other tools.
+Videogrep is a command line tool that searches through dialog in video files and makes supercuts based on what it finds. It will recognize `.srt` or `.vtt` subtitle tracks, or transcriptions that can be generated with vosk, pocketsphinx, and other tools.
 
 ## Installation
 
@@ -29,12 +29,11 @@ videogrep --input path/to/video --search 'search phrase'
 
 You can put any regular expression in the search phrase.
 
-**NOTE: videogrep requires the subtitle track and the video file to have the exact same name, up to the extension.** For example, my_movie.mp4 and my_movie.srt will work, and my_movie.mp4 and my_movie_subtitle.srt will not work.
+**NOTE: videogrep requires a matching subtitle track with each video you want to use. The video file and subtitle file need to have the exact same name, up to the extension.** For example, `my_movie.mp4` and `my_movie.srt` will work, and `my_movie.mp4` and `my_movie_subtitle.srt` will *not* work.
+
+Videogrep will accept `srt` and `vtt` subtitles, as well as `json` files.
 
 ### Options
-
-videogrep can take a number of options:
-
 
 #### --input / -i
 
@@ -44,6 +43,10 @@ Video or subtitle file, or folder containing multiple files
 #### --output / -o
 
 Name of the file to generate. By default this is "supercut.mp4"
+
+```
+videogrep --input path/to/video --search 'search phrase' --output coolvid.mp4
+```
 
 
 #### --search / -s
@@ -59,6 +62,10 @@ Type of search you want to perform. There are two options:
 * `fragment`: Generates clips containing the exact word or phrase of your search query.
 
 Both options take regular expressions. You may only use the `fragment` search if your transcript has word-level timestamps, which will be the case for youtube .vtt files, or if you generated a transcript using videogrep itself.
+
+```
+videogrep --input path/to/video --search 'experience' --search-type fragment
+```
 
 #### --max-clips / -m
 
@@ -77,18 +84,26 @@ Randomize the order of the clips
 
 #### --padding / -p
 
-Padding in milliseconds to add to the start and end of each clip
+Padding in seconds to add to the start and end of each clip
 
 #### --resyncsubs / -rs
 
-Shifts the subtitle timing forwards or backgrounds in milliseconds
+Shifts the subtitle timing forwards or backgrounds, in seconds
 
 #### --transcribe / -tr
 
-Transcribe the video using [vosk](https://alphacephei.com/vosk/). This will generate a `.json` file in the same folder as the video. Only works for English at the moment!
+Transcribe the video using [vosk](https://alphacephei.com/vosk/). This will generate a `.json` file in the same folder as the video. By default this uses vosk's small English model.
 
 ```
 videogrep -i vid.mp4 --transcribe
+```
+
+#### --model / -mo
+
+In combination with the `--transcribe` option, allows you to specify the path to a vosk model folder to use. Vosk models are [available here](https://alphacephei.com/vosk/models) in a variety of languages.
+
+```
+videogrep -i vid.mp4 --transcribe --model path/to/model/
 ```
 
 #### --export-clips / -ec

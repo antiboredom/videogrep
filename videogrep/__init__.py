@@ -340,6 +340,12 @@ def main():
         help="transcribe the video using vosk (built in)",
     )
     parser.add_argument(
+        "--model",
+        "-mo",
+        dest="model",
+        help="model folder for transcription",
+    )
+    parser.add_argument(
         "--ngrams",
         "-n",
         dest="ngrams",
@@ -366,7 +372,7 @@ def main():
 
     if args.transcribe:
         for f in args.inputfile:
-            transcribe.transcribe(f)
+            transcribe.transcribe(f, args.model)
         return True
 
     if args.search is None:
