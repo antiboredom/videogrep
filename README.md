@@ -31,7 +31,7 @@ You can put any regular expression in the search phrase.
 
 **NOTE: videogrep requires a matching subtitle track with each video you want to use. The video file and subtitle file need to have the exact same name, up to the extension.** For example, `my_movie.mp4` and `my_movie.srt` will work, and `my_movie.mp4` and `my_movie_subtitle.srt` will *not* work.
 
-Videogrep will accept `srt` and `vtt` subtitles, as well as `json` files.
+Videogrep will search for matching `srt` and `vtt` subtitles, as well as `json` transcript files that can be generated with the `--transcribe` argument.
 
 ### Options
 
