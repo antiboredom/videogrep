@@ -128,14 +128,10 @@ videogrep -i vid.mp4 --ngrams 1
 ```
 
 
+----
 
 
-## Samples 
-* [All the instances of the phrase "time" in the movie "In Time"](https://www.youtube.com/watch?v=PQMzOUeprlk)
-* [All the one to two second silences in "Total Recall"](https://www.youtube.com/watch?v=qEtEbXVbYJQ)
-* [The President's former press secretary telling us what he can tell us](https://www.youtube.com/watch?v=D7pymdCU5NQ)
-
-### Use it as a module
+## Use it as a module
 
 ```
 from videogrep import videogrep
@@ -144,3 +140,9 @@ videogrep('path/to/your/files','output_file_name.mp4', 'search_term', 'search_ty
 ```
 The videogrep module accepts the same parameters as the command line script. To see the usage check out the source.
 
+----
+
+## Samples 
+* [All the instances of the phrase "time" in the movie "In Time"](https://www.youtube.com/watch?v=PQMzOUeprlk)
+* [All the one to two second silences in "Total Recall"](https://www.youtube.com/watch?v=qEtEbXVbYJQ)
+* [The President's former press secretary telling us what he can tell us](https://www.youtube.com/watch?v=D7pymdCU5NQ)
