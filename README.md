@@ -35,12 +35,12 @@ Videogrep will search for matching `srt` and `vtt` subtitles, as well as `json` 
 
 ### Options
 
-#### --input / -i
+#### `--input [filename(s)] / -i [filename(s)]`
 
 Video or videos to use as input. Most video formats should work.
 
 
-#### --output / -o
+#### `--output [filename] / -o [filename]`
 
 Name of the file to generate. By default this is `supercut.mp4`. Any standard video extension will also work.
 
@@ -54,16 +54,16 @@ videogrep --input path/to/video --search 'search phrase' --output coolvid.mp4
 ```
 
 
-#### --search / -s
+#### `--search [query] / -s [query]`
 
 Search term, as a regular expression.
 
 
-#### --search-type / -st
+#### `--search-type [type] / -st [type]`
 
 Type of search you want to perform. There are two options:
 
-* `sentence` (default): Generates clips containing the full sentences of your search query.
+* `sentence`: (default): Generates clips containing the full sentences of your search query.
 * `fragment`: Generates clips containing the exact word or phrase of your search query.
 
 Both options take regular expressions. You may only use the `fragment` search if your transcript has word-level timestamps, which will be the case for youtube `.vtt` files, or if you generated a transcript using Videogrep itself.
@@ -72,30 +72,30 @@ Both options take regular expressions. You may only use the `fragment` search if
 videogrep --input path/to/video --search 'experience' --search-type fragment
 ```
 
-#### --max-clips / -m
+#### `--max-clips [num] / -m [num]`
 
 Maximum number of clips to use for the supercut.
 
 
-#### --demo / -d
+#### `--demo / -d`
 
 Show the search results without making the supercut.
 
 
-#### --randomize / -r
+#### `--randomize / -r`
 
 Randomize the order of the clips.
 
 
-#### --padding / -p
+#### `--padding [seconds] / -p [seconds]`
 
 Padding in seconds to add to the start and end of each clip.
 
-#### --resyncsubs / -rs
+#### `--resyncsubs [seconds] / -rs [seconds]`
 
 Time in seconds to shift the shift the subtitles forwards or backwards.
 
-#### --transcribe / -tr
+#### `--transcribe / -tr`
 
 Transcribe the video using [vosk](https://alphacephei.com/vosk/). This will generate a `.json` file in the same folder as the video. By default this uses vosk's small english model.
 
@@ -103,7 +103,7 @@ Transcribe the video using [vosk](https://alphacephei.com/vosk/). This will gene
 videogrep -i vid.mp4 --transcribe
 ```
 
-#### --model / -mo
+#### `--model [modelpath] / -mo [modelpath]`
 
 In combination with the `--transcribe` option, allows you to specify the path to a vosk model folder to use. Vosk models are [available here](https://alphacephei.com/vosk/models) in a variety of languages.
 
@@ -111,7 +111,7 @@ In combination with the `--transcribe` option, allows you to specify the path to
 videogrep -i vid.mp4 --transcribe --model path/to/model/
 ```
 
-#### --export-clips / -ec
+#### `--export-clips / -ec`
 
 Exports clips as individual files rather than as a supercut.
 
@@ -119,7 +119,7 @@ Exports clips as individual files rather than as a supercut.
 videogrep -i vid.mp4 --search 'whatever' --export-clips
 ```
 
-#### --ngrams / -n
+#### `--ngrams [num] / -n [num]`
 
 Shows common words and phrases from the video.
 
