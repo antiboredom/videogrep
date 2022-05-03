@@ -2,7 +2,8 @@ import json
 import random
 import os
 import re
-from . import vtt, srt, sphinx, transcribe
+from . import vtt, srt, sphinx, transcribe, fcpxml
+
 from moviepy.editor import VideoFileClip, concatenate
 
 __version__ = "2.0.0"
@@ -193,6 +194,37 @@ def export_individual_clips(composition, outputfile):
         )
 
 
+def export_m3u(composition, outputfile):
+    """Exports supercut as an m3u file that can be played in VLC"""
+    lines = []
+    lines.append("#EXTM3U")
+    for c in composition:
+        lines.append(f"#EXTINF:")
+        lines.append(f"#EXTVLCOPT:start-time={c['start']}")
+        lines.append(f"#EXTVLCOPT:stop-time={c['end']}")
+        lines.append(c["file"])
+
+    with open(outputfile, "w") as outfile:
+        outfile.write("\n".join(lines))
+
+
+def export_mpv_edl(composition, outputfile):
+    """Exports supercut as an edl file that can be played in mpv
+    Good for previewing!
+    """
+    lines = []
+    lines.append("# mpv EDL v0")
+    for c in composition:
+        lines.append(f"{os.path.abspath(c['file'])},{c['start']},{c['end']-c['start']}")
+
+    with open(outputfile, "w") as outfile:
+        outfile.write("\n".join(lines))
+
+
+def export_xml(composition, outputfile):
+    fcpxml.compose(composition, outputfile)
+
+
 def cleanup_log_files(outputfile):
     """Search for and remove temp log files found in the output directory."""
     d = os.path.dirname(os.path.abspath(outputfile))
@@ -246,6 +278,21 @@ def videogrep(
     # export individual clips
     if export_clips:
         export_individual_clips(segments, output)
+        return True
+
+    # m3u
+    if output.endswith(".m3u"):
+        export_m3u(segments, output)
+        return True
+
+    # mpv edls
+    if output.endswith(".mpv.edl"):
+        export_mpv_edl(segments, output)
+        return True
+
+    # fcp xml (compatible with premiere/davinci)
+    if output.endswith(".xml"):
+        export_xml(segments, output)
         return True
 
     # export supercut
