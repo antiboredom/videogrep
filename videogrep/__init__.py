@@ -124,7 +124,7 @@ def create_supercut(composition, outputfile):
     ]
 
     print("[+] Concatenating clips.")
-    final_clip = concatenate(cut_clips)
+    final_clip = concatenate(cut_clips, method="compose")
 
     print("[+] Writing ouput file.")
     final_clip.to_videofile(
@@ -158,7 +158,7 @@ def create_supercut_in_batches(composition, outputfile):
             next
 
     clips = [VideoFileClip(filename) for filename in batch_comp]
-    video = concatenate(clips)
+    video = concatenate(clips, method="compose")
     video.to_videofile(
         outputfile,
         codec="libx264",
