@@ -8,7 +8,7 @@ authors = ["Sam Lavigne <splavigne@gmail.com>"]
 python = "^3.6"
 beautifulsoup4 = "^4.11.1"
 moviepy = "^1.0.3"
-vosk = "0.3.32"
+vosk = {version = "0.3.32", optional = true}
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

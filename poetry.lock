@@ -48,7 +48,7 @@ name = "cffi"
 version = "1.15.0"
 description = "Foreign Function Interface for Python calling C code."
 category = "main"
-optional = false
+optional = true
 python-versions = "*"
 
 [package.dependencies]
@@ -284,7 +284,7 @@ name = "pycparser"
 version = "2.21"
 description = "C parser in Python"
 category = "main"
-optional = false
+optional = true
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
@@ -450,7 +450,7 @@ name = "vosk"
 version = "0.3.32"
 description = "Offline open source speech recognition API based on Kaldi and Vosk"
 category = "main"
-optional = false
+optional = true
 python-versions = ">=3"
 
 [package.dependencies]
@@ -479,7 +479,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "9de4966599f2194fe74c9f3e5814b920b85334a0b7bbe29b99174cb63c1c5eaa"
+content-hash = "896cd7ac69ac4b0d6acbd8dc0928d03e7779dafaf03d0cce1c7d44c9747eb02f"
 
 [metadata.files]
 atomicwrites = [
