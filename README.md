@@ -13,10 +13,18 @@ Install this BETA version with pip:
 pip install git+https://github.com/antiboredom/videogrep@v2beta
 ```
 
-You can optionally install [ffmpeg](http://ffmpeg.org/) if you'd like to transcribe videos. If you're on a mac with homebrew you install ffmpeg with:
+If you want to transcribe videos, you also need to install [ffmpeg](http://ffmpeg.org/) and [vosk](https://alphacephei.com/vosk/).
+
+If you're on a mac with homebrew you install ffmpeg with:
 
 ```
 brew install ffmpeg
+```
+
+To install vosk:
+
+```
+pip install vosk
 ```
 
 ## Usage
@@ -98,6 +106,8 @@ Time in seconds to shift the shift the subtitles forwards or backwards.
 #### `--transcribe / -tr`
 
 Transcribe the video using [vosk](https://alphacephei.com/vosk/). This will generate a `.json` file in the same folder as the video. By default this uses vosk's small english model.
+
+**NOTE:** Because of some compatibility issues, vosk must be installed separately with `pip install vosk`.
 
 ```
 videogrep -i vid.mp4 --transcribe
