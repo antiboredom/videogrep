@@ -2,6 +2,9 @@ from moviepy.editor import VideoFileClip
 from functools import lru_cache
 import os
 
+# https://developer.apple.com/library/archive/documentation/AppleApplications/Reference/FinalCutPro_XML/Basics/Basics.html#//apple_ref/doc/uid/TP30001154-DontLinkElementID_60
+
+FPS = 30
 
 @lru_cache(maxsize=None)
 def get_clip(filename):
@@ -20,10 +23,10 @@ class Clip:
         self.shot_name = os.path.basename(filename)
         self.clip_id = f"{self.shot_name}-{clip_id}"
         self.audio_clip_id = f"{self.clip_id}-audio"
-        self.fps = self.clip.fps
-        self.duration = self.clip.duration
+        self.fps = FPS
         self.width = self.clip.w
         self.height = self.clip.h
+        self.duration = self.frames(self.clip.duration)
         self.start = self.frames(start)
         self.end = self.frames(end)
         self.clip_in = self.frames(clip_in)
@@ -57,9 +60,13 @@ class Clip:
             <compositemode>normal</compositemode>
             <link>
               <linkclipref>{self.clip_id}</linkclipref>
+              <groupindex>1</groupindex>
+              <trackindex>1</trackindex>
             </link>
             <link>
               <linkclipref>{self.audio_clip_id}</linkclipref>
+              <groupindex>1</groupindex>
+              <trackindex>1</trackindex>
             </link>
             <comments />
           </clipitem>"""
@@ -83,13 +90,6 @@ class Clip:
               <mediatype>audio</mediatype>
               <trackindex>1</trackindex>
             </sourcetrack>
-            <link>
-              <linkclipref>{self.clip_id}</linkclipref>
-            </link>
-            <link>
-              <linkclipref>{self.audio_clip_id}</linkclipref>
-            </link>
-            <comments />
           </clipitem>"""
 
     def render_file(self):
@@ -150,7 +150,7 @@ class Sequence:
         self.clips = clips
         self.track_duration = clips[0].frames(track_duration)
         self.project_name = project_name
-        self.fps = clips[0].fps
+        self.fps = FPS
         self.width = clips[0].width
         self.height = clips[0].height
 
@@ -213,6 +213,8 @@ class Sequence:
                   <audio>
                     <track>
                         {self.render_audio()}
+                        <enabled>TRUE</enabled>
+                        <locked>FALSE</locked>
                     </track>
                   </audio>
                 </media>
@@ -226,3 +228,14 @@ def compose(segments, outname):
     # output = minidom.parseString(output)
     with open(outname, "w") as outfile:
         outfile.write(s.render())
+
+
+if __name__ == "__main__":
+    f1 = "/Users/sam/Downloads/facebook_small.mp4"
+    f2 = "/Users/sam/Desktop/scrapism/day8/shell.mp4"
+
+    sequence = [
+        {"start": 10, "end": 12, "file": f1},
+        {"start": 10, "end": 12, "file": f2},
+    ]
+    compose(sequence, "test.xml")
