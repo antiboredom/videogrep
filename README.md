@@ -1,6 +1,9 @@
 Videogrep
 =========
 
+**Alert!** Check out the new beta here: https://github.com/antiboredom/videogrep/tree/v2beta
+
+
 Videogrep is a command line tool that searches through dialog in video files (using .srt or .vtt subtitle tracks, or pocketsphinx transcriptions) and makes supercuts based on what it finds.
 
 Videogrep also has an experimental graphic interface (Mac only). Download it here: [http://saaaam.s3.amazonaws.com/VideoGrep.app.zip](http://saaaam.s3.amazonaws.com/VideoGrep.app.zip)
