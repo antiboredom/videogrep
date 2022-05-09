@@ -5,7 +5,7 @@ Videogrep is a command line tool that searches through dialog in video files and
 
 ## Installation
 
-Videogrep is compatible with Python versions 3.6 to 3.9.
+Videogrep is compatible with Python versions 3.6 to 3.10.
 
 Install this BETA version with pip:
 

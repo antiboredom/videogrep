@@ -2,7 +2,7 @@ import json
 import random
 import os
 import re
-from . import vtt, srt, sphinx, transcribe, fcpxml
+from . import vtt, srt, sphinx, fcpxml
 
 from moviepy.editor import VideoFileClip, concatenate
 
@@ -418,8 +418,15 @@ def main():
         return True
 
     if args.transcribe:
+        try:
+            from . import transcribe
+        except ModuleNotFoundError:
+            print("You must install vosk to transcribe files: \n\npip install vosk\n")
+            return False
+
         for f in args.inputfile:
             transcribe.transcribe(f, args.model)
+
         return True
 
     if args.search is None:
