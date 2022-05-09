@@ -25,6 +25,9 @@ To install vosk:
 
 ```
 pip install vosk
+
+# note: when this is actually released you'll also be able to to install it with:
+# pip install videogrep[full]
 ```
 
 ## Usage

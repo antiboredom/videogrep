@@ -10,6 +10,9 @@ beautifulsoup4 = "^4.11.1"
 moviepy = "^1.0.3"
 vosk = {version = "0.3.32", optional = true}
 
+[tool.poetry.extras]
+full = ["vosk"]
+
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 tox = "^3.25.0"
