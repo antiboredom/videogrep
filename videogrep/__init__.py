@@ -2,6 +2,7 @@ import json
 import random
 import os
 import re
+import gc
 from . import vtt, srt, sphinx, fcpxml
 
 from moviepy.editor import VideoFileClip, concatenate
