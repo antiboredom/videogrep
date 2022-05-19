@@ -1,8 +1,19 @@
 [tool.poetry]
 name = "videogrep"
 version = "2.0.0"
-description = ""
+description = "Videogrep is a command line tool that searches through dialog in video files and makes supercuts based on what it finds. Like grep but for video."
 authors = ["Sam Lavigne <splavigne@gmail.com>"]
+license = "Anti-Capitalist"
+readme = "README.md"
+homepage = "http://antiboredom.github.io/videogrep/"
+repository = "https://github.com/antiboredom/videogrep"
+keywords = ["video", "supercut"]
+classifiers = [
+  "Topic :: Multimedia :: Video",
+  "Topic :: Multimedia :: Sound/Audio :: Speech",
+  "Topic :: Text Processing",
+  "Topic :: Utilities"
+]
 
 [tool.poetry.dependencies]
 python = "^3.6"
