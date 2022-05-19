@@ -59,6 +59,38 @@ def test_find_sub():
     assert videogrep.find_transcript(testvid) == testvtt
 
 
+def test_parse_transcript():
+    pass
+
+
+def test_export_xml():
+    pass
+
+
+def test_export_edl():
+    pass
+
+
+def test_export_m3u():
+    pass
+
+
+def test_ngrams():
+    pass
+
+
+def test_export_files():
+    pass
+
+
+def test_videogrep():
+    pass
+
+
+def test_create_supercut():
+    pass
+
+
 def test_sentence_search():
     testvid = File("test.mp4")
     query = "zoom"
