@@ -27,6 +27,8 @@ def parse_transcript(videoname):
     if subfile is None:
         return None
 
+    transcript = None
+
     with open(subfile, "r") as infile:
         if subfile.endswith(".srt"):
             transcript = srt.parse(infile)
