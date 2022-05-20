@@ -3,6 +3,15 @@ Videogrep
 
 Videogrep is a command line tool that searches through dialog in video files and makes supercuts based on what it finds. It will recognize `.srt` or `.vtt` subtitle tracks, or transcriptions that can be generated with vosk, pocketsphinx, and other tools.
 
+#### Examples
+
+* [All the instances of the phrase "time" in the movie "In Time"](https://www.youtube.com/watch?v=PQMzOUeprlk)
+* [All the one to two second silences in "Total Recall"](https://www.youtube.com/watch?v=qEtEbXVbYJQ)
+* [The President's former press secretary telling us what he can tell us](https://www.youtube.com/watch?v=D7pymdCU5NQ)
+* [The Meta Experience](https://www.youtube.com/watch?v=nGHbOckpifw)
+
+----
+
 ## Installation
 
 Videogrep is compatible with Python versions 3.6 to 3.10.
@@ -29,6 +38,8 @@ pip install vosk
 # note: when this is actually released you'll also be able to to install it with:
 # pip install videogrep[full]
 ```
+
+Note: the previous version of videogrep supported pocketsphinx for speech-to-text. Vosk seems *much* better so I've added support for it and will likely be phasing out support for pocketsphinx.
 
 ## Usage
 
@@ -155,7 +166,3 @@ The videogrep module accepts the same parameters as the command line script. To 
 
 ----
 
-## Samples 
-* [All the instances of the phrase "time" in the movie "In Time"](https://www.youtube.com/watch?v=PQMzOUeprlk)
-* [All the one to two second silences in "Total Recall"](https://www.youtube.com/watch?v=qEtEbXVbYJQ)
-* [The President's former press secretary telling us what he can tell us](https://www.youtube.com/watch?v=D7pymdCU5NQ)
