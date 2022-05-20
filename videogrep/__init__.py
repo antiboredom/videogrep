@@ -6,16 +6,17 @@ import gc
 from . import vtt, srt, sphinx, fcpxml
 from typing import Optional, List, Union, Iterator
 
-from moviepy.editor import VideoFileClip, concatenate
+from moviepy.editor import VideoFileClip, concatenate_videoclips
 
 __version__ = "2.0.0"
 BATCH_SIZE = 20
 SUB_EXTS = [".json", ".srt", ".vtt", ".en.vtt", ".transcript"]
 
 
-def find_transcript(videoname: str) -> Optional[str]:
+def find_transcript(videoname: str, prefer: str = "json") -> Optional[str]:
     """
     Takes a video file path and finds a matching subtitle file.
+    (i'm phasing this out, just leaving as a reference for now)
 
     :param videoname str: Video file path
     :rtype Optional[str]: Subtitle file path
@@ -30,16 +31,32 @@ def find_transcript(videoname: str) -> Optional[str]:
     return None
 
 
-def parse_transcript(videoname: str) -> Optional[List[dict]]:
+def parse_transcript(
+    videoname: str, prefer: Optional[str] = None
+) -> Optional[List[dict]]:
     """
     Helper function to parse a subtitle file and returns timestamps.
 
     :param videoname str: Video file path
+    :param prefer Optiona[str]: Transcript file type preference. Can be vtt, srt, or json
     :rtype Optional[List[dict]]: List of timestamps or None
     """
 
-    subfile = find_transcript(videoname)
+    subfile = None
+
+    _sub_exts = SUB_EXTS
+
+    if prefer is not None:
+        _sub_exts = [prefer] + SUB_EXTS
+
+    for ext in _sub_exts:
+        subpath = os.path.splitext(videoname)[0] + ext
+        if os.path.exists(subpath):
+            subfile = subpath
+            break
+
     if subfile is None:
+        print("No subtitle file found for ", videoname)
         return None
 
     transcript = None
@@ -87,7 +104,10 @@ def get_ngrams(files: Union[str, list], n: int = 1) -> Iterator[tuple]:
 
 
 def search(
-    files: Union[str, list], query: str, search_type: str = "sentence"
+    files: Union[str, list],
+    query: str,
+    search_type: str = "sentence",
+    prefer: Optional[str] = None,
 ) -> List[dict]:
     """
     Searches for a query in a video file or files and returns a list of timestamps in the format [{file, start, end, content}]
@@ -95,6 +115,7 @@ def search(
     :param files Union[str, list]: List of files or file
     :param query str: Query as a regular expression
     :param search_type str: Return timestamps for "sentence" or "fragment"
+    :param prefer str: Transcript file type preference. Can be vtt, srt, or json
     :rtype List[dict]: A list of timestamps that match the query
     """
     if not isinstance(files, list):
@@ -103,7 +124,7 @@ def search(
     segments = []
 
     for file in files:
-        transcript = parse_transcript(file)
+        transcript = parse_transcript(file, prefer=prefer)
         if transcript is None:
             continue
 
@@ -120,6 +141,10 @@ def search(
                     )
 
         elif search_type == "fragment":
+            if "words" not in transcript[0]:
+                print("Could not find word-level timestamps for", file)
+                continue
+
             words = []
             for line in transcript:
                 words += line["words"]
@@ -158,10 +183,10 @@ def create_supercut(composition: List[dict], outputfile: str):
     ]
 
     print("[+] Concatenating clips.")
-    final_clip = concatenate(cut_clips, method="compose")
+    final_clip = concatenate_videoclips(cut_clips, method="compose")
 
     print("[+] Writing ouput file.")
-    final_clip.to_videofile(
+    final_clip.write_videofile(
         outputfile,
         codec="libx264",
         temp_audiofile="temp-audio.m4a",
@@ -195,8 +220,8 @@ def create_supercut_in_batches(composition: List[dict], outputfile: str):
             next
 
     clips = [VideoFileClip(filename) for filename in batch_comp]
-    video = concatenate(clips, method="compose")
-    video.to_videofile(
+    video = concatenate_videoclips(clips, method="compose")
+    video.write_videofile(
         outputfile,
         codec="libx264",
         temp_audiofile="temp-audio.m4a",
@@ -229,7 +254,7 @@ def export_individual_clips(composition: List[dict], outputfile: str):
     print("[+] Writing ouput files.")
     for i, clip in enumerate(cut_clips):
         clipfilename = basename + "_" + str(i).zfill(5) + ext
-        clip.to_videofile(
+        clip.write_videofile(
             clipfilename,
             codec="libx264",
             temp_audiofile="temp-audio.m4a",
@@ -293,7 +318,7 @@ def cleanup_log_files(outputfile: str):
 
 
 def videogrep(
-    files: List[str],
+    files: Union[List[str], str],
     query: str,
     search_type: str = "sentence",
     output: str = "supercut.mp4",
