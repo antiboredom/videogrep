@@ -52,7 +52,7 @@ def parse(srt:Union[io.IOBase, str]) -> List[dict]:
 
     out = []
 
-    srt = re.sub(r"^\d+[\n\r]", "", _srt, flags=re.MULTILINE)
+    _srt = re.sub(r"^\d+[\n\r]", "", _srt, flags=re.MULTILINE)
     lines = _srt.splitlines()
 
 
