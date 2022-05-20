@@ -4,6 +4,7 @@ import os
 import re
 import gc
 from . import vtt, srt, sphinx, fcpxml
+from typing import Optional, List, Union, Iterator
 
 from moviepy.editor import VideoFileClip, concatenate
 
@@ -12,7 +13,14 @@ BATCH_SIZE = 20
 SUB_EXTS = [".json", ".srt", ".vtt", ".en.vtt", ".transcript"]
 
 
-def find_transcript(videoname):
+def find_transcript(videoname: str) -> Optional[str]:
+    """
+    Takes a video file path and finds a matching subtitle file.
+
+    :param videoname str: Video file path
+    :rtype Optional[str]: Subtitle file path
+    """
+
     for ext in SUB_EXTS:
         sub_path = os.path.splitext(videoname)[0] + ext
         if os.path.exists(sub_path):
@@ -22,7 +30,14 @@ def find_transcript(videoname):
     return None
 
 
-def parse_transcript(videoname):
+def parse_transcript(videoname: str) -> Optional[List[dict]]:
+    """
+    Helper function to parse a subtitle file and returns timestamps.
+
+    :param videoname str: Video file path
+    :rtype Optional[List[dict]]: List of timestamps or None
+    """
+
     subfile = find_transcript(videoname)
     if subfile is None:
         return None
@@ -42,11 +57,14 @@ def parse_transcript(videoname):
     return transcript
 
 
-def get_ngrams(files, n=1):
+def get_ngrams(files: Union[str, list], n: int = 1) -> Iterator[tuple]:
     """
-    Get ngrams from a text
-    Sourced from:
-    https://gist.github.com/dannguyen/93c2c43f4e65328b85af
+    Get n-grams from video file(s)
+    Sourced from: https://gist.github.com/dannguyen/93c2c43f4e65328b85af
+
+    :param files Union[str, list]: Path or paths to video files
+    :param n int: N-gram size
+    :rtype Iterator[tuple]: List of (n-gram, occurrences)
     """
 
     if not isinstance(files, list):
@@ -68,7 +86,17 @@ def get_ngrams(files, n=1):
     return ngrams
 
 
-def search(files, query, search_type="sentence"):
+def search(
+    files: Union[str, list], query: str, search_type: str = "sentence"
+) -> List[dict]:
+    """
+    Searches for a query in a video file or files and returns a list of timestamps in the format [{file, start, end, content}]
+
+    :param files Union[str, list]: List of files or file
+    :param query str: Query as a regular expression
+    :param search_type str: Return timestamps for "sentence" or "fragment"
+    :rtype List[dict]: A list of timestamps that match the query
+    """
     if not isinstance(files, list):
         files = [files]
 
@@ -114,9 +142,12 @@ def search(files, query, search_type="sentence"):
     return segments
 
 
-def create_supercut(composition, outputfile):
-    """Concatenate video clips together and output finished video file to the
-    output directory.
+def create_supercut(composition: List[dict], outputfile: str):
+    """
+    Concatenate video clips together.
+
+    :param composition List[dict]: List of timestamps in the format [{start, end, file}]
+    :param outputfile str: Path to save the video to
     """
     print("[+] Creating clips.")
 
@@ -139,9 +170,12 @@ def create_supercut(composition, outputfile):
     )
 
 
-def create_supercut_in_batches(composition, outputfile):
-    """Create & concatenate video clips in groups of size BATCH_SIZE and output
-    finished video file to output directory.
+def create_supercut_in_batches(composition: List[dict], outputfile: str):
+    """
+    Concatenate video clips together in groups of size BATCH_SIZE.
+
+    :param composition List[dict]: List of timestamps in the format [{start, end, file}]
+    :param outputfile str: Path to save the video to
     """
     total_clips = len(composition)
     start_index = 0
@@ -177,7 +211,14 @@ def create_supercut_in_batches(composition, outputfile):
     cleanup_log_files(outputfile)
 
 
-def export_individual_clips(composition, outputfile):
+def export_individual_clips(composition: List[dict], outputfile: str):
+    """
+    Exports videogrep composition to individual clips.
+
+    :param composition List[dict]: List of timestamps in the format [{start, end, file}]
+    :param outputfile str: Path to save the videos to
+    """
+
     all_filenames = set([c["file"] for c in composition])
     videofileclips = dict([(f, VideoFileClip(f)) for f in all_filenames])
     cut_clips = [
@@ -197,8 +238,14 @@ def export_individual_clips(composition, outputfile):
         )
 
 
-def export_m3u(composition, outputfile):
-    """Exports supercut as an m3u file that can be played in VLC"""
+def export_m3u(composition: List[dict], outputfile: str):
+    """
+    Exports supercut as an m3u file that can be played in VLC
+
+    :param composition List[dict]: List of timestamps in the format [{start, end, file}]
+    :param outputfile str: Path to save the playlist to
+    """
+
     lines = []
     lines.append("#EXTM3U")
     for c in composition:
@@ -211,9 +258,12 @@ def export_m3u(composition, outputfile):
         outfile.write("\n".join(lines))
 
 
-def export_mpv_edl(composition, outputfile):
-    """Exports supercut as an edl file that can be played in mpv
-    Good for previewing!
+def export_mpv_edl(composition: List[dict], outputfile: str):
+    """
+    Exports supercut as an edl file that can be played in mpv. Good for previewing!
+
+    :param composition List[dict]: List of timestamps in the format [{start, end, file}]
+    :param outputfile str: Path to save the playlist to
     """
     lines = []
     lines.append("# mpv EDL v0")
@@ -224,11 +274,17 @@ def export_mpv_edl(composition, outputfile):
         outfile.write("\n".join(lines))
 
 
-def export_xml(composition, outputfile):
+def export_xml(composition: List[dict], outputfile: str):
+    """
+    Exports supercut as a Final Cut Pro xml file. This can be imported to Premiere or Resolve.
+
+    :param composition List[dict]: List of timestamps in the format [{start, end, file}]
+    :param outputfile str: Path to save the xml file to
+    """
     fcpxml.compose(composition, outputfile)
 
 
-def cleanup_log_files(outputfile):
+def cleanup_log_files(outputfile: str):
     """Search for and remove temp log files found in the output directory."""
     d = os.path.dirname(os.path.abspath(outputfile))
     logfiles = [f for f in os.listdir(d) if f.endswith("ogg.log")]
@@ -237,17 +293,31 @@ def cleanup_log_files(outputfile):
 
 
 def videogrep(
-    files,
-    query,
-    search_type="sentence",
-    output="supercut.mp4",
-    resync=0,
-    padding=0,
-    maxclips=0,
-    export_clips=False,
-    random_order=False,
-    demo=False,
+    files: List[str],
+    query: str,
+    search_type: str = "sentence",
+    output: str = "supercut.mp4",
+    resync: float = 0,
+    padding: float = 0,
+    maxclips: int = 0,
+    export_clips: bool = False,
+    random_order: bool = False,
+    demo: bool = False,
 ):
+    """
+    Creates a supercut of videos based on a search query
+
+    :param files List[str]: Video file to search through
+    :param query str: A query, as a regular expression
+    :param search_type str: Either 'sentence' or 'fragment'
+    :param output str: Filename to save to
+    :param resync float: Time in seconds to shift subtitle timestamps
+    :param padding float: Time in seconds to pad each clip
+    :param maxclips int: Maximum clips to use (0 is unlimited)
+    :param export_clips bool: Export individual clips rather than a single file (default False)
+    :param random_order bool: Randomize the order of clips (default False)
+    :param demo bool: Show the results of the search but don't actually make a supercut
+    """
 
     segments = search(files, query, search_type)
 
@@ -306,6 +376,9 @@ def videogrep(
 
 
 def main():
+    """
+    Run the command line version of Videogrep
+    """
     import argparse
 
     parser = argparse.ArgumentParser(

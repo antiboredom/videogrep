@@ -1,4 +1,5 @@
 from moviepy.editor import VideoFileClip
+from typing import List
 from functools import lru_cache
 import os
 
@@ -6,17 +7,46 @@ import os
 
 FPS = 30
 
+
 @lru_cache(maxsize=None)
-def get_clip(filename):
+def get_clip(filename: str) -> VideoFileClip:
     return VideoFileClip(filename)
 
 
-def frames(seconds, fps):
+def frames(seconds: float, fps: float) -> int:
+    """
+    Converts seconds and fps to frame count
+
+    :param seconds float: Total seconds
+    :param fps float: Frames per second
+    :rtype int: Frames
+    """
+
     return int(seconds * fps)
 
 
 class Clip:
-    def __init__(self, filename, clip_id, start, end, clip_in, clip_out):
+    """
+    A clip in a timeline sequence
+
+    :param filename str: Filename
+    :param clip_id int: A unique numeric id for this clip
+    :param start float: When the clip starts in the timeline
+    :param end float: When the clip ends in the timeline
+    :param clip_in float: The in-point of the clip
+    :param clip_out float: The out-point of the clip
+
+    """
+
+    def __init__(
+        self,
+        filename: str,
+        clip_id: int,
+        start: float,
+        end: float,
+        clip_in: float,
+        clip_out: float,
+    ):
         self.clip = get_clip(filename)
         self.full_path = os.path.abspath(filename)
         self.base_path = os.path.basename(filename)
@@ -34,10 +64,23 @@ class Clip:
         self.file_id = self.shot_name
         self.audio_channels = 2
 
-    def frames(self, secs):
+    def frames(self, secs: float) -> int:
+        """
+        Returns framecount based on seconds and fps.
+
+        :param secs float: Seconds
+        :rtype int: Frames
+        """
         return int(secs * self.fps)
 
-    def render(self, include_file=False):
+    def render(self, include_file: bool = False) -> str:
+        """
+        Renders the clip as an xml string
+
+        :param include_file bool: Include the file info
+        :rtype str: FCP xml
+        """
+
         file_meta = f'<file id="{self.file_id}" />'
 
         if include_file:
@@ -71,7 +114,13 @@ class Clip:
             <comments />
           </clipitem>"""
 
-    def render_audio(self):
+    def render_audio(self) -> str:
+        """
+        Renders the audio portion of the clip
+
+        :rtype str: FCP audio xml
+        """
+
         return f"""
           <clipitem id="{self.audio_clip_id}">
             <name>{self.shot_name}</name>
@@ -92,7 +141,13 @@ class Clip:
             </sourcetrack>
           </clipitem>"""
 
-    def render_file(self):
+    def render_file(self) -> str:
+        """
+        Renders the file information.
+
+        :rtype str: FCP file xml
+        """
+
         return f"""
             <file id="{self.file_id}">
               <pathurl>file://{self.full_path}</pathurl>
@@ -126,7 +181,14 @@ class Clip:
 
 
 class Sequence:
-    def __init__(self, segments, project_name):
+    """
+    A sequence of clips
+
+    :param segments List[dict]: Timestamps of clips in the format [{start, end, file}]
+    :param project_name str: A project name
+    """
+
+    def __init__(self, segments: List[dict], project_name: str):
         clips = []
 
         start = 0
@@ -154,7 +216,12 @@ class Sequence:
         self.width = clips[0].width
         self.height = clips[0].height
 
-    def render_video(self):
+    def render_video(self) -> str:
+        """
+        Renders video tracks
+
+        :rtype str: FCP video track xml
+        """
         files = []
         rendered = []
         for c in self.clips:
@@ -168,10 +235,20 @@ class Sequence:
 
         return "\n".join(rendered)
 
-    def render_audio(self):
+    def render_audio(self) -> str:
+        """
+        Renders audio tracks
+
+        :rtype str: FCP audio tracks
+        """
         return "\n".join([c.render_audio() for c in self.clips])
 
-    def render(self):
+    def render(self) -> str:
+        """
+        Renders the FCP sequence
+
+        :rtype str: FCP xml
+        """
         return f"""<?xml version="1.0" encoding="utf-8"?>
             <!DOCTYPE xmeml>
             <xmeml version="5">
@@ -222,20 +299,15 @@ class Sequence:
             </xmeml>"""
 
 
-def compose(segments, outname):
+def compose(segments: List[dict], outname: str):
+    """
+    Takes a list of timestamps and saves a Final Cut Pro xml file
+
+    :param segments List[dict]: List of timestamps
+    :param outname str: File to save output to
+    """
     s = Sequence(segments, outname)
 
     # output = minidom.parseString(output)
     with open(outname, "w") as outfile:
         outfile.write(s.render())
-
-
-if __name__ == "__main__":
-    f1 = "/Users/sam/Downloads/facebook_small.mp4"
-    f2 = "/Users/sam/Desktop/scrapism/day8/shell.mp4"
-
-    sequence = [
-        {"start": 10, "end": 12, "file": f1},
-        {"start": 10, "end": 12, "file": f2},
-    ]
-    compose(sequence, "test.xml")

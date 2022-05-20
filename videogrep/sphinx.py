@@ -4,7 +4,7 @@ import os
 from subprocess import run
 
 
-def convert_to_wav(videofile):
+def convert_to_wav(videofile:str) -> str:
     """Converts files to a format that pocketsphinx can deal wtih (16khz mono 16bit wav)"""
     wav_file = videofile + ".temp.wav"
     if not os.path.exists(wav_file):
@@ -26,7 +26,7 @@ def convert_to_wav(videofile):
     return wav_file
 
 
-def transcribe(videofile):
+def transcribe(videofile:str) -> str:
     """Uses pocketsphinx to transcribe audio files"""
 
     transcript_file = os.path.splitext(videofile)[0] + ".transcript"

@@ -1,34 +1,38 @@
 from vosk import Model, KaldiRecognizer, SetLogLevel
-import sys
 import os
 import subprocess
 import json
+from typing import List
 
 MAX_CHARS = 36
 MODEL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "model")
 
 
+def transcribe(videofile: str, model_path: str = MODEL_PATH) -> List[dict]:
+    """
+    Transcribes a video file using Vosk
 
-def transcribe(videofile, model=None):
-    if model is None:
-        model = MODEL_PATH
-    else:
-        if not os.path.exists(model):
-            print("Could not find model folder")
-            exit(1)
+    :param videofile str: Video file path
+    :param model_path str: Optional vosk model folder
+    :rtype List[dict]: A list of timestamps and content
+    """
 
     transcript_file = os.path.splitext(videofile)[0] + ".json"
 
     if os.path.exists(transcript_file):
         with open(transcript_file, "r") as infile:
-            data = infile.read()
+            data = json.load(infile)
         return data
+
+    if not os.path.exists(model_path):
+        print("Could not find model folder")
+        exit(1)
 
     print("Transcribing", videofile)
     SetLogLevel(-1)
 
     sample_rate = 16000
-    model = Model(MODEL_PATH)
+    model = Model(model_path)
     rec = KaldiRecognizer(model, sample_rate)
     rec.SetWords(True)
 

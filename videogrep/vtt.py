@@ -1,20 +1,27 @@
 import re
 import io
 from bs4 import BeautifulSoup
+from typing import Union, List
 
 
-def timestamp_to_secs(ts):
+def timestamp_to_secs(ts: str) -> float:
+    """
+    Convert a timestamp to seconds
+
+    :param ts str: Timestamp
+    :rtype float: Seconds
+    """
     hours, minutes, seconds = ts.split(":")
     return float(hours) * 60 * 60 + float(minutes) * 60 + float(seconds)
 
 
-def secs_to_timestamp(secs):
+def secs_to_timestamp(secs: float) -> str:
     m, s = divmod(secs, 60)
     h, m = divmod(m, 60)
     return "%02d:%02d:%02f" % (h, m, s)
 
 
-def parse_cued(data):
+def parse_cued(data: List[str]) -> List[dict]:
     out = []
     pat = r"<(\d\d:\d\d:\d\d(\.\d+)?)>"
 
@@ -62,11 +69,11 @@ def parse_cued(data):
     return out
 
 
-def parse_uncued(data):
+def parse_uncued(data: str) -> List[dict]:
     out = []
-    data = [d.strip() for d in data.split("\n") if d.strip() != ""]
+    lines = [d.strip() for d in data.split("\n") if d.strip() != ""]
     out = [{"content": "", "start": None, "end": None}]
-    for i, line in enumerate(data):
+    for line in lines:
         if " --> " in line:
             start, end = line.split(" --> ")
             end = end.split(" ")[0]
@@ -87,20 +94,23 @@ def parse_uncued(data):
     return out
 
 
-def parse(vtt):
+def parse(vtt: Union[io.IOBase, str]) -> List[dict]:
     """
     Parses webvtt and returns timestamps for words and lines
     Tested on automatically generated subtitles from YouTube
     """
 
+    _vtt: str = ""
     if isinstance(vtt, io.IOBase):
-        vtt = vtt.read()
+        _vtt = vtt.read()
+    else:
+        _vtt = vtt
 
     pat = r"<(\d\d:\d\d:\d\d(\.\d+)?)>"
     out = []
 
     lines = []
-    data = vtt.split("\n")
+    data = _vtt.split("\n")
     data = [d for d in data if re.search(r"\d\d:\d\d:\d\d", d) is not None]
     for i, d in enumerate(data):
         if re.search(pat, d):
@@ -109,7 +119,7 @@ def parse(vtt):
     if len(lines) > 0:
         out = parse_cued(lines)
     else:
-        out = parse_uncued(vtt)
+        out = parse_uncued(_vtt)
 
     return out
 
