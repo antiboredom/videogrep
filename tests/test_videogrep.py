@@ -5,21 +5,7 @@ from collections import Counter
 from moviepy.editor import VideoFileClip
 from pytest import approx
 import glob
-
-srt_subs = """
-1
-00:00:00,498 --> 00:00:02,827
-A spectre is haunting Europe.
-
-2
-00:00:02,827 --> 00:00:06,383
-The spectre of Communism.
-All the powers of old Europe
-
-3
-00:00:06,383 --> 00:00:09,427
-have entered into a holy alliance
-"""
+import subprocess
 
 
 def File(path):
@@ -124,7 +110,10 @@ def test_export_files():
 def test_videogrep():
     out1 = File("test_outputs/supercut1.mp4")
     videogrep.videogrep(
-        File("manifesto.mp4"), "communist|communism", search_type="fragment", output=out1
+        File("manifesto.mp4"),
+        "communist|communism",
+        search_type="fragment",
+        output=out1,
     )
     testfile = VideoFileClip(out1)
     assert testfile.duration == approx(4.64)
@@ -276,3 +265,29 @@ def test_sentence_search_vtt():
 
     segments = videogrep.search(testvid, "ing$", prefer=".vtt")
     assert len(segments) == 0
+
+
+def test_cli():
+    infile = File("manifesto.mp4")
+    outfile = File("test_outputs/supercut.mp4")
+
+    subprocess.run(
+        [
+            "poetry",
+            "run",
+            "videogrep",
+            "--input",
+            infile,
+            "--output",
+            outfile,
+            "--search",
+            "communist",
+            "--search-type",
+            "fragment",
+            "--max-clips",
+            "1"
+        ]
+    )
+
+    clip = VideoFileClip(outfile)
+    assert clip.duration == approx(0.36)
