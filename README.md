@@ -5,10 +5,10 @@ Videogrep is a command line tool that searches through dialog in video files and
 
 #### Examples
 
+* [The Meta Experience](https://www.youtube.com/watch?v=nGHbOckpifw)
 * [All the instances of the phrase "time" in the movie "In Time"](https://www.youtube.com/watch?v=PQMzOUeprlk)
 * [All the one to two second silences in "Total Recall"](https://www.youtube.com/watch?v=qEtEbXVbYJQ)
-* [The President's former press secretary telling us what he can tell us](https://www.youtube.com/watch?v=D7pymdCU5NQ)
-* [The Meta Experience](https://www.youtube.com/watch?v=nGHbOckpifw)
+* [A former press secretary telling us what he can tell us](https://www.youtube.com/watch?v=D7pymdCU5NQ)
 
 ----
 
@@ -16,10 +16,9 @@ Videogrep is a command line tool that searches through dialog in video files and
 
 Videogrep is compatible with Python versions 3.6 to 3.10.
 
-Install this BETA version with pip:
 
 ```
-pip install git+https://github.com/antiboredom/videogrep@v2beta
+pip install videogrep
 ```
 
 If you want to transcribe videos, you also need to install [ffmpeg](http://ffmpeg.org/) and [vosk](https://alphacephei.com/vosk/).
@@ -33,10 +32,9 @@ brew install ffmpeg
 To install vosk:
 
 ```
-pip install vosk
+pip install videogrep[full]
 
-# note: when this is actually released you'll also be able to to install it with:
-# pip install videogrep[full]
+# or: pip install vosk
 ```
 
 Note: the previous version of videogrep supported pocketsphinx for speech-to-text. Vosk seems *much* better so I've added support for it and will likely be phasing out support for pocketsphinx.
