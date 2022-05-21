@@ -8,16 +8,24 @@ h2,
 h3,
 h4 {
   font-weight: normal;
+  border-bottom: 1px solid #000;
+  padding-bottom: 20px;
+  margin: 0;
 }
+
+p {margin: 20px 0px;}
 
 a {
   color: red;
 }
 
 .container {
-  max-width: 1100px;
+  max-width: 1000px;
   margin: auto;
   padding: 20px;
+  border: 1px solid #000;
+  border-top: 0;
+  border-bottom: 0;
 }
 
 div.code {
@@ -38,7 +46,7 @@ h4 code {
 .gallery {
   display: grid;
   grid-template-columns: 2fr 2fr;
-  grid-column-gap: 20px;
+  /* grid-column-gap: 20px; */
 }
 
 .embed {
@@ -65,6 +73,29 @@ h4 code {
   margin-top: 5px;
   text-align: center;
 }
+
 .item {
-  margin: 10px 0px;
+  margin: 0px 0px;
+  padding-bottom: 10px;
 }
+
+.item:nth-child(odd) {
+  border-right: 1px solid #000;
+  padding-right: 20px;
+}
+
+.item:nth-child(even) {
+  padding-left: 20px;
+}
+
+@media (max-width: 768px) {
+  .gallery {
+    grid-template-columns: 1fr;
+  }
+  .item {
+    border: none !important;
+    padding: 0 !important;
+    margin-bottom: 20px;
+  }
+}
+
