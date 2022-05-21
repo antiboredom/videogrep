@@ -162,5 +162,12 @@ videogrep('path/to/your/files','output_file_name.mp4', 'search_term', 'search_ty
 ```
 The videogrep module accepts the same parameters as the command line script. To see the usage check out the source.
 
+### Example Scripts
+
+Also see the examples folder for:
+* [silence extraction](https://github.com/antiboredom/videogrep/blob/master/examples/only_silence.py)
+* [automatically creating supercuts](https://github.com/antiboredom/videogrep/blob/master/examples/auto_supercut.py)
+* [creating supercuts based on youtube searches](https://github.com/antiboredom/videogrep/blob/master/examples/auto_youtube.py)
+
 ----
 
