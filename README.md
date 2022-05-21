@@ -32,9 +32,7 @@ brew install ffmpeg
 To install vosk:
 
 ```
-pip install videogrep[full]
-
-# or: pip install vosk
+pip install vosk
 ```
 
 Note: the previous version of videogrep supported pocketsphinx for speech-to-text. Vosk seems *much* better so I've added support for it and will likely be phasing out support for pocketsphinx.
@@ -168,6 +166,3 @@ Also see the examples folder for:
 * [silence extraction](https://github.com/antiboredom/videogrep/blob/master/examples/only_silence.py)
 * [automatically creating supercuts](https://github.com/antiboredom/videogrep/blob/master/examples/auto_supercut.py)
 * [creating supercuts based on youtube searches](https://github.com/antiboredom/videogrep/blob/master/examples/auto_youtube.py)
-
-----
-
