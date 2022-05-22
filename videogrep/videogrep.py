@@ -3,6 +3,7 @@ import random
 import os
 import re
 import gc
+import time
 from . import vtt, srt, sphinx, fcpxml
 from typing import Optional, List, Union, Iterator
 
@@ -188,7 +189,7 @@ def create_supercut(composition: List[dict], outputfile: str):
     final_clip.write_videofile(
         outputfile,
         codec="libx264",
-        temp_audiofile="temp-audio.m4a",
+        temp_audiofile=f"temp-audio{time.time()}.m4a",
         remove_temp=True,
         audio_codec="aac",
     )
@@ -223,7 +224,7 @@ def create_supercut_in_batches(composition: List[dict], outputfile: str):
     video.write_videofile(
         outputfile,
         codec="libx264",
-        temp_audiofile="temp-audio.m4a",
+        temp_audiofile=f"temp-audio{time.time()}.m4a",
         remove_temp=True,
         audio_codec="aac",
     )
