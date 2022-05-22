@@ -10,6 +10,10 @@ Videogrep is a command line tool that searches through dialog in video files and
 * [All the one to two second silences in "Total Recall"](https://www.youtube.com/watch?v=qEtEbXVbYJQ)
 * [A former press secretary telling us what he can tell us](https://www.youtube.com/watch?v=D7pymdCU5NQ)
 
+#### Tutorial
+
+See my blog for a short [tutorial on videogrep and yt-dlp](https://lav.io/notes/videogrep-tutorial/).
+
 ----
 
 ## Installation
