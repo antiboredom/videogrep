@@ -24,6 +24,10 @@ def transcribe(videofile: str, model_path: Optional[str] = None) -> List[dict]:
             data = json.load(infile)
         return data
 
+    if not os.path.exists(videofile):
+        print("Could not find file", videofile)
+        return []
+
     _model_path:str = MODEL_PATH
 
     if model_path is not None:
