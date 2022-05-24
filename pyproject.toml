@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "videogrep"
-version = "2.0.1"
+version = "2.0.2"
 description = "Videogrep is a command line tool that searches through dialog in video files and makes supercuts based on what it finds. Like grep but for video."
 authors = ["Sam Lavigne <splavigne@gmail.com>"]
 license = "Anti-Capitalist"
