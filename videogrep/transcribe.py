@@ -71,6 +71,11 @@ def transcribe(videofile: str, model_path: Optional[str] = None) -> List[dict]:
 
     out = []
     data = json.loads(rec.FinalResult())
+
+    if 'result' not in data:
+        print("No words found in", videofile)
+        return []
+
     words = [w for w in data["result"]]
     item = {"content": "", "start": None, "end": None, "words": []}
     for w in words:
