@@ -164,6 +164,33 @@ def search(
                             "content": phrase,
                         }
                     )
+        elif search_type == "mash":
+            if "words" not in transcript[0]:
+                print("Could not find word-level timestamps for", file)
+                continue
+
+            words = []
+            for line in transcript:
+                words += line["words"]
+
+            queries = query.split(" ")
+
+            for q in queries:
+                matches = [w for w in words if w["word"].lower() == q.lower()]
+                if len(matches) == 0:
+                    print("Could not find", q, "in transcript")
+                    return []
+                random.shuffle(matches)
+                word = matches[0]
+                segments.append(
+                    {
+                        "file": file,
+                        "start": word["start"],
+                        "end": word["end"],
+                        "content": word["word"],
+                    }
+                )
+
     return segments
 
 

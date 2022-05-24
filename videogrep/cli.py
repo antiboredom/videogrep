@@ -1,6 +1,7 @@
 import argparse
 from . import get_ngrams, sphinx, videogrep
 
+
 def main():
     """
     Run the command line version of Videogrep
@@ -23,8 +24,8 @@ def main():
         "-st",
         dest="searchtype",
         default="sentence",
-        choices=["sentence", "fragment"],
-        help="type of search - can either be 'sentence' or 'fragment'",
+        choices=["sentence", "fragment", "mash"],
+        help="type of search - can either be 'sentence', 'fragment' or 'mash'",
     )
     parser.add_argument(
         "--max-clips",
