@@ -75,6 +75,17 @@ def test_export_m3u():
     pass
 
 
+def test_remove_overlaps():
+    segments = [{"start": 0, "end": 1}, {"start": 0.5, "end": 2}]
+    cleaned = videogrep.remove_overlaps(segments)
+    assert len(cleaned) == 1
+    assert cleaned[-1]["end"] == 2
+
+    segments = [{"start": 0, "end": 1}, {"start": 2, "end": 3}]
+    cleaned = videogrep.remove_overlaps(segments)
+    assert len(cleaned) == 2
+    assert cleaned[-1]["end"] == 3
+
 def test_ngrams():
     testvid = File("manifesto.mp4")
 
@@ -213,6 +224,11 @@ def test_word_search_json():
     segments = videogrep.search(testvid, "ing$", search_type="fragment")
     assert len(segments) == 3
 
+    segments = videogrep.search(
+        testvid, ["a spectre", "communist party"], search_type="fragment"
+    )
+    assert len(segments) == 2
+
 
 def test_word_search_vtt():
     testvid = File("manifesto.mp4")
@@ -285,7 +301,7 @@ def test_cli():
             "--search-type",
             "fragment",
             "--max-clips",
-            "1"
+            "1",
         ]
     )
 

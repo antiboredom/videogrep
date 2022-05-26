@@ -18,7 +18,9 @@ def main():
         required=True,
         help="video file or files",
     )
-    parser.add_argument("--search", "-s", dest="search", help="search term")
+    parser.add_argument(
+        "--search", "-s", dest="search", action="append", help="search term"
+    )
     parser.add_argument(
         "--search-type",
         "-st",

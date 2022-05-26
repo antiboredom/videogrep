@@ -13,6 +13,7 @@ from .videogrep import (
     find_transcript,
     get_ngrams,
     parse_transcript,
+    remove_overlaps,
     search,
     BATCH_SIZE,
     SUB_EXTS
