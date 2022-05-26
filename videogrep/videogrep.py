@@ -103,9 +103,34 @@ def get_ngrams(files: Union[str, list], n: int = 1) -> Iterator[tuple]:
     return ngrams
 
 
+def remove_overlaps(segments: List[dict]) -> List[dict]:
+    """
+    Removes any time overlaps from clips
+
+    :param segments List[dict]: Segments to clean up
+    :rtype List[dict]: Cleaned output
+    """
+
+    if len(segments) == 0:
+        return []
+
+    segments = sorted(segments, key=lambda k: k["start"])
+    out = [segments[0]]
+    for segment in segments[1:]:
+        prev_end = out[-1]["end"]
+        start = segment["start"]
+        end = segment["end"]
+        if prev_end >= start:
+            out[-1]["end"] = end
+        else:
+            out.append(segment)
+
+    return out
+
+
 def search(
     files: Union[str, list],
-    query: str,
+    query: Union[str, list],
     search_type: str = "sentence",
     prefer: Optional[str] = None,
 ) -> List[dict]:
@@ -113,7 +138,7 @@ def search(
     Searches for a query in a video file or files and returns a list of timestamps in the format [{file, start, end, content}]
 
     :param files Union[str, list]: List of files or file
-    :param query str: Query as a regular expression
+    :param query str: Query as a regular expression, or a list of queries
     :param search_type str: Return timestamps for "sentence" or "fragment"
     :param prefer str: Transcript file type preference. Can be vtt, srt, or json
     :rtype List[dict]: A list of timestamps that match the query
@@ -121,24 +146,29 @@ def search(
     if not isinstance(files, list):
         files = [files]
 
-    segments = []
+    if not isinstance(query, list):
+        query = [query]
+
+    all_segments = []
 
     for file in files:
+        segments = []
         transcript = parse_transcript(file, prefer=prefer)
         if transcript is None:
             continue
 
         if search_type == "sentence":
             for line in transcript:
-                if re.search(query, line["content"]):
-                    segments.append(
-                        {
-                            "file": file,
-                            "start": line["start"],
-                            "end": line["end"],
-                            "content": line["content"],
-                        }
-                    )
+                for _query in query:
+                    if re.search(_query, line["content"]):
+                        segments.append(
+                            {
+                                "file": file,
+                                "start": line["start"],
+                                "end": line["end"],
+                                "content": line["content"],
+                            }
+                        )
 
         elif search_type == "fragment":
             if "words" not in transcript[0]:
@@ -149,21 +179,25 @@ def search(
             for line in transcript:
                 words += line["words"]
 
-            queries = query.split(" ")
-            queries = [q.strip() for q in queries if q.strip() != ""]
-            fragments = zip(*[words[i:] for i in range(len(queries))])
-            for fragment in fragments:
-                found = all(re.search(q, w["word"]) for q, w in zip(queries, fragment))
-                if found:
-                    phrase = " ".join([w["word"] for w in fragment])
-                    segments.append(
-                        {
-                            "file": file,
-                            "start": fragment[0]["start"],
-                            "end": fragment[-1]["end"],
-                            "content": phrase,
-                        }
+            for _query in query:
+                queries = _query.split(" ")
+                queries = [q.strip() for q in queries if q.strip() != ""]
+                fragments = zip(*[words[i:] for i in range(len(queries))])
+                for fragment in fragments:
+                    found = all(
+                        re.search(q, w["word"]) for q, w in zip(queries, fragment)
                     )
+                    if found:
+                        phrase = " ".join([w["word"] for w in fragment])
+                        segments.append(
+                            {
+                                "file": file,
+                                "start": fragment[0]["start"],
+                                "end": fragment[-1]["end"],
+                                "content": phrase,
+                            }
+                        )
+
         elif search_type == "mash":
             if "words" not in transcript[0]:
                 print("Could not find word-level timestamps for", file)
@@ -173,25 +207,30 @@ def search(
             for line in transcript:
                 words += line["words"]
 
-            queries = query.split(" ")
+            for _query in query:
+                queries = _query.split(" ")
 
-            for q in queries:
-                matches = [w for w in words if w["word"].lower() == q.lower()]
-                if len(matches) == 0:
-                    print("Could not find", q, "in transcript")
-                    return []
-                random.shuffle(matches)
-                word = matches[0]
-                segments.append(
-                    {
-                        "file": file,
-                        "start": word["start"],
-                        "end": word["end"],
-                        "content": word["word"],
-                    }
-                )
+                for q in queries:
+                    matches = [w for w in words if w["word"].lower() == q.lower()]
+                    if len(matches) == 0:
+                        print("Could not find", q, "in transcript")
+                        return []
+                    random.shuffle(matches)
+                    word = matches[0]
+                    segments.append(
+                        {
+                            "file": file,
+                            "start": word["start"],
+                            "end": word["end"],
+                            "content": word["word"],
+                        }
+                    )
 
-    return segments
+        segments = remove_overlaps(segments)
+
+        all_segments += segments
+
+    return all_segments
 
 
 def create_supercut(composition: List[dict], outputfile: str):
