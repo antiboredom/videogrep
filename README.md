@@ -69,7 +69,7 @@ Name of the file to generate. By default this is `supercut.mp4`. Any standard vi
 Videogrep will also recognize the following extensions for saving files:
   * `.mpv.edl`: generates an edl file playable by [mpv](https://mpv.io/) (useful for previews)
   * `.m3u`: media playlist
-  * `.xml`: Final Cut Pro timeline, compatable with Adobe Premiere and Davinci Resolve
+  * `.xml`: Final Cut Pro timeline, compatible with Adobe Premiere and Davinci Resolve
 
 ```
 videogrep --input path/to/video --search 'search phrase' --output coolvid.mp4
