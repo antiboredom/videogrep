@@ -385,7 +385,7 @@ def cleanup_log_files(outputfile: str):
 
 def videogrep(
     files: Union[List[str], str],
-    query: str,
+    query: Union[List[str], str],
     search_type: str = "sentence",
     output: str = "supercut.mp4",
     resync: float = 0,
