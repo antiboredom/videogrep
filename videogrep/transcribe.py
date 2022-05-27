@@ -28,7 +28,7 @@ def transcribe(videofile: str, model_path: Optional[str] = None) -> List[dict]:
         print("Could not find file", videofile)
         return []
 
-    _model_path:str = MODEL_PATH
+    _model_path: str = MODEL_PATH
 
     if model_path is not None:
         _model_path = model_path
@@ -48,6 +48,7 @@ def transcribe(videofile: str, model_path: Optional[str] = None) -> List[dict]:
     process = subprocess.Popen(
         [
             "ffmpeg",
+            "-nostdin",
             "-loglevel",
             "quiet",
             "-i",
@@ -63,32 +64,38 @@ def transcribe(videofile: str, model_path: Optional[str] = None) -> List[dict]:
         stdout=subprocess.PIPE,
     )
 
+    tot_samples = 0
+    result = []
     while True:
         data = process.stdout.read(4000)
         if len(data) == 0:
             break
-        rec.AcceptWaveform(data)
+        if rec.AcceptWaveform(data):
+            tot_samples += len(data)
+            result.append(json.loads(rec.Result()))
+    result.append(json.loads(rec.FinalResult()))
 
     out = []
-    data = json.loads(rec.FinalResult())
+    for r in result:
+        if "result" not in r:
+            continue
+        words = [w for w in r["result"]]
+        item = {"content": "", "start": None, "end": None, "words": []}
+        for w in words:
+            item["content"] += w["word"] + " "
+            item["words"].append(w)
+            if len(item["content"]) > MAX_CHARS or w == words[-1]:
+                item["content"] = item["content"].strip()
+                item["start"] = item["words"][0]["start"]
+                item["end"] = item["words"][-1]["end"]
+                out.append(item)
+                item = {"content": "", "start": None, "end": None, "words": []}
 
-    if 'result' not in data:
+    if len(out) == 0:
         print("No words found in", videofile)
         return []
 
-    words = [w for w in data["result"]]
-    item = {"content": "", "start": None, "end": None, "words": []}
-    for w in words:
-        item["content"] += w["word"] + " "
-        item["words"].append(w)
-        if len(item["content"]) > MAX_CHARS or w == words[-1]:
-            item["content"] = item["content"].strip()
-            item["start"] = item["words"][0]["start"]
-            item["end"] = item["words"][-1]["end"]
-            out.append(item)
-            item = {"content": "", "start": None, "end": None, "words": []}
-
-    with open(transcript_file, "w") as outfile:
+    with open(transcript_file, "w", encoding="utf-8") as outfile:
         json.dump(out, outfile)
 
     return out
