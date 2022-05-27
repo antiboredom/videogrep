@@ -3,7 +3,7 @@ import io
 from typing import Tuple, Union, List
 
 
-def convert_timespan(timespan:str) -> Tuple[float, float]:
+def convert_timespan(timespan: str) -> Tuple[float, float]:
     """
     Convert an srt timespan into a start and end timestamp.
 
@@ -17,7 +17,7 @@ def convert_timespan(timespan:str) -> Tuple[float, float]:
     return (start, end)
 
 
-def convert_timestamp(timestamp:str) -> float:
+def convert_timestamp(timestamp: str) -> float:
     """
     Convert an srt timestamp into seconds.
 
@@ -35,7 +35,7 @@ def convert_timestamp(timestamp:str) -> float:
     return seconds
 
 
-def parse(srt:Union[io.IOBase, str]) -> List[dict]:
+def parse(srt: Union[io.IOBase, str]) -> List[dict]:
     """
     Converts an srt file into a list of dictionary timestamps
 
@@ -43,7 +43,7 @@ def parse(srt:Union[io.IOBase, str]) -> List[dict]:
     :rtype List[dict]: List of timestamps and content
     """
 
-    _srt:str = ""
+    _srt: str = ""
 
     if isinstance(srt, io.IOBase):
         _srt = srt.read()
@@ -52,9 +52,9 @@ def parse(srt:Union[io.IOBase, str]) -> List[dict]:
 
     out = []
 
+    _srt = _srt.replace(u"\ufeff", "")
     _srt = re.sub(r"^\d+[\n\r]", "", _srt, flags=re.MULTILINE)
     lines = _srt.splitlines()
-
 
     for line in lines:
         line = line.strip()
