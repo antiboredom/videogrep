@@ -413,6 +413,8 @@ def videogrep(
     segments = search(files, query, search_type)
 
     if len(segments) == 0:
+        if isinstance(query, list):
+            query = " ".join(query)
         print("No results found for", query)
         return False
 
