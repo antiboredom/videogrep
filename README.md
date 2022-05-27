@@ -78,7 +78,11 @@ videogrep --input path/to/video --search 'search phrase' --output coolvid.mp4
 
 #### `--search [query] / -s [query]`
 
-Search term, as a regular expression.
+Search term, as a regular expression. You can add as many of these as you want. For example:
+
+```
+videogrep --input path/to/video --search 'search phrase' --search 'another search' --search 'a third search' --output coolvid.mp4
+```
 
 
 #### `--search-type [type] / -st [type]`
