@@ -61,7 +61,7 @@ def parse_transcript(
 
     transcript = None
 
-    with open(subfile, "r") as infile:
+    with open(subfile, "r", encoding="utf8") as infile:
         if subfile.endswith(".srt"):
             transcript = srt.parse(infile)
         elif subfile.endswith(".vtt"):
