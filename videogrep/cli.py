@@ -1,5 +1,5 @@
 import argparse
-from . import get_ngrams, sphinx, videogrep
+from . import get_ngrams, sphinx, videogrep, __version__
 
 
 def main():
@@ -103,6 +103,13 @@ def main():
         type=int,
         default=0,
         help="return ngrams for videos",
+    )
+    parser.add_argument(
+        "--version",
+        "-v",
+        help="show version",
+        action="version",
+        version=__version__,
     )
     args = parser.parse_args()
 
