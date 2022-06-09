@@ -39,5 +39,6 @@ for video in videos:
                 search_words.append(f"^{token.text}$")
 
 query = "|".join(search_words)
-videogrep.videogrep(videos, query, search_type="fragment", output="part_of_speech_supercut.mp4")
-
+videogrep.videogrep(
+    videos, query, search_type="fragment", output="part_of_speech_supercut.mp4"
+)
