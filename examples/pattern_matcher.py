@@ -18,9 +18,7 @@ videos = sys.argv[1:]
 nlp = spacy.load("en_core_web_sm")
 
 # grabs all instances of adjectives followed by nouns
-patterns = [
-    [{"POS": "ADJ"}, {"POS": "NOUN"}]
-]
+patterns = [[{"POS": "ADJ"}, {"POS": "NOUN"}]]
 
 matcher = Matcher(nlp.vocab)
 matcher.add("HelloWorld", patterns)
