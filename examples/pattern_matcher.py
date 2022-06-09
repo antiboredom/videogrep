@@ -32,7 +32,6 @@ for video in videos:
         doc = nlp(sentence["content"])
         matches = matcher(doc)
         for match_id, start, end in matches:
-            string_id = nlp.vocab.strings[match_id]  # Get string representation
             span = doc[start:end]  # The matched span
             searches.append(span.text)
 
