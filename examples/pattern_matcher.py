@@ -8,7 +8,10 @@ from spacy.matcher import Matcher
 Uses rule-based matching from spacy to make supercuts:
 https://spacy.io/usage/rule-based-matching
 
-Requires spacy
+Requires spacy. To install:
+
+pip3 install spacy
+python -m spacy download en_core_web_sm
 """
 
 # the videos we are working with
@@ -21,7 +24,7 @@ nlp = spacy.load("en_core_web_sm")
 patterns = [[{"POS": "ADJ"}, {"POS": "NOUN"}]]
 
 matcher = Matcher(nlp.vocab)
-matcher.add("HelloWorld", patterns)
+matcher.add("Patterns", patterns)
 
 
 searches = []
