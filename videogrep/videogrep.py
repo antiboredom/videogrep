@@ -11,7 +11,7 @@ from typing import Optional, List, Union, Iterator
 from moviepy.editor import VideoFileClip, concatenate_videoclips
 
 BATCH_SIZE = 20
-SUB_EXTS = [".json", ".srt", ".vtt", ".transcript"]
+SUB_EXTS = [".json", ".vtt", ".srt", ".transcript"]
 
 
 def find_transcript(videoname: str, prefer: Optional[str] = None) -> Optional[str]:
@@ -30,11 +30,19 @@ def find_transcript(videoname: str, prefer: Optional[str] = None) -> Optional[st
     if prefer is not None:
         _sub_exts = [prefer] + SUB_EXTS
 
+    all_files = [f.path for f in os.scandir(os.path.dirname(videoname)) if f.is_file()]
+
     for ext in _sub_exts:
-        possible_paths = glob(os.path.splitext(videoname)[0] + ext.replace(".", ".*"))
-        possible_paths += glob(videoname + ext.replace(".", ".*"))
-        if len(possible_paths) > 0:
-            subfile = possible_paths[0]
+        pattern = (
+            re.escape(os.path.splitext(videoname)[0])
+            + "\..*?\.?"
+            + ext.replace(".", "")
+        )
+        for f in all_files:
+            if re.search(pattern, f):
+                subfile = f
+                break
+        if subfile:
             break
 
     return subfile
