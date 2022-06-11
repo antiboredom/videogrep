@@ -17,7 +17,7 @@ def test_version():
 
 
 def test_srts():
-    with open(File("manifesto.srt")) as infile:
+    with open(File("test_inputs/manifesto.srt")) as infile:
         srt = infile.read()
     parsed = videogrep.srt.parse(srt)
 
@@ -25,7 +25,7 @@ def test_srts():
     assert parsed[0]["start"] == approx(1.599)
     assert parsed[0]["end"] == approx(3.919)
 
-    with open(File("manifesto.srt")) as infile:
+    with open(File("test_inputs/manifesto.srt")) as infile:
         parsed = videogrep.srt.parse(infile)
 
     assert parsed[6]["content"] == "preamble a spectre is haunting europe"
@@ -34,7 +34,7 @@ def test_srts():
 
 
 def test_cued_vtts():
-    testfile = File("manifesto.vtt")
+    testfile = File("test_inputs/manifesto.vtt")
     with open(testfile) as infile:
         parsed = videogrep.vtt.parse(infile)
 
@@ -54,13 +54,27 @@ def test_cued_vtts():
 
 
 def test_find_sub():
-    testvid = File("manifesto.mp4")
-    testvtt = File("manifesto.json")
-    assert videogrep.find_transcript(testvid) == testvtt
+    testvid = File("test_inputs/manifesto.mp4")
+    testsubfile = File("test_inputs/manifesto.json")
+    assert videogrep.find_transcript(testvid) == testsubfile
+
+    testvid = File("test_inputs/emptyvideo.mp4")
+    testsubfile = File("test_inputs/emptyvideo.aa.vtt")
+    assert videogrep.find_transcript(testvid) == testsubfile
+
+    testvid = File("test_inputs/emptyvideo 2.mp4")
+    testsubfile = File("test_inputs/emptyvideo 2.mp4.aa.vtt")
+    assert videogrep.find_transcript(testvid) == testsubfile
+
+    testvid = File("test_inputs/fakevideo.mp4")
+    assert videogrep.find_transcript(testvid) == None
 
 
 def test_parse_transcript():
-    pass
+    testvid = File("test_inputs/manifesto.mp4")
+    testsubfile = File("test_inputs/manifesto.json")
+    transcript = videogrep.parse_transcript(testvid)
+    assert transcript[0]["content"] == "this audiobook is in the public domain"
 
 
 def test_export_xml():
@@ -86,8 +100,9 @@ def test_remove_overlaps():
     assert len(cleaned) == 2
     assert cleaned[-1]["end"] == 3
 
+
 def test_ngrams():
-    testvid = File("manifesto.mp4")
+    testvid = File("test_inputs/manifesto.mp4")
 
     grams = list(videogrep.get_ngrams(testvid, 1))
     assert len(grams) == 210
@@ -106,7 +121,7 @@ def test_ngrams():
 def test_export_files():
     out1 = File("test_outputs/supercut_clip.mp4")
     videogrep.videogrep(
-        File("manifesto.mp4"),
+        File("test_inputs/manifesto.mp4"),
         "communist",
         search_type="fragment",
         export_clips=True,
@@ -121,7 +136,7 @@ def test_export_files():
 def test_videogrep():
     out1 = File("test_outputs/supercut1.mp4")
     videogrep.videogrep(
-        File("manifesto.mp4"),
+        File("test_inputs/manifesto.mp4"),
         "communist|communism",
         search_type="fragment",
         output=out1,
@@ -134,7 +149,7 @@ def test_videogrep():
 
     out2 = File("test_outputs/supercut2.mp4")
     videogrep.videogrep(
-        File("manifesto.mp4"),
+        File("test_inputs/manifesto.mp4"),
         "communist|communism",
         search_type="fragment",
         output=out2,
@@ -148,13 +163,13 @@ def test_videogrep():
 
 
 def test_no_transcript():
-    testvid = File("whatever.mp4")
+    testvid = File("test_inputs/whatever.mp4")
     segments = videogrep.search(testvid, "*", search_type="fragment")
     assert len(segments) == 0
 
 
 def test_sentence_search_json():
-    testvid = File("manifesto.mp4")
+    testvid = File("test_inputs/manifesto.mp4")
 
     query = "communist"
     segments = videogrep.search(testvid, query, prefer=".json")
@@ -175,7 +190,7 @@ def test_sentence_search_json():
 
 
 def test_word_search_srt():
-    testvid = File("manifesto.mp4")
+    testvid = File("test_inputs/manifesto.mp4")
 
     query = "communist"
     segments = videogrep.search(testvid, query, search_type="fragment", prefer=".srt")
@@ -183,7 +198,7 @@ def test_word_search_srt():
 
 
 def test_sentence_search_srt():
-    testvid = File("manifesto.mp4")
+    testvid = File("test_inputs/manifesto.mp4")
 
     query = "communist"
     segments = videogrep.search(testvid, query, prefer=".srt")
@@ -203,7 +218,7 @@ def test_sentence_search_srt():
 
 
 def test_word_search_json():
-    testvid = File("manifesto.mp4")
+    testvid = File("test_inputs/manifesto.mp4")
     segments = videogrep.search(testvid, "communist", search_type="fragment")
     assert len(segments) == 4
 
@@ -231,7 +246,7 @@ def test_word_search_json():
 
 
 def test_word_search_vtt():
-    testvid = File("manifesto.mp4")
+    testvid = File("test_inputs/manifesto.mp4")
     segments = videogrep.search(
         testvid, "communist", search_type="fragment", prefer=".vtt"
     )
@@ -264,7 +279,7 @@ def test_word_search_vtt():
 
 
 def test_sentence_search_vtt():
-    testvid = File("manifesto.mp4")
+    testvid = File("test_inputs/manifesto.mp4")
     segments = videogrep.search(testvid, "communist", prefer=".vtt")
     assert len(segments) == 4
 
@@ -284,7 +299,7 @@ def test_sentence_search_vtt():
 
 
 def test_cli():
-    infile = File("manifesto.mp4")
+    infile = File("test_inputs/manifesto.mp4")
     outfile = File("test_outputs/supercut.mp4")
 
     subprocess.run(
