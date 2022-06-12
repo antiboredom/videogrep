@@ -69,10 +69,13 @@ def test_find_sub():
     testvid = File("test_inputs/fakevideo.mp4")
     assert videogrep.find_transcript(testvid) == None
 
+    testvid = File("test_inputs/Some Random Video [Pj-h6MEgE7I].mp4")
+    testsubfile = File("test_inputs/Some Random Video [Pj-h6MEgE7I].de.vtt")
+    assert videogrep.find_transcript(testvid) == testsubfile
+
 
 def test_parse_transcript():
     testvid = File("test_inputs/manifesto.mp4")
-    testsubfile = File("test_inputs/manifesto.json")
     transcript = videogrep.parse_transcript(testvid)
     assert transcript[0]["content"] == "this audiobook is in the public domain"
 

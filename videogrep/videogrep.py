@@ -4,7 +4,6 @@ import os
 import re
 import gc
 import time
-from glob import glob
 from . import vtt, srt, sphinx, fcpxml
 from typing import Optional, List, Union, Iterator
 
@@ -35,7 +34,7 @@ def find_transcript(videoname: str, prefer: Optional[str] = None) -> Optional[st
     for ext in _sub_exts:
         pattern = (
             re.escape(os.path.splitext(videoname)[0])
-            + "\..*?\.?"
+            + r"\..*?\.?"
             + ext.replace(".", "")
         )
         for f in all_files:
