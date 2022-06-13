@@ -14,6 +14,7 @@ from .videogrep import (
     get_ngrams,
     parse_transcript,
     remove_overlaps,
+    pad_and_sync,
     search,
     BATCH_SIZE,
     SUB_EXTS

@@ -128,6 +128,52 @@ def remove_overlaps(segments: List[dict]) -> List[dict]:
     return out
 
 
+def pad_and_sync(
+    segments: List[dict], padding: float = 0, resync: float = 0
+) -> List[dict]:
+    """
+    Adds padding and resyncs
+
+    :param segments List[dict]: Segments
+    :param padding float: Time in seconds to pad each clip
+    :param resync float: Time in seconds to shift subtitle timestamps
+    :rtype List[dict]: Padded and cleaned output
+    """
+
+    if len(segments) == 0:
+        return []
+
+    for s in segments:
+        if padding != 0:
+            s["start"] -= padding
+            s["end"] += padding
+        if resync != 0:
+            s["start"] += resync
+            s["end"] += resync
+
+        if s["start"] < 0:
+            s["start"] = 0
+        if s["end"] < 0:
+            s["end"] = 0
+
+    out = [segments[0]]
+    for segment in segments[1:]:
+        prev_file = out[-1]["file"]
+        current_file = segment["file"]
+        if current_file != prev_file:
+            out.append(segment)
+            continue
+        prev_end = out[-1]["end"]
+        start = segment["start"]
+        end = segment["end"]
+        if prev_end >= start:
+            out[-1]["end"] = end
+        else:
+            out.append(segment)
+
+    return out
+
+
 def search(
     files: Union[str, list],
     query: Union[str, list],
@@ -226,7 +272,7 @@ def search(
                         }
                     )
 
-        segments = remove_overlaps(segments)
+        segments = sorted(segments, key=lambda k: k["start"])
 
         all_segments += segments
 
@@ -244,9 +290,13 @@ def create_supercut(composition: List[dict], outputfile: str):
 
     all_filenames = set([c["file"] for c in composition])
     videofileclips = dict([(f, VideoFileClip(f)) for f in all_filenames])
-    cut_clips = [
-        videofileclips[c["file"]].subclip(c["start"], c["end"]) for c in composition
-    ]
+    cut_clips = []
+    for c in composition:
+        if c["start"] < 0:
+            c["start"] = 0
+        if c["end"] > videofileclips[c["file"]].duration:
+            c["end"] = videofileclips[c["file"]].duration
+        cut_clips.append(videofileclips[c["file"]].subclip(c["start"], c["end"]))
 
     print("[+] Concatenating clips.")
     final_clip = concatenate_videoclips(cut_clips, method="compose")
@@ -312,9 +362,13 @@ def export_individual_clips(composition: List[dict], outputfile: str):
 
     all_filenames = set([c["file"] for c in composition])
     videofileclips = dict([(f, VideoFileClip(f)) for f in all_filenames])
-    cut_clips = [
-        videofileclips[c["file"]].subclip(c["start"], c["end"]) for c in composition
-    ]
+    cut_clips = []
+    for c in composition:
+        if c["start"] < 0:
+            c["start"] = 0
+        if c["end"] > videofileclips[c["file"]].duration:
+            c["end"] = videofileclips[c["file"]].duration
+        cut_clips.append(videofileclips[c["file"]].subclip(c["start"], c["end"]))
 
     basename, ext = os.path.splitext(outputfile)
     print("[+] Writing ouput files.")
@@ -419,13 +473,7 @@ def videogrep(
         return False
 
     # padding
-    for s in segments:
-        if padding != 0:
-            s["start"] -= padding
-            s["end"] += padding
-        if resync != 0:
-            s["start"] += resync
-            s["end"] += resync
+    segments = pad_and_sync(segments, padding=padding, resync=resync)
 
     # random order
     if random_order:

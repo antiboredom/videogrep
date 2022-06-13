@@ -86,6 +86,64 @@ def test_remove_overlaps():
     assert len(cleaned) == 2
     assert cleaned[-1]["end"] == 3
 
+
+def test_pad_and_sync():
+    # should remove overlap and make a single segment
+    segments = [{"start": 0, "end": 1, 'file': "1"}, {"start": 0.5, "end": 2, "file": "1"}]
+    cleaned = videogrep.pad_and_sync(segments)
+    assert len(cleaned) == 1
+    assert cleaned[-1]["end"] == approx(2)
+
+    # should not do anything
+    segments = [{"start": 0, "end": 1, "file": "1"}, {"start": 2, "end": 3, "file": "1"}]
+    cleaned = videogrep.pad_and_sync(segments)
+    assert len(cleaned) == 2
+    assert cleaned[-1]["end"] == approx(3)
+
+    # should add padding, but not remove segments
+    segments = [{"start": 0, "end": 1, "file": "1"}, {"start": 2, "end": 3, "file": "1"}]
+    cleaned = videogrep.pad_and_sync(segments, padding=0.1)
+    assert len(cleaned) == 2
+    assert cleaned[0]["start"] == approx(0)
+    assert cleaned[0]["end"] == approx(1.1)
+    assert cleaned[-1]["start"] == approx(1.9)
+    assert cleaned[-1]["end"] == approx(3.1)
+
+    # should add padding and create a single segment
+    segments = [{"start": 0, "end": 1, "file": "1"}, {"start": 2, "end": 3, "file": "1"}]
+    cleaned = videogrep.pad_and_sync(segments, padding=1.1)
+    assert len(cleaned) == 1
+    assert cleaned[0]["start"] == approx(0)
+    assert cleaned[0]["end"] == approx(4.1)
+
+    # should move all timing +1.1
+    segments = [{"start": 0, "end": 1, "file": "1"}, {"start": 2, "end": 3, "file": "1"}]
+    cleaned = videogrep.pad_and_sync(segments, resync=1.1)
+    assert len(cleaned) == 2
+    assert cleaned[0]["start"] == approx(1.1)
+    assert cleaned[0]["end"] == approx(2.1)
+    assert cleaned[1]["start"] == approx(3.1)
+    assert cleaned[1]["end"] == approx(4.1)
+
+    # should move all timing -1.1, but not go below 0
+    segments = [{"start": 0, "end": 1, "file": "1"}, {"start": 2, "end": 3, "file": "1"}]
+    cleaned = videogrep.pad_and_sync(segments, resync=-1.1)
+    assert len(cleaned) == 2
+    assert cleaned[0]["start"] == approx(0)
+    assert cleaned[0]["end"] == approx(0)
+    assert cleaned[1]["start"] == approx(0.9)
+    assert cleaned[1]["end"] == approx(1.9)
+
+    # should move all timing +0.1, and add padding
+    segments = [{"start": 0, "end": 1, "file": "1"}, {"start": 2, "end": 3, "file": "1"}]
+    cleaned = videogrep.pad_and_sync(segments, resync=0.1, padding=0.2)
+    assert len(cleaned) == 2
+    assert cleaned[0]["start"] == approx(0)
+    assert cleaned[0]["end"] == approx(1.3)
+    assert cleaned[1]["start"] == approx(1.9)
+    assert cleaned[1]["end"] == approx(3.3)
+
+
 def test_ngrams():
     testvid = File("manifesto.mp4")
 
