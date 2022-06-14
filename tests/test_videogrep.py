@@ -13,7 +13,7 @@ def File(path):
 
 
 def test_version():
-    assert videogrep.__version__ == "2.1.0"
+    assert videogrep.__version__ == "2.1.1"
 
 
 def test_srts():
