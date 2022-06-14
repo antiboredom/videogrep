@@ -10,25 +10,41 @@ from typing import Optional, List, Union, Iterator
 from moviepy.editor import VideoFileClip, concatenate_videoclips
 
 BATCH_SIZE = 20
-SUB_EXTS = [".json", ".srt", ".vtt", ".en.vtt", ".transcript"]
+SUB_EXTS = [".json", ".vtt", ".srt", ".transcript"]
 
 
-def find_transcript(videoname: str, prefer: str = "json") -> Optional[str]:
+def find_transcript(videoname: str, prefer: Optional[str] = None) -> Optional[str]:
     """
     Takes a video file path and finds a matching subtitle file.
-    (i'm phasing this out, just leaving as a reference for now)
 
     :param videoname str: Video file path
+    :param prefer Optiona[str]: Transcript file type preference. Can be vtt, srt, or json
     :rtype Optional[str]: Subtitle file path
     """
 
-    for ext in SUB_EXTS:
-        sub_path = os.path.splitext(videoname)[0] + ext
-        if os.path.exists(sub_path):
-            return sub_path
+    subfile = None
 
-    print("No subtitle file found for ", videoname)
-    return None
+    _sub_exts = SUB_EXTS
+
+    if prefer is not None:
+        _sub_exts = [prefer] + SUB_EXTS
+
+    all_files = [f.path for f in os.scandir(os.path.dirname(videoname)) if f.is_file()]
+
+    for ext in _sub_exts:
+        pattern = (
+            re.escape(os.path.splitext(videoname)[0])
+            + r"\..*?\.?"
+            + ext.replace(".", "")
+        )
+        for f in all_files:
+            if re.search(pattern, f):
+                subfile = f
+                break
+        if subfile:
+            break
+
+    return subfile
 
 
 def parse_transcript(
@@ -42,18 +58,7 @@ def parse_transcript(
     :rtype Optional[List[dict]]: List of timestamps or None
     """
 
-    subfile = None
-
-    _sub_exts = SUB_EXTS
-
-    if prefer is not None:
-        _sub_exts = [prefer] + SUB_EXTS
-
-    for ext in _sub_exts:
-        subpath = os.path.splitext(videoname)[0] + ext
-        if os.path.exists(subpath):
-            subfile = subpath
-            break
+    subfile = find_transcript(videoname, prefer)
 
     if subfile is None:
         print("No subtitle file found for ", videoname)
