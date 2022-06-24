@@ -1,4 +1,5 @@
 from vosk import Model, KaldiRecognizer, SetLogLevel
+import imageio_ffmpeg
 import os
 import subprocess
 import json
@@ -47,7 +48,7 @@ def transcribe(videofile: str, model_path: Optional[str] = None) -> List[dict]:
 
     process = subprocess.Popen(
         [
-            "ffmpeg",
+            imageio_ffmpeg.get_ffmpeg_exe(),
             "-nostdin",
             "-loglevel",
             "quiet",
