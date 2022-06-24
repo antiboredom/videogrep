@@ -12,7 +12,7 @@ Videogrep is a command line tool that searches through dialog in video files and
 
 #### Tutorial
 
-See my blog for a short [tutorial on videogrep and yt-dlp](https://lav.io/notes/videogrep-tutorial/).
+See my blog for a short [tutorial on videogrep and yt-dlp](https://lav.io/notes/videogrep-tutorial/), and part 2, on [videogrep and natural language processing](https://lav.io/notes/videogrep-and-spacy/).
 
 ----
 
@@ -20,20 +20,13 @@ See my blog for a short [tutorial on videogrep and yt-dlp](https://lav.io/notes/
 
 Videogrep is compatible with Python versions 3.6 to 3.10.
 
+To install:
 
 ```
 pip install videogrep
 ```
 
-If you want to transcribe videos, you also need to install [ffmpeg](http://ffmpeg.org/) and [vosk](https://alphacephei.com/vosk/).
-
-If you're on a mac with homebrew you install ffmpeg with:
-
-```
-brew install ffmpeg
-```
-
-To install vosk:
+If you want to transcribe videos, you also need to install [vosk](https://alphacephei.com/vosk/):
 
 ```
 pip install vosk
