@@ -5,6 +5,7 @@ import re
 import gc
 import time
 from . import vtt, srt, sphinx, fcpxml
+from pathlib import Path
 from typing import Optional, List, Union, Iterator
 
 from moviepy.editor import VideoFileClip, concatenate_videoclips
@@ -29,7 +30,7 @@ def find_transcript(videoname: str, prefer: Optional[str] = None) -> Optional[st
     if prefer is not None:
         _sub_exts = [prefer] + SUB_EXTS
 
-    all_files = [f.path for f in os.scandir(os.path.dirname(videoname)) if f.is_file()]
+    all_files = [str(f) for f in Path(videoname).parent.iterdir() if f.is_file()]
 
     for ext in _sub_exts:
         pattern = (
