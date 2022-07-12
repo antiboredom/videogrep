@@ -2,6 +2,7 @@ import videogrep
 import os
 import re
 from collections import Counter
+from pathlib import Path
 from moviepy.editor import VideoFileClip
 from pytest import approx
 import glob
@@ -9,7 +10,7 @@ import subprocess
 
 
 def File(path):
-    return os.path.join(os.path.dirname(__file__), path)
+    return str(Path(__file__).parent / Path(path))
 
 
 def test_version():
@@ -208,7 +209,7 @@ def test_export_files():
         export_clips=True,
         output=out1,
     )
-    files = glob.glob(File("test_outputs/") + "supercut_clip*.mp4")
+    files = glob.glob(File("test_outputs/supercut_clip*.mp4"))
     assert len(files) == 4
     testfile = VideoFileClip(files[0])
     assert testfile.duration == approx(0.52)
@@ -382,7 +383,6 @@ def test_sentence_search_vtt():
 def test_cli():
     infile = File("test_inputs/manifesto.mp4")
     outfile = File("test_outputs/supercut.mp4")
-
     subprocess.run(
         [
             "poetry",
@@ -398,7 +398,8 @@ def test_cli():
             "fragment",
             "--max-clips",
             "1",
-        ]
+        ],
+        shell=True,
     )
 
     clip = VideoFileClip(outfile)
