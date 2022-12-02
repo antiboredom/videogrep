@@ -520,3 +520,5 @@ def videogrep(
         create_supercut_in_batches(segments, output)
     else:
         create_supercut(segments, output)
+    basename, ext = os.path.splitext(output)
+    vtt.render(segments, basename + ".vtt")
