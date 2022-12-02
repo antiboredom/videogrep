@@ -58,6 +58,13 @@ def main():
         help="show results without making the supercut",
     )
     parser.add_argument(
+        "--export-vtt",
+        "-ev",
+        dest="write_vtt",
+        action="store_true",
+        help="write a WebVTT file next to the supercut",
+    )
+    parser.add_argument(
         "--randomize", "-r", action="store_true", help="randomize the clips"
     )
     parser.add_argument(
@@ -154,4 +161,5 @@ def main():
         random_order=args.randomize,
         resync=args.sync,
         export_clips=args.export_clips,
+        write_vtt=args.write_vtt,
     )

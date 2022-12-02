@@ -454,6 +454,7 @@ def videogrep(
     export_clips: bool = False,
     random_order: bool = False,
     demo: bool = False,
+    write_vtt: bool = False,
 ):
     """
     Creates a supercut of videos based on a search query
@@ -468,6 +469,7 @@ def videogrep(
     :param export_clips bool: Export individual clips rather than a single file (default False)
     :param random_order bool: Randomize the order of clips (default False)
     :param demo bool: Show the results of the search but don't actually make a supercut
+    :param write_vtt bool: Write a WebVTT file next to the supercut (default False)
     """
 
     segments = search(files, query, search_type)
@@ -520,5 +522,8 @@ def videogrep(
         create_supercut_in_batches(segments, output)
     else:
         create_supercut(segments, output)
-    basename, ext = os.path.splitext(output)
-    vtt.render(segments, basename + ".vtt")
+
+    # write WebVTT file
+    if write_vtt:
+        basename, ext = os.path.splitext(output)
+        vtt.render(segments, basename + ".vtt")
