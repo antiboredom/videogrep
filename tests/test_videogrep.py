@@ -244,6 +244,55 @@ def test_videogrep():
     #     os.remove(out2)
 
 
+def test_videogrep_vtt_out():
+    out1 = File("test_outputs/supercut1.mp4")
+    out1_vtt = Path(out1).with_suffix(".vtt")
+    videogrep.videogrep(
+        File("test_inputs/manifesto.mp4"),
+        "communist|communism",
+        search_type="fragment",
+        output=out1,
+    )
+    # By default do not write WebVTT file
+    assert not out1_vtt.exists()
+
+    # if os.path.exists(out1):
+    #     os.remove(out1)
+
+    out2 = File("test_outputs/supercut2.mp4")
+    out2_vtt = Path(out2).with_suffix(".vtt")
+    videogrep.videogrep(
+        File("test_inputs/manifesto.mp4"),
+        "communist|communism",
+        search_type="fragment",
+        output=out2,
+        padding=0.1,
+        write_vtt=True,
+    )
+    assert out2_vtt.exists()
+    with out2_vtt.open(encoding="utf-8") as vtt_file:
+        lines = vtt_file.readlines()
+        # each segment produces four lines, plus two for the header
+        # and last line
+        assert len(lines) == 8 * 4 + 2
+        assert lines[0].strip() == "WEBVTT"
+        # first cue's timespan is on line 4
+        # and starts at 0.0
+        first_cue = lines[3].strip().split()
+        first_cue_start_sec = videogrep.vtt.timestamp_to_secs(first_cue[0])
+        assert first_cue_start_sec == approx(0.0)
+        assert first_cue[1] == "-->"
+        # last segment's end time should be the same as the video duration
+        last_seg_end_ts = lines[-4].strip().split()[2]
+        last_seg_end_sec = videogrep.vtt.timestamp_to_secs(last_seg_end_ts)
+        assert last_seg_end_sec == approx(6.24)
+        assert lines[-3].strip() == "communists"
+        assert lines[-1].strip() == ""
+
+    # if os.path.exists(out2):
+    #     os.remove(out2)
+
+
 def test_no_transcript():
     testvid = File("test_inputs/whatever.mp4")
     segments = videogrep.search(testvid, "*", search_type="fragment")
