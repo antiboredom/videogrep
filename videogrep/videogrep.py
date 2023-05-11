@@ -311,7 +311,7 @@ def create_supercut(composition: List[dict], outputfile: str):
     final_clip.write_videofile(
         outputfile,
         codec="libx264",
-        temp_audiofile=f"temp-audio{time.time()}.m4a",
+        temp_audiofile=f"{outputfile}_temp-audio{time.time()}.m4a",
         remove_temp=True,
         audio_codec="aac",
     )
@@ -346,7 +346,7 @@ def create_supercut_in_batches(composition: List[dict], outputfile: str):
     video.write_videofile(
         outputfile,
         codec="libx264",
-        temp_audiofile=f"temp-audio{time.time()}.m4a",
+        temp_audiofile=f"{outputfile}_temp-audio{time.time()}.m4a",
         remove_temp=True,
         audio_codec="aac",
     )
@@ -383,7 +383,7 @@ def export_individual_clips(composition: List[dict], outputfile: str):
         clip.write_videofile(
             clipfilename,
             codec="libx264",
-            temp_audiofile="temp-audio.m4a",
+            temp_audiofile="{clipfilename}_temp-audio.m4a",
             remove_temp=True,
             audio_codec="aac",
         )
