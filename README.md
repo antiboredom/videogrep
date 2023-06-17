@@ -140,6 +140,14 @@ Exports clips as individual files rather than as a supercut.
 videogrep -i vid.mp4 --search 'whatever' --export-clips
 ```
 
+#### `--export-vtt / -ev`
+
+Exports the transcript of the supercut as a WebVTT file next to the video.
+
+```
+videogrep -i vid.mp4 --search 'whatever' --export-vtt
+```
+
 #### `--ngrams [num] / -n [num]`
 
 Shows common words and phrases from the video.

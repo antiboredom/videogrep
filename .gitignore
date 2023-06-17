@@ -3,7 +3,8 @@ env2
 venv/
 .venv/
 *.mp4
-!tests/manifesto.mp4
+tests/test_outputs/*
+!tests/test_inputs/manifesto.mp4
 *.pyc
 __pycache__
 build

@@ -136,3 +136,22 @@ def convert_to_srt(sentence):
         out.append(sentence["text"])
         out.append("")
     return "\n".join(out)
+
+def render(segments: List[dict], outputfile: str):
+    """
+    Render a list of segments to a WebVTT file
+    
+    :param segments: List of segments as returned by videogrep.search
+    :param outputfile: Filename for the WebVTT output
+    """
+
+    start = 0.0
+    with open(outputfile, "w", encoding="utf-8") as outfile:
+        outfile.write("WEBVTT\n")
+        for index, s in enumerate(segments):
+            clip_duration = s["end"] - s["start"]
+            end = start + clip_duration
+            start_t = secs_to_timestamp(start)
+            end_t = secs_to_timestamp(end)
+            outfile.write(f"\n{index}\n{start_t} --> {end_t}\n{s['content']}\n")
+            start = end
