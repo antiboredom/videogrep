@@ -4,7 +4,7 @@ venv/
 .venv/
 *.mp4
 tests/test_outputs/*
-!tests/manifesto.mp4
+!tests/test_inputs/manifesto.mp4
 *.pyc
 __pycache__
 build
