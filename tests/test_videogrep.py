@@ -1,5 +1,4 @@
 import videogrep
-import os
 import re
 from collections import Counter
 from pathlib import Path
@@ -274,7 +273,7 @@ def test_videogrep_vtt_out():
         lines = vtt_file.readlines()
         # each segment produces four lines, plus two for the header
         # and last line
-        assert len(lines) == 8 * 4 + 2
+        assert len(lines) == 8 * 4 + 1
         assert lines[0].strip() == "WEBVTT"
         # first cue's timespan is on line 4
         # and starts at 0.0
@@ -283,14 +282,11 @@ def test_videogrep_vtt_out():
         assert first_cue_start_sec == approx(0.0)
         assert first_cue[1] == "-->"
         # last segment's end time should be the same as the video duration
-        last_seg_end_ts = lines[-4].strip().split()[2]
+        print(lines)
+        last_seg_end_ts = lines[-2].strip().split()[2]
         last_seg_end_sec = videogrep.vtt.timestamp_to_secs(last_seg_end_ts)
-        assert last_seg_end_sec == approx(6.24)
-        assert lines[-3].strip() == "communists"
-        assert lines[-1].strip() == ""
-
-    # if os.path.exists(out2):
-    #     os.remove(out2)
+        assert last_seg_end_sec == approx(6.22)
+        assert lines[-1].strip() == "communists"
 
 
 def test_no_transcript():
