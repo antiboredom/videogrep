@@ -444,7 +444,7 @@ def test_cli():
             "--max-clips",
             "1",
         ],
-        shell=True,
+        shell=False,
     )
 
     clip = VideoFileClip(outfile)
