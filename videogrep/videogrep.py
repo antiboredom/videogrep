@@ -332,6 +332,57 @@ def get_input_type(composition: List[dict]):
     return input_type
 
 
+def plan_no_action(composition: list[dict], outputfile: str):
+    """
+    Check if user has asked to convert audio to video, which videogrep does not do.
+
+    :param composition List[dict]: List of timestamps in the format [{start, end, file}]
+    :param outputfile str: Path to save the video to
+    """
+    input_type = get_input_type(composition)
+    output_type = get_file_type(outputfile)
+
+    if (
+            (input_type == "audio") and (output_type == "video") and
+            (outputfile != "supercut.mp4")
+        ):
+        return True
+    else:
+        return False
+
+
+def plan_video_output(composition: list[dict], outputfile: str):
+    """
+    Check if videogrep should create a video output
+
+    :param composition List[dict]: List of timestamps in the format [{start, end, file}]
+    :param outputfile str: Path to save the video to
+    """
+    input_type = get_input_type(composition)
+    output_type = get_file_type(outputfile)
+
+    if (input_type == "video") and (output_type != "audio"):
+        return True
+    else:
+        return False
+
+
+def plan_audio_output(composition: list[dict], outputfile: str):
+    """
+    Check if videogrep should create an audio output
+
+    :param composition List[dict]: List of timestamps in the format [{start, end, file}]
+    :param outputfile str: Path to save the video to
+    """
+    input_type = get_input_type(composition)
+    output_type = get_file_type(outputfile)
+
+    if (input_type == "audio") or (output_type == "audio"):
+        return True
+    else:
+        return False
+
+
 def create_supercut(composition: List[dict], outputfile: str):
     """
     Concatenate video clips together.
@@ -340,15 +391,13 @@ def create_supercut(composition: List[dict], outputfile: str):
     :param outputfile str: Path to save the video to
     """
 
-    input_type = get_input_type(composition)
-    output_type = get_file_type(outputfile)
     all_filenames = set([c["file"] for c in composition])
 
-    if (input_type == "audio") and (output_type == "video"):
+    if plan_no_action(composition, outputfile):
         print("Videogrep is not able to convert audio input to video output.")
         print("Try using an audio output instead, like 'supercut.mp3'.")
         sys.exit("Exiting...")
-    elif (input_type == "video") and (output_type != "audio"):
+    elif plan_video_output(composition, outputfile):
         print("[+] Creating clips.")
         videofileclips = dict([(f, VideoFileClip(f)) for f in all_filenames])
         cut_clips = []
@@ -370,7 +419,7 @@ def create_supercut(composition: List[dict], outputfile: str):
             remove_temp=True,
             audio_codec="aac",
         )
-    else:
+    elif plan_audio_output(composition, outputfile):
         print("[+] Creating clips.")
         audiofileclips = dict([(f, AudioFileClip(f)) for f in all_filenames])
         cut_clips = []
@@ -406,17 +455,17 @@ def create_supercut_in_batches(composition: List[dict], outputfile: str):
     start_index = 0
     end_index = BATCH_SIZE
     batch_comp = []
-    input_type = get_input_type(composition)
-    output_type = get_file_type(outputfile)
 
-    if (input_type == "audio") and (output_type == "video"):
+    if plan_no_action(composition, outputfile):
         print("Videogrep is not able to convert audio input to video output.")
         print("Try using an audio output instead, like 'supercut.mp3'.")
         sys.exit("Exiting...")
-    elif (input_type == "video") and (output_type != "audio"):
+    elif plan_video_output(composition, outputfile):
         file_ext = ".mp4"
-    else:
+    elif plan_audio_output(composition, outputfile):
         file_ext = ".mp3"
+        if outputfile == "supercut.mp4":
+            outputfile = "supercut.mp3"
 
     while start_index < total_clips:
         filename = outputfile + ".tmp" + str(start_index) + file_ext
@@ -431,7 +480,7 @@ def create_supercut_in_batches(composition: List[dict], outputfile: str):
             end_index += BATCH_SIZE
             next
 
-    if (input_type == "video") and (output_type != "audio"):
+    if plan_video_output(composition, outputfile):
         clips = [VideoFileClip(filename) for filename in batch_comp]
         video = concatenate_videoclips(clips, method="compose")
         video.write_videofile(
@@ -441,11 +490,7 @@ def create_supercut_in_batches(composition: List[dict], outputfile: str):
             remove_temp=True,
             audio_codec="aac",
         )
-    else:
-        if outputfile == "supercut.mp4":
-            outputfile == "supercut.mp3"
-        else:
-            pass
+    elif plan_audio_output(composition, outputfile):
         clips = [AudioFileClip(filename) for filename in batch_comp]
         audio = concatenate_audioclips(clips)
         audio.write_audiofile(outputfile)
@@ -465,15 +510,13 @@ def export_individual_clips(composition: List[dict], outputfile: str):
     :param outputfile str: Path to save the videos to
     """
 
-    input_type = get_input_type(composition)
-    output_type = get_file_type(outputfile)
     all_filenames = set([c["file"] for c in composition])
 
-    if (input_type == "audio") and (output_type == "video"):
+    if plan_no_action(composition, outputfile):
         print("Videogrep is not able to convert audio input to video output.")
         print("Try using an audio output instead, like 'supercut.mp3'.")
         sys.exit("Exiting...")
-    elif (input_type == "video") and (output_type != "audio"):
+    elif plan_video_output(composition, outputfile):
         videofileclips = dict([(f, VideoFileClip(f)) for f in all_filenames])
         cut_clips = []
         for c in composition:
@@ -494,7 +537,7 @@ def export_individual_clips(composition: List[dict], outputfile: str):
                 remove_temp=True,
                 audio_codec="aac",
             )
-    else:
+    elif plan_audio_output(composition, outputfile):
         audiofileclips = dict([(f, AudioFileClip(f)) for f in all_filenames])
         cut_clips = []
 
@@ -506,7 +549,7 @@ def export_individual_clips(composition: List[dict], outputfile: str):
             cut_clips.append(audiofileclips[c["file"]].subclip(c["start"], c["end"]))
 
         if outputfile == "supercut.mp4":
-            outputfile == "supercut.mp3"
+            outputfile = "supercut.mp3"
 
         basename, ext = os.path.splitext(outputfile)
         print("[+] Writing output files.")
