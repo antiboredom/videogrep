@@ -7,6 +7,24 @@ from pytest import approx
 import glob
 import subprocess
 
+def get_duration(input_video):
+    result = subprocess.run(
+        [
+            "ffprobe",
+            "-v",
+            "error",
+            "-show_entries",
+            "format=duration",
+            "-of",
+            "default=noprint_wrappers=1:nokey=1",
+            input_video
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT
+    )
+
+    return round(float(result.stdout), 2)
+
 
 def File(path):
     return str(Path(__file__).parent / Path(path))
@@ -58,20 +76,39 @@ def test_find_sub():
     testsubfile = File("test_inputs/manifesto.json")
     assert videogrep.find_transcript(testvid) == testsubfile
 
+    testaud = File("test_inputs/manifesto_audio.mp3")
+    testsubfile = File("test_inputs/manifesto_audio.json")
+    assert videogrep.find_transcript(testaud) == testsubfile
+
     testvid = File("test_inputs/emptyvideo.mp4")
     testsubfile = File("test_inputs/emptyvideo.aa.vtt")
     assert videogrep.find_transcript(testvid) == testsubfile
+
+    testaud = File("test_inputs/emptyaudio.mp3")
+    testsubfile = File("test_inputs/emptyaudio.aa.vtt")
+    assert videogrep.find_transcript(testaud) == testsubfile
 
     testvid = File("test_inputs/emptyvideo 2.mp4")
     testsubfile = File("test_inputs/emptyvideo 2.mp4.aa.vtt")
     assert videogrep.find_transcript(testvid) == testsubfile
 
+    testaud = File("test_inputs/emptyaudio 2.mp3")
+    testsubfile = File("test_inputs/emptyaudio 2.mp3.aa.vtt")
+    assert videogrep.find_transcript(testaud) == testsubfile
+
     testvid = File("test_inputs/fakevideo.mp4")
     assert videogrep.find_transcript(testvid) == None
+
+    testaud = File("test_inputs/fakeaudio.mp3")
+    assert videogrep.find_transcript(testaud) == None
 
     testvid = File("test_inputs/Some Random Video [Pj-h6MEgE7I].mp4")
     testsubfile = File("test_inputs/Some Random Video [Pj-h6MEgE7I].de.vtt")
     assert videogrep.find_transcript(testvid) == testsubfile
+
+    testaud = File("test_inputs/Some Random Audio [Wt-f9FErE64].mp3")
+    testsubfile = File("test_inputs/Some Random Audio [Wt-f9FErE64].de.vtt")
+    assert videogrep.find_transcript(testaud) == testsubfile
 
 
 def test_parse_transcript():
@@ -210,8 +247,7 @@ def test_export_files():
     )
     files = glob.glob(File("test_outputs/supercut_clip*.mp4"))
     assert len(files) == 4
-    testfile = VideoFileClip(files[0])
-    assert testfile.duration == approx(0.52)
+    assert get_duration(File("test_outputs/supercut_clip_00000.mp4")) == approx(0.36)
 
 
 def test_videogrep():
@@ -222,8 +258,7 @@ def test_videogrep():
         search_type="fragment",
         output=out1,
     )
-    testfile = VideoFileClip(out1)
-    assert testfile.duration == approx(4.64)
+    assert get_duration(out1) == approx(4.64)
 
     # if os.path.exists(out1):
     #     os.remove(out1)
@@ -236,8 +271,7 @@ def test_videogrep():
         output=out2,
         padding=0.1,
     )
-    testfile = VideoFileClip(out2)
-    assert testfile.duration == approx(6.24)
+    assert get_duration(out2) == approx(6.24)
 
     # if os.path.exists(out2):
     #     os.remove(out2)
@@ -275,13 +309,13 @@ def test_videogrep_vtt_out():
         # and last line
         assert len(lines) == 8 * 4 + 1
         assert lines[0].strip() == "WEBVTT"
-        # first cue's timespan is on line 4
+        # first cue"s timespan is on line 4
         # and starts at 0.0
         first_cue = lines[3].strip().split()
         first_cue_start_sec = videogrep.vtt.timestamp_to_secs(first_cue[0])
         assert first_cue_start_sec == approx(0.0)
         assert first_cue[1] == "-->"
-        # last segment's end time should be the same as the video duration
+        # last segment"s end time should be the same as the video duration
         print(lines)
         last_seg_end_ts = lines[-2].strip().split()[2]
         last_seg_end_sec = videogrep.vtt.timestamp_to_secs(last_seg_end_ts)
@@ -443,9 +477,7 @@ def test_cli():
             "fragment",
             "--max-clips",
             "1",
-        ],
-        shell=False,
+        ]
     )
 
-    clip = VideoFileClip(outfile)
-    assert clip.duration == approx(0.36)
+    assert get_duration(outfile) == approx(0.36)
