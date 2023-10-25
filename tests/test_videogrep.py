@@ -23,7 +23,7 @@ def get_duration(input_video):
         stderr=subprocess.STDOUT
     )
 
-    return round(float(result.stdout), 2)
+    return float("{:.2f}".format(float(result.stdout)))
 
 
 def File(path):
@@ -249,6 +249,18 @@ def test_export_files():
     assert len(files) == 4
     assert get_duration(File("test_outputs/supercut_clip_00000.mp4")) == approx(0.36)
 
+    out2 = File("test_outputs/supercut_clip_audio.mp3")
+    videogrep.videogrep(
+        File("test_inputs/manifesto_audio.mp3"),
+        "communist",
+        search_type="fragment",
+        export_clips=True,
+        output=out2
+    )
+    files = glob.glob(File("test_outputs/supercut_clip_audio*.mp3"))
+    assert len(files) == 4
+    assert get_duration(File("test_outputs/supercut_clip_audio_00002.mp3")) == approx(0.57)
+
 
 def test_videogrep():
     out1 = File("test_outputs/supercut1.mp4")
@@ -275,6 +287,25 @@ def test_videogrep():
 
     # if os.path.exists(out2):
     #     os.remove(out2)
+
+    out3 = File("test_outputs/supercut1.mp3")
+    videogrep.videogrep(
+        File("test_inputs/manifesto_audio.mp3"),
+        "communist|communism",
+        search_type="fragment",
+        output=out3,
+    )
+    assert get_duration(out3) == approx(4.65)
+
+    out4 = File("test_outputs/supercut2.mp3")
+    videogrep.videogrep(
+        File("test_inputs/manifesto_audio.mp3"),
+        "communist|communism",
+        search_type="fragment",
+        output=out4,
+        padding=0.1,
+    )
+    assert get_duration(out4) == approx(6.27)
 
 
 def test_videogrep_vtt_out():
@@ -327,6 +358,10 @@ def test_no_transcript():
     testvid = File("test_inputs/whatever.mp4")
     segments = videogrep.search(testvid, "*", search_type="fragment")
     assert len(segments) == 0
+
+    testaud = File("test_inputs/whatever.mp3")
+    segments_audio = videogrep.search(testaud, "*", search_type="fragment")
+    assert len(segments_audio) == 0
 
 
 def test_sentence_search_json():
@@ -481,3 +516,25 @@ def test_cli():
     )
 
     assert get_duration(outfile) == approx(0.36)
+
+    infile_audio = File("test_inputs/manifesto_audio.mp3")
+    outfile_audio = File("test_outputs/supercut.mp3")
+    subprocess.run(
+        [
+            "poetry",
+            "run",
+            "videogrep",
+            "--input",
+            infile_audio,
+            "--output",
+            outfile_audio,
+            "--search",
+            "communist",
+            "--search-type",
+            "fragment",
+            "--max-clips",
+            "1"
+        ]
+    )
+
+    assert get_duration(outfile_audio) == approx(0.37)
