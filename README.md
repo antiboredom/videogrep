@@ -57,12 +57,12 @@ Videogrep will search for matching `srt` and `vtt` subtitles, as well as `json` 
 
 #### `--input [filename(s)] / -i [filename(s)]`
 
-File or files to use as input. Most video or audio formats should work.
+File or files to use as input. Most video or audio formats should work. If specifying multiple input files you can mix audio and video, but the resulting output will only be audio.
 
 
 #### `--output [filename] / -o [filename]`
 
-Name of the file to generate. By default this is `supercut.mp4`. Any standard video or audio extension will also work. (If you're using audio as input and you keep the default `supercut.mp4` as the output filename, videogrep will automatically change the output to `supercut.mp3`)
+Name of the file to generate. By default this is `supercut.mp4`. Any standard video or audio extension will also work. (If you're using audio input or mixed audio and video input and you keep the default `supercut.mp4` as the output filename, videogrep will automatically change the output to `supercut.mp3`)
 
 Videogrep will also recognize the following extensions for saving files:
   * `.mpv.edl`: generates an edl file playable by [mpv](https://mpv.io/) (useful for previews)
