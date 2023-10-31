@@ -4,11 +4,18 @@ import os
 import re
 import gc
 import time
+import mimetypes
+import sys
 from . import vtt, srt, sphinx, fcpxml
 from pathlib import Path
 from typing import Optional, List, Union, Iterator
 
-from moviepy.editor import VideoFileClip, concatenate_videoclips
+from moviepy.editor import (
+    VideoFileClip,
+    AudioFileClip,
+    concatenate_videoclips,
+    concatenate_audioclips
+)
 
 BATCH_SIZE = 20
 SUB_EXTS = [".json", ".vtt", ".srt", ".transcript"]
@@ -285,6 +292,97 @@ def search(
     return all_segments
 
 
+def get_file_type(filename: str):
+    """
+    Get filetype ('audio', 'video', 'text', etc...) for filename based on the
+    IANA Media Type, aka MIME type.
+
+    :param filename str: filename or Path of file
+    """
+    mimetypes.init()
+    ftype = mimetypes.guess_type(filename)[0]
+
+    if ftype != None:
+        filetype = ftype.split("/")[0]
+
+        return filetype
+
+    return "unknown"
+
+
+def get_input_type(composition: List[dict]):
+    """
+    Get input type of files ('audio' or 'video') for inputs based on the
+    IANA Media Type, aka MIME type, and using videgrep's composition dict.
+
+    :param composition List[dict]: List of timestamps in the format [{start, end, file}]
+    """
+    filenames = set([c["file"] for c in composition])
+    types = []
+
+    for f in filenames:
+        type = get_file_type(f)
+        types.append(type)
+
+    if "audio" in types:
+        input_type = "audio"
+    else:
+        input_type = "video"
+
+    return input_type
+
+
+def plan_no_action(composition: list[dict], outputfile: str):
+    """
+    Check if user has asked to convert audio to video, which videogrep does not do.
+
+    :param composition List[dict]: List of timestamps in the format [{start, end, file}]
+    :param outputfile str: Path to save the video to
+    """
+    input_type = get_input_type(composition)
+    output_type = get_file_type(outputfile)
+
+    if (
+            (input_type == "audio") and (output_type == "video") and
+            (outputfile != "supercut.mp4")
+        ):
+        return True
+    else:
+        return False
+
+
+def plan_video_output(composition: list[dict], outputfile: str):
+    """
+    Check if videogrep should create a video output
+
+    :param composition List[dict]: List of timestamps in the format [{start, end, file}]
+    :param outputfile str: Path to save the video to
+    """
+    input_type = get_input_type(composition)
+    output_type = get_file_type(outputfile)
+
+    if (input_type == "video") and (output_type != "audio"):
+        return True
+    else:
+        return False
+
+
+def plan_audio_output(composition: list[dict], outputfile: str):
+    """
+    Check if videogrep should create an audio output
+
+    :param composition List[dict]: List of timestamps in the format [{start, end, file}]
+    :param outputfile str: Path to save the video to
+    """
+    input_type = get_input_type(composition)
+    output_type = get_file_type(outputfile)
+
+    if (input_type == "audio") or (output_type == "audio"):
+        return True
+    else:
+        return False
+
+
 def create_supercut(composition: List[dict], outputfile: str):
     """
     Concatenate video clips together.
@@ -292,29 +390,58 @@ def create_supercut(composition: List[dict], outputfile: str):
     :param composition List[dict]: List of timestamps in the format [{start, end, file}]
     :param outputfile str: Path to save the video to
     """
-    print("[+] Creating clips.")
 
     all_filenames = set([c["file"] for c in composition])
-    videofileclips = dict([(f, VideoFileClip(f)) for f in all_filenames])
-    cut_clips = []
-    for c in composition:
-        if c["start"] < 0:
-            c["start"] = 0
-        if c["end"] > videofileclips[c["file"]].duration:
-            c["end"] = videofileclips[c["file"]].duration
-        cut_clips.append(videofileclips[c["file"]].subclip(c["start"], c["end"]))
 
-    print("[+] Concatenating clips.")
-    final_clip = concatenate_videoclips(cut_clips, method="compose")
+    if plan_no_action(composition, outputfile):
+        print("Videogrep is not able to convert audio input to video output.")
+        print("Try using an audio output instead, like 'supercut.mp3'.")
+        sys.exit("Exiting...")
+    elif plan_video_output(composition, outputfile):
+        print("[+] Creating clips.")
+        videofileclips = dict([(f, VideoFileClip(f)) for f in all_filenames])
+        cut_clips = []
+        for c in composition:
+            if c["start"] < 0:
+                c["start"] = 0
+            if c["end"] > videofileclips[c["file"]].duration:
+                c["end"] = videofileclips[c["file"]].duration
+            cut_clips.append(videofileclips[c["file"]].subclip(c["start"], c["end"]))
 
-    print("[+] Writing ouput file.")
-    final_clip.write_videofile(
-        outputfile,
-        codec="libx264",
-        temp_audiofile=f"{outputfile}_temp-audio{time.time()}.m4a",
-        remove_temp=True,
-        audio_codec="aac",
-    )
+        print("[+] Concatenating clips.")
+        final_clip = concatenate_videoclips(cut_clips, method="compose")
+
+        print("[+] Writing ouput file.")
+        final_clip.write_videofile(
+            outputfile,
+            codec="libx264",
+            temp_audiofile=f"{outputfile}_temp-audio{time.time()}.m4a",
+            remove_temp=True,
+            audio_codec="aac",
+        )
+    elif plan_audio_output(composition, outputfile):
+        print("[+] Creating clips.")
+        audiofileclips = dict([(f, AudioFileClip(f)) for f in all_filenames])
+        cut_clips = []
+
+        for c in composition:
+            if c["start"] < 0:
+                c["start"] = 0
+            if c["end"] > audiofileclips[c["file"]].duration:
+                c["end"] = audiofileclips[c["file"]].duration
+            cut_clips.append(audiofileclips[c["file"]].subclip(c["start"], c["end"]))
+
+        print("[+] Concatenating clips.")
+        final_clip = concatenate_audioclips(cut_clips)
+
+        print("[+] Writing output file.")
+        if outputfile == "supercut.mp4":
+            outputfile = "supercut.mp3"
+
+        # we don't currently use this, but may be useful for certain libraries
+        outputformat = outputfile.split('.')[-1]
+
+        final_clip.write_audiofile(outputfile)
 
 
 def create_supercut_in_batches(composition: List[dict], outputfile: str):
@@ -328,8 +455,20 @@ def create_supercut_in_batches(composition: List[dict], outputfile: str):
     start_index = 0
     end_index = BATCH_SIZE
     batch_comp = []
+
+    if plan_no_action(composition, outputfile):
+        print("Videogrep is not able to convert audio input to video output.")
+        print("Try using an audio output instead, like 'supercut.mp3'.")
+        sys.exit("Exiting...")
+    elif plan_video_output(composition, outputfile):
+        file_ext = ".mp4"
+    elif plan_audio_output(composition, outputfile):
+        file_ext = ".mp3"
+        if outputfile == "supercut.mp4":
+            outputfile = "supercut.mp3"
+
     while start_index < total_clips:
-        filename = outputfile + ".tmp" + str(start_index) + ".mp4"
+        filename = outputfile + ".tmp" + str(start_index) + file_ext
         try:
             create_supercut(composition[start_index:end_index], filename)
             batch_comp.append(filename)
@@ -341,15 +480,20 @@ def create_supercut_in_batches(composition: List[dict], outputfile: str):
             end_index += BATCH_SIZE
             next
 
-    clips = [VideoFileClip(filename) for filename in batch_comp]
-    video = concatenate_videoclips(clips, method="compose")
-    video.write_videofile(
-        outputfile,
-        codec="libx264",
-        temp_audiofile=f"{outputfile}_temp-audio{time.time()}.m4a",
-        remove_temp=True,
-        audio_codec="aac",
-    )
+    if plan_video_output(composition, outputfile):
+        clips = [VideoFileClip(filename) for filename in batch_comp]
+        video = concatenate_videoclips(clips, method="compose")
+        video.write_videofile(
+            outputfile,
+            codec="libx264",
+            temp_audiofile=f"{outputfile}_temp-audio{time.time()}.m4a",
+            remove_temp=True,
+            audio_codec="aac",
+        )
+    elif plan_audio_output(composition, outputfile):
+        clips = [AudioFileClip(filename) for filename in batch_comp]
+        audio = concatenate_audioclips(clips)
+        audio.write_audiofile(outputfile)
 
     # remove partial video files
     for filename in batch_comp:
@@ -367,26 +511,51 @@ def export_individual_clips(composition: List[dict], outputfile: str):
     """
 
     all_filenames = set([c["file"] for c in composition])
-    videofileclips = dict([(f, VideoFileClip(f)) for f in all_filenames])
-    cut_clips = []
-    for c in composition:
-        if c["start"] < 0:
-            c["start"] = 0
-        if c["end"] > videofileclips[c["file"]].duration:
-            c["end"] = videofileclips[c["file"]].duration
-        cut_clips.append(videofileclips[c["file"]].subclip(c["start"], c["end"]))
 
-    basename, ext = os.path.splitext(outputfile)
-    print("[+] Writing ouput files.")
-    for i, clip in enumerate(cut_clips):
-        clipfilename = basename + "_" + str(i).zfill(5) + ext
-        clip.write_videofile(
-            clipfilename,
-            codec="libx264",
-            temp_audiofile="{clipfilename}_temp-audio.m4a",
-            remove_temp=True,
-            audio_codec="aac",
-        )
+    if plan_no_action(composition, outputfile):
+        print("Videogrep is not able to convert audio input to video output.")
+        print("Try using an audio output instead, like 'supercut.mp3'.")
+        sys.exit("Exiting...")
+    elif plan_video_output(composition, outputfile):
+        videofileclips = dict([(f, VideoFileClip(f)) for f in all_filenames])
+        cut_clips = []
+        for c in composition:
+            if c["start"] < 0:
+                c["start"] = 0
+            if c["end"] > videofileclips[c["file"]].duration:
+                c["end"] = videofileclips[c["file"]].duration
+            cut_clips.append(videofileclips[c["file"]].subclip(c["start"], c["end"]))
+
+        basename, ext = os.path.splitext(outputfile)
+        print("[+] Writing output files.")
+        for i, clip in enumerate(cut_clips):
+            clipfilename = basename + "_" + str(i).zfill(5) + ext
+            clip.write_videofile(
+                clipfilename,
+                codec="libx264",
+                temp_audiofile="{clipfilename}_temp-audio.m4a",
+                remove_temp=True,
+                audio_codec="aac",
+            )
+    elif plan_audio_output(composition, outputfile):
+        audiofileclips = dict([(f, AudioFileClip(f)) for f in all_filenames])
+        cut_clips = []
+
+        for c in composition:
+            if c["start"] < 0:
+                c["start"] = 0
+            if c["end"] > audiofileclips[c["file"]].duration:
+                c["end"] = audiofileclips[c["file"]].duration
+            cut_clips.append(audiofileclips[c["file"]].subclip(c["start"], c["end"]))
+
+        if outputfile == "supercut.mp4":
+            outputfile = "supercut.mp3"
+
+        basename, ext = os.path.splitext(outputfile)
+        print("[+] Writing output files.")
+        for i, clip in enumerate(cut_clips):
+            clipfilename = basename + "_" + str(i).zfill(5) + ext
+            clip.write_audiofile(clipfilename)
 
 
 def export_m3u(composition: List[dict], outputfile: str):

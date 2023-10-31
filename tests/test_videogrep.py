@@ -7,13 +7,30 @@ from pytest import approx
 import glob
 import subprocess
 
+def get_duration(input_video):
+    result = subprocess.run(
+        [
+            "ffprobe",
+            "-v",
+            "error",
+            "-show_entries",
+            "format=duration",
+            "-of",
+            "default=noprint_wrappers=1:nokey=1",
+            input_video
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT
+    )
+    return float(result.stdout)
+
 
 def File(path):
     return str(Path(__file__).parent / Path(path))
 
 
 def test_version():
-    assert videogrep.__version__ == "2.1.2"
+    assert videogrep.__version__ == "2.2.0"
 
 
 def test_srts():
@@ -58,20 +75,39 @@ def test_find_sub():
     testsubfile = File("test_inputs/manifesto.json")
     assert videogrep.find_transcript(testvid) == testsubfile
 
+    testaud = File("test_inputs/manifesto_audio.mp3")
+    testsubfile = File("test_inputs/manifesto_audio.json")
+    assert videogrep.find_transcript(testaud) == testsubfile
+
     testvid = File("test_inputs/emptyvideo.mp4")
     testsubfile = File("test_inputs/emptyvideo.aa.vtt")
     assert videogrep.find_transcript(testvid) == testsubfile
+
+    testaud = File("test_inputs/emptyaudio.mp3")
+    testsubfile = File("test_inputs/emptyaudio.aa.vtt")
+    assert videogrep.find_transcript(testaud) == testsubfile
 
     testvid = File("test_inputs/emptyvideo 2.mp4")
     testsubfile = File("test_inputs/emptyvideo 2.mp4.aa.vtt")
     assert videogrep.find_transcript(testvid) == testsubfile
 
+    testaud = File("test_inputs/emptyaudio 2.mp3")
+    testsubfile = File("test_inputs/emptyaudio 2.mp3.aa.vtt")
+    assert videogrep.find_transcript(testaud) == testsubfile
+
     testvid = File("test_inputs/fakevideo.mp4")
     assert videogrep.find_transcript(testvid) == None
+
+    testaud = File("test_inputs/fakeaudio.mp3")
+    assert videogrep.find_transcript(testaud) == None
 
     testvid = File("test_inputs/Some Random Video [Pj-h6MEgE7I].mp4")
     testsubfile = File("test_inputs/Some Random Video [Pj-h6MEgE7I].de.vtt")
     assert videogrep.find_transcript(testvid) == testsubfile
+
+    testaud = File("test_inputs/Some Random Audio [Wt-f9FErE64].mp3")
+    testsubfile = File("test_inputs/Some Random Audio [Wt-f9FErE64].de.vtt")
+    assert videogrep.find_transcript(testaud) == testsubfile
 
 
 def test_parse_transcript():
@@ -210,8 +246,19 @@ def test_export_files():
     )
     files = glob.glob(File("test_outputs/supercut_clip*.mp4"))
     assert len(files) == 4
-    testfile = VideoFileClip(files[0])
-    assert testfile.duration == approx(0.52)
+    assert get_duration(File("test_outputs/supercut_clip_00000.mp4")) == approx(0.36)
+
+    out2 = File("test_outputs/supercut_clip_audio.mp3")
+    videogrep.videogrep(
+        File("test_inputs/manifesto_audio.mp3"),
+        "communist",
+        search_type="fragment",
+        export_clips=True,
+        output=out2
+    )
+    files = glob.glob(File("test_outputs/supercut_clip_audio*.mp3"))
+    assert len(files) == 4
+    assert get_duration(File("test_outputs/supercut_clip_audio_00002.mp3")) == approx(0.574694)
 
 
 def test_videogrep():
@@ -222,8 +269,7 @@ def test_videogrep():
         search_type="fragment",
         output=out1,
     )
-    testfile = VideoFileClip(out1)
-    assert testfile.duration == approx(4.64)
+    assert get_duration(out1) == approx(4.64)
 
     # if os.path.exists(out1):
     #     os.remove(out1)
@@ -236,11 +282,29 @@ def test_videogrep():
         output=out2,
         padding=0.1,
     )
-    testfile = VideoFileClip(out2)
-    assert testfile.duration == approx(6.24)
+    assert get_duration(out2) == approx(6.24)
 
     # if os.path.exists(out2):
     #     os.remove(out2)
+
+    out3 = File("test_outputs/supercut1.mp3")
+    videogrep.videogrep(
+        File("test_inputs/manifesto_audio.mp3"),
+        "communist|communism",
+        search_type="fragment",
+        output=out3,
+    )
+    assert get_duration(out3) == approx(4.649796)
+
+    out4 = File("test_outputs/supercut2.mp3")
+    videogrep.videogrep(
+        File("test_inputs/manifesto_audio.mp3"),
+        "communist|communism",
+        search_type="fragment",
+        output=out4,
+        padding=0.1,
+    )
+    assert get_duration(out4) == approx(6.269388)
 
 
 def test_videogrep_vtt_out():
@@ -275,13 +339,13 @@ def test_videogrep_vtt_out():
         # and last line
         assert len(lines) == 8 * 4 + 1
         assert lines[0].strip() == "WEBVTT"
-        # first cue's timespan is on line 4
+        # first cue timespan is on line 4
         # and starts at 0.0
         first_cue = lines[3].strip().split()
         first_cue_start_sec = videogrep.vtt.timestamp_to_secs(first_cue[0])
         assert first_cue_start_sec == approx(0.0)
         assert first_cue[1] == "-->"
-        # last segment's end time should be the same as the video duration
+        # last segment end time should be the same as the video duration
         print(lines)
         last_seg_end_ts = lines[-2].strip().split()[2]
         last_seg_end_sec = videogrep.vtt.timestamp_to_secs(last_seg_end_ts)
@@ -293,6 +357,10 @@ def test_no_transcript():
     testvid = File("test_inputs/whatever.mp4")
     segments = videogrep.search(testvid, "*", search_type="fragment")
     assert len(segments) == 0
+
+    testaud = File("test_inputs/whatever.mp3")
+    segments_audio = videogrep.search(testaud, "*", search_type="fragment")
+    assert len(segments_audio) == 0
 
 
 def test_sentence_search_json():
@@ -425,6 +493,173 @@ def test_sentence_search_vtt():
     assert len(segments) == 0
 
 
+def test_file_type():
+    videofile_1 = File("test_inputs/somevid.mp4")
+    assert videogrep.get_file_type(videofile_1) == "video"
+
+    videofile_2 = File("test_inputs/othervid.ogv")
+    assert videogrep.get_file_type(videofile_2) == "video"
+
+    audiofile_1 = File("test_inputs/someaudio.wav")
+    assert videogrep.get_file_type(audiofile_1) == "audio"
+
+    audiofile_2 = File("test_inputs/otheraudio.flac")
+    assert videogrep.get_file_type(audiofile_2) == "audio"
+
+    audiofile_3 = File("test_inputs/moreaudio.mp3")
+    assert videogrep.get_file_type(audiofile_3) == "audio"
+
+
+def test_inputs_type():
+    segments_audio = [
+        {
+            "file": File("test_inputs/long-audio-wav.wav"),
+            "start": 548.97,
+            "end": 550.92,
+            "content": "on on the in the enemy right over there"
+        },
+        {
+            "file": File("test_inputs/audio.flac"),
+            "start": 563.139082,
+            "end": 565.62,
+            "content": "over there at the filter going to rewriting"
+        },
+        {
+            "file": File("test_inputs/file.mp3"),
+            "start": 754.965,
+            "end": 756.525,
+            "content": "i will be over the minute they were going"
+        }
+    ]
+
+    segments_mixed = [
+        {
+            "file": File("test_inputs/long-audio-wav.wav"),
+            "start": 548.97,
+            "end": 550.92,
+            "content": "on on the in the enemy right over there"
+        },
+        {
+            "file": File("test_inputs/audio.flac"),
+            "start": 563.139082,
+            "end": 565.62,
+            "content": "over there at the filter going to rewriting"
+        },
+        {
+            "file": File("test_inputs/file.mov"),
+            "start": 754.965,
+            "end": 756.525,
+            "content": "i will be over the minute they were going"
+        }
+    ]
+
+    segments_video = [
+        {
+            "file": File("test_inputs/bigvid.mp4"),
+            "start": 548.97,
+            "end": 550.92,
+            "content": "on on the in the enemy right over there"
+        },
+        {
+            "file": File("test_inputs/video.webm"),
+            "start": 563.139082,
+            "end": 565.62,
+            "content": "over there at the filter going to rewriting"
+        },
+        {
+            "file": File("test_inputs/file.mov"),
+            "start": 754.965,
+            "end": 756.525,
+            "content": "i will be over the minute they were going"
+        }
+    ]
+
+    assert videogrep.get_input_type(segments_audio) == "audio"
+    assert videogrep.get_input_type(segments_mixed) == "audio"
+    assert videogrep.get_input_type(segments_video) == "video"
+
+
+def test_plans():
+    segments_audio = [
+        {
+            "file": File("test_inputs/long-audio-wav.wav"),
+            "start": 548.97,
+            "end": 550.92,
+            "content": "on on the in the enemy right over there"
+        },
+        {
+            "file": File("test_inputs/audio.flac"),
+            "start": 563.139082,
+            "end": 565.62,
+            "content": "over there at the filter going to rewriting"
+        },
+        {
+            "file": File("test_inputs/file.mp3"),
+            "start": 754.965,
+            "end": 756.525,
+            "content": "i will be over the minute they were going"
+        }
+    ]
+
+    segments_mixed = [
+        {
+            "file": File("test_inputs/long-audio-wav.wav"),
+            "start": 548.97,
+            "end": 550.92,
+            "content": "on on the in the enemy right over there"
+        },
+        {
+            "file": File("test_inputs/audio.flac"),
+            "start": 563.139082,
+            "end": 565.62,
+            "content": "over there at the filter going to rewriting"
+        },
+        {
+            "file": File("test_inputs/file.mov"),
+            "start": 754.965,
+            "end": 756.525,
+            "content": "i will be over the minute they were going"
+        }
+    ]
+
+    segments_video = [
+        {
+            "file": File("test_inputs/bigvid.mp4"),
+            "start": 548.97,
+            "end": 550.92,
+            "content": "on on the in the enemy right over there"
+        },
+        {
+            "file": File("test_inputs/video.webm"),
+            "start": 563.139082,
+            "end": 565.62,
+            "content": "over there at the filter going to rewriting"
+        },
+        {
+            "file": File("test_inputs/file.mov"),
+            "start": 754.965,
+            "end": 756.525,
+            "content": "i will be over the minute they were going"
+        }
+    ]
+
+    video_output = File("test_outputs/somevideo.mp4")
+    audio_output = File("test_outputs/someaudio.mp3")
+    default_output = "supercut.mp4"
+
+    assert videogrep.plan_no_action(segments_audio, video_output) == True
+    # no action plan should let default video output filename come through
+    # and then audio output plan should kick in for all audio input
+    assert (
+        videogrep.plan_no_action(segments_audio, default_output) == False and
+        videogrep.plan_audio_output(segments_audio, default_output) == True
+    )
+    assert videogrep.plan_video_output(segments_video, video_output) == True
+    assert videogrep.plan_audio_output(segments_video, audio_output) == True
+    assert videogrep.plan_audio_output(segments_mixed, audio_output) == True
+    assert videogrep.plan_audio_output(segments_audio, audio_output) == True
+
+
 def test_cli():
     infile = File("test_inputs/manifesto.mp4")
     outfile = File("test_outputs/supercut.mp4")
@@ -443,9 +678,29 @@ def test_cli():
             "fragment",
             "--max-clips",
             "1",
-        ],
-        shell=True,
+        ]
     )
 
-    clip = VideoFileClip(outfile)
-    assert clip.duration == approx(0.36)
+    assert get_duration(outfile) == approx(0.36)
+
+    infile_audio = File("test_inputs/manifesto_audio.mp3")
+    outfile_audio = File("test_outputs/supercut.mp3")
+    subprocess.run(
+        [
+            "poetry",
+            "run",
+            "videogrep",
+            "--input",
+            infile_audio,
+            "--output",
+            outfile_audio,
+            "--search",
+            "communist",
+            "--search-type",
+            "fragment",
+            "--max-clips",
+            "1"
+        ]
+    )
+
+    assert get_duration(outfile_audio) == approx(0.365714)
