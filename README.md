@@ -57,7 +57,7 @@ Videogrep will search for matching `srt` and `vtt` subtitles, as well as `json` 
 
 #### `--input [filename(s)] / -i [filename(s)]`
 
-File or files to use as input. Most video or audio formats should work. If specifying multiple input files you can mix audio and video, but the resulting output will only be audio.
+File or files to use as input. Most video or audio formats should work. If you mix audio and video input files, the resulting output will only be audio.
 
 
 #### `--output [filename] / -o [filename]`
@@ -155,7 +155,7 @@ videogrep -i vid.mp4 --search 'whatever' --export-vtt
 
 #### `--ngrams [num] / -n [num]`
 
-Shows common words and phrases from the video or audio.
+Shows common words and phrases from the video or audio file.
 
 ```
 videogrep -i vid.mp4 --ngrams 1

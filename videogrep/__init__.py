@@ -1,4 +1,4 @@
-__version__ = "2.1.3"
+__version__ = "2.2.0"
 
 from . import vtt, srt, sphinx, fcpxml
 from .videogrep import (

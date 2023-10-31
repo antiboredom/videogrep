@@ -22,9 +22,7 @@ def get_duration(input_video):
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT
     )
-
-    # FIX THIS - probably doesn't need float() x2
-    return float("{:.2f}".format(float(result.stdout)))
+    return float(result.stdout)
 
 
 def File(path):
@@ -32,7 +30,7 @@ def File(path):
 
 
 def test_version():
-    assert videogrep.__version__ == "2.1.3"
+    assert videogrep.__version__ == "2.2.0"
 
 
 def test_srts():
@@ -260,7 +258,7 @@ def test_export_files():
     )
     files = glob.glob(File("test_outputs/supercut_clip_audio*.mp3"))
     assert len(files) == 4
-    assert get_duration(File("test_outputs/supercut_clip_audio_00002.mp3")) == approx(0.57)
+    assert get_duration(File("test_outputs/supercut_clip_audio_00002.mp3")) == approx(0.574694)
 
 
 def test_videogrep():
@@ -296,7 +294,7 @@ def test_videogrep():
         search_type="fragment",
         output=out3,
     )
-    assert get_duration(out3) == approx(4.65)
+    assert get_duration(out3) == approx(4.649796)
 
     out4 = File("test_outputs/supercut2.mp3")
     videogrep.videogrep(
@@ -306,7 +304,7 @@ def test_videogrep():
         output=out4,
         padding=0.1,
     )
-    assert get_duration(out4) == approx(6.27)
+    assert get_duration(out4) == approx(6.269388)
 
 
 def test_videogrep_vtt_out():
@@ -341,13 +339,13 @@ def test_videogrep_vtt_out():
         # and last line
         assert len(lines) == 8 * 4 + 1
         assert lines[0].strip() == "WEBVTT"
-        # first cue"s timespan is on line 4
+        # first cue timespan is on line 4
         # and starts at 0.0
         first_cue = lines[3].strip().split()
         first_cue_start_sec = videogrep.vtt.timestamp_to_secs(first_cue[0])
         assert first_cue_start_sec == approx(0.0)
         assert first_cue[1] == "-->"
-        # last segment"s end time should be the same as the video duration
+        # last segment end time should be the same as the video duration
         print(lines)
         last_seg_end_ts = lines[-2].strip().split()[2]
         last_seg_end_sec = videogrep.vtt.timestamp_to_secs(last_seg_end_ts)
@@ -705,4 +703,4 @@ def test_cli():
         ]
     )
 
-    assert get_duration(outfile_audio) == approx(0.37)
+    assert get_duration(outfile_audio) == approx(0.365714)
