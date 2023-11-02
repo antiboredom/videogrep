@@ -182,3 +182,11 @@ Also see the examples folder for:
 * [creating supercuts based on youtube searches](https://github.com/antiboredom/videogrep/blob/master/examples/auto_youtube.py)
 * [creating supercuts from specific parts of speech](https://github.com/antiboredom/videogrep/blob/master/examples/parts_of_speech.py)
 * [creating supercuts from spacy pattern matching](https://github.com/antiboredom/videogrep/blob/master/examples/pattern_matcher.py)
+
+----
+
+## Credits
+
+Videogrep is maintained by [Sam Lavigne](https://lav.io), and built using [MoviePy](https://zulko.github.io/moviepy/) and [Vosk](https://alphacephei.com/vosk/). A big thanks goes out to all those who have [contributed](https://github.com/antiboredom/videogrep/graphs/contributors), particuarly to [Charlie Macquarie](https://charliemacquarie.com) for his efforts in getting the project to work with audio-only media.
+
+Videogrep has received financial support from the [Department of Digital Humanities, King’s College London](https://www.kcl.ac.uk/ddh) and from the [Clinic for Open Source Arts](https://clinicopensourcearts.org/).
