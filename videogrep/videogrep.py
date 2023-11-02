@@ -332,7 +332,7 @@ def get_input_type(composition: List[dict]):
     return input_type
 
 
-def plan_no_action(composition: list[dict], outputfile: str):
+def plan_no_action(composition: List[dict], outputfile: str):
     """
     Check if user has asked to convert audio to video, which videogrep does not do.
 
@@ -351,7 +351,7 @@ def plan_no_action(composition: list[dict], outputfile: str):
         return False
 
 
-def plan_video_output(composition: list[dict], outputfile: str):
+def plan_video_output(composition: List[dict], outputfile: str):
     """
     Check if videogrep should create a video output
 
@@ -367,7 +367,7 @@ def plan_video_output(composition: list[dict], outputfile: str):
         return False
 
 
-def plan_audio_output(composition: list[dict], outputfile: str):
+def plan_audio_output(composition: List[dict], outputfile: str):
     """
     Check if videogrep should create an audio output
 
