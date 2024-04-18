@@ -118,6 +118,12 @@ def main():
         action="version",
         version=__version__,
     )
+    parser.add_argument(
+        "--preview",
+        "-pr",
+        help="preview in mpv",
+        action="store_true",
+    )
     args = parser.parse_args()
 
     if args.ngrams > 0:
@@ -162,4 +168,5 @@ def main():
         resync=args.sync,
         export_clips=args.export_clips,
         write_vtt=args.write_vtt,
+        preview=args.preview,
     )

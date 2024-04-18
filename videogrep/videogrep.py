@@ -5,6 +5,7 @@ import re
 import gc
 import time
 import mimetypes
+import subprocess
 import sys
 from . import vtt, srt, sphinx, fcpxml
 from pathlib import Path
@@ -14,7 +15,7 @@ from moviepy.editor import (
     VideoFileClip,
     AudioFileClip,
     concatenate_videoclips,
-    concatenate_audioclips
+    concatenate_audioclips,
 )
 
 BATCH_SIZE = 20
@@ -343,9 +344,10 @@ def plan_no_action(composition: List[dict], outputfile: str):
     output_type = get_file_type(outputfile)
 
     if (
-            (input_type == "audio") and (output_type == "video") and
-            (outputfile != "supercut.mp4")
-        ):
+        (input_type == "audio")
+        and (output_type == "video")
+        and (outputfile != "supercut.mp4")
+    ):
         return True
     else:
         return False
@@ -439,7 +441,7 @@ def create_supercut(composition: List[dict], outputfile: str):
             outputfile = "supercut.mp3"
 
         # we don't currently use this, but may be useful for certain libraries
-        outputformat = outputfile.split('.')[-1]
+        outputformat = outputfile.split(".")[-1]
 
         final_clip.write_audiofile(outputfile)
 
@@ -624,6 +626,7 @@ def videogrep(
     random_order: bool = False,
     demo: bool = False,
     write_vtt: bool = False,
+    preview: bool = False,
 ):
     """
     Creates a supercut of videos based on a search query
@@ -664,6 +667,13 @@ def videogrep(
     if demo:
         for s in segments:
             print(s["file"], s["start"], s["end"], s["content"])
+        return True
+
+    # preview in mpv and exit
+    if preview:
+        lines = [f"{s['file']},{s['start']},{s['end']-s['start']}" for s in segments]
+        edl = "edl://" + ";".join(lines)
+        subprocess.run(["mpv", edl])
         return True
 
     # export individual clips
