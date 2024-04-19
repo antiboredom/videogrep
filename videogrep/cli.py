@@ -121,7 +121,7 @@ def main():
     parser.add_argument(
         "--preview",
         "-pr",
-        help="preview in mpv",
+        help="preview in mpv (requires mpv to be installed!)",
         action="store_true",
     )
     args = parser.parse_args()

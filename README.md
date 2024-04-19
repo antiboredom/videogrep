@@ -105,6 +105,9 @@ Maximum number of clips to use for the supercut.
 
 Show the search results without making the supercut.
 
+#### `--preview / -pr`
+
+Preview the supercut in mpv (requires [mpv to be installed](https://mpv.io/))
 
 #### `--randomize / -r`
 
