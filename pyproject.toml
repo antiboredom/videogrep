@@ -25,8 +25,10 @@ vosk = {version = "0.3.32", optional = true}
 full = ["vosk"]
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
 tox = "^3.25.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.1.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

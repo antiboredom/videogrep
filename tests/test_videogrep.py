@@ -7,6 +7,7 @@ from pytest import approx
 import glob
 import subprocess
 
+
 def get_duration(input_video):
     result = subprocess.run(
         [
@@ -17,10 +18,10 @@ def get_duration(input_video):
             "format=duration",
             "-of",
             "default=noprint_wrappers=1:nokey=1",
-            input_video
+            input_video,
         ],
         stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT
+        stderr=subprocess.STDOUT,
     )
     return float(result.stdout)
 
@@ -30,7 +31,7 @@ def File(path):
 
 
 def test_version():
-    assert videogrep.__version__ == "2.2.1"
+    assert videogrep.__version__ == "2.3.0"
 
 
 def test_srts():
@@ -254,11 +255,13 @@ def test_export_files():
         "communist",
         search_type="fragment",
         export_clips=True,
-        output=out2
+        output=out2,
     )
     files = glob.glob(File("test_outputs/supercut_clip_audio*.mp3"))
     assert len(files) == 4
-    assert get_duration(File("test_outputs/supercut_clip_audio_00002.mp3")) == approx(0.574694)
+    assert get_duration(File("test_outputs/supercut_clip_audio_00002.mp3")) == approx(
+        0.574694
+    )
 
 
 def test_videogrep():
@@ -516,20 +519,20 @@ def test_inputs_type():
             "file": File("test_inputs/long-audio-wav.wav"),
             "start": 548.97,
             "end": 550.92,
-            "content": "on on the in the enemy right over there"
+            "content": "on on the in the enemy right over there",
         },
         {
             "file": File("test_inputs/audio.flac"),
             "start": 563.139082,
             "end": 565.62,
-            "content": "over there at the filter going to rewriting"
+            "content": "over there at the filter going to rewriting",
         },
         {
             "file": File("test_inputs/file.mp3"),
             "start": 754.965,
             "end": 756.525,
-            "content": "i will be over the minute they were going"
-        }
+            "content": "i will be over the minute they were going",
+        },
     ]
 
     segments_mixed = [
@@ -537,20 +540,20 @@ def test_inputs_type():
             "file": File("test_inputs/long-audio-wav.wav"),
             "start": 548.97,
             "end": 550.92,
-            "content": "on on the in the enemy right over there"
+            "content": "on on the in the enemy right over there",
         },
         {
             "file": File("test_inputs/audio.flac"),
             "start": 563.139082,
             "end": 565.62,
-            "content": "over there at the filter going to rewriting"
+            "content": "over there at the filter going to rewriting",
         },
         {
             "file": File("test_inputs/file.mov"),
             "start": 754.965,
             "end": 756.525,
-            "content": "i will be over the minute they were going"
-        }
+            "content": "i will be over the minute they were going",
+        },
     ]
 
     segments_video = [
@@ -558,20 +561,20 @@ def test_inputs_type():
             "file": File("test_inputs/bigvid.mp4"),
             "start": 548.97,
             "end": 550.92,
-            "content": "on on the in the enemy right over there"
+            "content": "on on the in the enemy right over there",
         },
         {
             "file": File("test_inputs/video.webm"),
             "start": 563.139082,
             "end": 565.62,
-            "content": "over there at the filter going to rewriting"
+            "content": "over there at the filter going to rewriting",
         },
         {
             "file": File("test_inputs/file.mov"),
             "start": 754.965,
             "end": 756.525,
-            "content": "i will be over the minute they were going"
-        }
+            "content": "i will be over the minute they were going",
+        },
     ]
 
     assert videogrep.get_input_type(segments_audio) == "audio"
@@ -585,20 +588,20 @@ def test_plans():
             "file": File("test_inputs/long-audio-wav.wav"),
             "start": 548.97,
             "end": 550.92,
-            "content": "on on the in the enemy right over there"
+            "content": "on on the in the enemy right over there",
         },
         {
             "file": File("test_inputs/audio.flac"),
             "start": 563.139082,
             "end": 565.62,
-            "content": "over there at the filter going to rewriting"
+            "content": "over there at the filter going to rewriting",
         },
         {
             "file": File("test_inputs/file.mp3"),
             "start": 754.965,
             "end": 756.525,
-            "content": "i will be over the minute they were going"
-        }
+            "content": "i will be over the minute they were going",
+        },
     ]
 
     segments_mixed = [
@@ -606,20 +609,20 @@ def test_plans():
             "file": File("test_inputs/long-audio-wav.wav"),
             "start": 548.97,
             "end": 550.92,
-            "content": "on on the in the enemy right over there"
+            "content": "on on the in the enemy right over there",
         },
         {
             "file": File("test_inputs/audio.flac"),
             "start": 563.139082,
             "end": 565.62,
-            "content": "over there at the filter going to rewriting"
+            "content": "over there at the filter going to rewriting",
         },
         {
             "file": File("test_inputs/file.mov"),
             "start": 754.965,
             "end": 756.525,
-            "content": "i will be over the minute they were going"
-        }
+            "content": "i will be over the minute they were going",
+        },
     ]
 
     segments_video = [
@@ -627,20 +630,20 @@ def test_plans():
             "file": File("test_inputs/bigvid.mp4"),
             "start": 548.97,
             "end": 550.92,
-            "content": "on on the in the enemy right over there"
+            "content": "on on the in the enemy right over there",
         },
         {
             "file": File("test_inputs/video.webm"),
             "start": 563.139082,
             "end": 565.62,
-            "content": "over there at the filter going to rewriting"
+            "content": "over there at the filter going to rewriting",
         },
         {
             "file": File("test_inputs/file.mov"),
             "start": 754.965,
             "end": 756.525,
-            "content": "i will be over the minute they were going"
-        }
+            "content": "i will be over the minute they were going",
+        },
     ]
 
     video_output = File("test_outputs/somevideo.mp4")
@@ -651,8 +654,8 @@ def test_plans():
     # no action plan should let default video output filename come through
     # and then audio output plan should kick in for all audio input
     assert (
-        videogrep.plan_no_action(segments_audio, default_output) == False and
-        videogrep.plan_audio_output(segments_audio, default_output) == True
+        videogrep.plan_no_action(segments_audio, default_output) == False
+        and videogrep.plan_audio_output(segments_audio, default_output) == True
     )
     assert videogrep.plan_video_output(segments_video, video_output) == True
     assert videogrep.plan_audio_output(segments_video, audio_output) == True
@@ -699,7 +702,7 @@ def test_cli():
             "--search-type",
             "fragment",
             "--max-clips",
-            "1"
+            "1",
         ]
     )
 
