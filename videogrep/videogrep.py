@@ -421,6 +421,9 @@ def create_supercut(composition: List[dict], outputfile: str):
             remove_temp=True,
             audio_codec="aac",
         )
+
+        for clip in cut_clips:
+            clip.close()
     elif plan_audio_output(composition, outputfile):
         print("[+] Creating clips.")
         audiofileclips = dict([(f, AudioFileClip(f)) for f in all_filenames])
